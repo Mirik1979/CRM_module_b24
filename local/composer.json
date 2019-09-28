@@ -1,0 +1,11 @@
+{
+  "require": {
+
+  },
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "local\\": "class"
+    }
+  }
+}
