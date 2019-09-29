@@ -10,8 +10,6 @@ class SetEvents
     public static function init()
     {
 
-
-
     }
 
 }

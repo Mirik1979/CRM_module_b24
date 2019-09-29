@@ -28,6 +28,8 @@ class StandardClassesReplacementAutoloader
 				strtolower("QuoteSearchContentBuilder") => "/modules/crm/lib/search/quotesearchcontentbuilder.php",
 				strtolower("CCrmTemplateMapperBase") => "/modules/crm/classes/general/template_mapper.php",
 				strtolower("CCrmTemplateMapper") => "/modules/crm/classes/general/template_mapper.php",
+
+                strtolower("Bitrix\Crm\Controller\Action\Entity\SearchAction") => "/modules/crm/lib/controller/action/entity/searchaction.php",
 			);
 		}
 				

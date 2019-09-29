@@ -1,5 +1,5 @@
 <?php
-
+use Bitrix\Main\Loader;
 //Подключаем autoload
 require_once($_SERVER['DOCUMENT_ROOT'].'/local/vendor/autoload.php');
 
@@ -8,7 +8,6 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/local/vendor/autoload.php');
 local\Helpers\SetConst::init();
 
 //wcomm {
-	
 
 require_once dirname(__DIR__) ."/standard_classes_replacement/StandardClassesReplacementAutoloader.php";
 StandardClassesReplacementAutoloader::RegisterAutoloadFunction();
