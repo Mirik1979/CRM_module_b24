@@ -86,12 +86,12 @@ class SetConst{
         } elseif ($cache->startDataCache()) {
             if (Loader::includeModule('iblock'))
             {
-                $cIBlock = \CIBlock::GetList();
+                $cIBlock = \CIBlock::GetList([],["CHECK_PERMISSIONS" => "N"]);
                 while($items = $cIBlock->Fetch())
                 {
                     $items['CODE']=trim($items['CODE']);
                     $items['CODE']=mb_convert_case($items['CODE'], MB_CASE_LOWER);
-                    //echo "<pre>";print_r($items);echo "</pre>";
+                    //echo "<pre>";print_r($items['NAME']);echo "</pre>";
                     if(strlen($items['CODE'])>0){
                         $code = "iblock_".trim($items['CODE']);
                         $id = (int) $items['ID'];

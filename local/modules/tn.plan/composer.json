@@ -1,0 +1,17 @@
+{
+  "require": {
+
+  },
+  "config": {
+    "platform": {
+
+    },
+    "vendor-dir":"vendor"
+  },
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Tn\\Plan\\": "class/"
+    }
+  }
+}

@@ -1,5 +1,6 @@
 <?php
 use Bitrix\Main\Loader;
+require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/init.php');
 //Подключаем autoload
 require_once($_SERVER['DOCUMENT_ROOT'].'/local/vendor/autoload.php');
 
