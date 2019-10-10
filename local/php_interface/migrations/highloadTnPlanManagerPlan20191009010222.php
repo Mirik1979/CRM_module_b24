@@ -3,9 +3,9 @@
 namespace Sprint\Migration;
 
 
-class highloadTnPlanSubdivisionPlan20191009010254 extends Version
+class highloadTnPlanManagerPlan20191009010222 extends Version
 {
-    protected $description = "highload-блок TnPlanSubdivisionPlan";
+    protected $description = "highload-блок TnPlanManagerPlan";
 
     /**
      * @throws Exceptions\HelperException
@@ -15,12 +15,12 @@ class highloadTnPlanSubdivisionPlan20191009010254 extends Version
     {
         $helper = $this->getHelperManager();
         $hlblockId = $helper->Hlblock()->saveHlblock(array (
-            'NAME' => 'TnPlanSubdivisionPlan',
-            'TABLE_NAME' => 'tn_plan_subdivision_plan',
+            'NAME' => 'TnPlanManagerPlan',
+            'TABLE_NAME' => 'tn_plan_manager_plan',
         ));
         $helper->Hlblock()->saveField($hlblockId, array (
-            'FIELD_NAME' => 'UF_UNIT_ID',
-            'USER_TYPE_ID' => 'integer',
+            'FIELD_NAME' => 'UF_MANAGER_ID',
+            'USER_TYPE_ID' => 'employee',
             'XML_ID' => '',
             'SORT' => '100',
             'MULTIPLE' => 'N',
@@ -29,13 +29,7 @@ class highloadTnPlanSubdivisionPlan20191009010254 extends Version
             'SHOW_IN_LIST' => 'Y',
             'EDIT_IN_LIST' => 'Y',
             'IS_SEARCHABLE' => 'N',
-            'SETTINGS' =>
-                array (
-                    'SIZE' => 20,
-                    'MIN_VALUE' => 0,
-                    'MAX_VALUE' => 0,
-                    'DEFAULT_VALUE' => '',
-                ),
+            'SETTINGS' => NULL,
             'EDIT_FORM_LABEL' =>
                 array (
                     'en' => '',
@@ -202,6 +196,6 @@ class highloadTnPlanSubdivisionPlan20191009010254 extends Version
     public function down()
     {
         $helper = $this->getHelperManager();
-        $helper->Hlblock()->deleteHlblockIfExists('TnPlanSubdivisionPlan');
+        $helper->Hlblock()->deleteHlblockIfExists('TnPlanManagerPlan');
     }
 }
