@@ -1,0 +1,8 @@
+table.field_crm { margin-bottom: 0px }
+.crm-entity-widget-client-box-position {
+    overflow: hidden;
+    margin: 3px 0 0;
+    text-transform: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

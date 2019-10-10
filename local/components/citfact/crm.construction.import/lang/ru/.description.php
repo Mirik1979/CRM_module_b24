@@ -1,0 +1,6 @@
+<?
+$MESS["CRM_CONSTRUCTION_IMPORT_NAME"] = "Импорт объектов";
+$MESS["CRM_CONSTRUCTION_IMPORT_DESCRIPTION"] = "Импорт объектов";
+$MESS["CRM_NAME"] = "CRM";
+$MESS["CRM_CONSTRUCTION_NAME"] = "Объекты";
+?>

@@ -2,6 +2,8 @@
 /bitrix/
 /upload/
 /local/vendor/
+/local/var/
+/.htsecure
 /composer.phar
 /.composer
 /cgi-bin/
