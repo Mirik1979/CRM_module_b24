@@ -38,7 +38,7 @@ BX.addCustomEvent('onAfterActivitySave', function(params)
 							"closeIcon": false,
 							"overlay": {backgroundColor: 'black', opacity: '80' },
 							"className": "crm-list-end-deal",
-							"content": CallAddPopupWindowPrepareContent() //,
+							"content": CallMeetingPopupWindowPrepareContent() //,
 							
 						}
 					);
@@ -52,7 +52,7 @@ BX.addCustomEvent('onAfterActivitySave', function(params)
 });
 
 
-function CallAddPopupWindowPrepareContent()
+function CallMeetingPopupWindowPrepareContent()
 {
 	WrapperPC = BX.create("DIV");
 	
@@ -185,7 +185,8 @@ function CallAddPopupWindowPrepareContent()
 			{
 				
 				wcomm_PopupWindowCA.close();
-				
+
+
 				var request = BX.ajax.runAction('wcomm:callmodifications.api.activityajax.archivecampaign', {
 					data: {
 						CompanyID: wcomm_CALL_OWNER_ID
@@ -194,25 +195,50 @@ function CallAddPopupWindowPrepareContent()
 					 
 				request.then(function(response){
 					
-					if(('status' in response)&&(response['status'] == 'success')&&('data' in response)&&('ok' in response['data']))
+					if(('status' in response)&&(response['status'] == 'success'))
 					{
 						
-						wcomm_PopupWindowCA2 = new BX.PopupWindow(
-							"CallAddPopupWindow",
-							null,
-							{
-								"zIndex": 90001,
-								"closeByEsc": true,
-								"autoHide": false,
-								"offsetLeft": -50,
-								"closeIcon": false,
-								"overlay": {backgroundColor: 'black', opacity: '80' },
-								"className": "crm-list-end-deal",
-								"content": CallAddPopupWindowPrepareContent2(response['data']['ok'] == 'true')							
-							}
-						);
-						wcomm_PopupWindowCA2.show();
+						if(('data' in response)&&('ok' in response['data'])&&(response['data']['ok'] == 'true'))
+						{
+							BX.ajax({
+								url: "/bitrix/components/bitrix/bizproc.workflow.start/ajax.php",
+								data: {
+									"template_id": WCOMM_CALL_BIZ_PROC_ID,
+									"sessid": BX.bitrix_sessid(),
+									"ajax_action": "start_workflow",
+									"module_id": "crm",
+									"entity": "CCrmDocumentCompany",
+									"document_type": "COMPANY",
+									"document_id": "COMPANY_" + wcomm_CALL_OWNER_ID,
+								},
+								method: 'POST',
+								dataType: 'json',
+								timeout: 30,
+								async: true,
+								processData: true,
+								scriptsRunFirst: true,
+								emulateOnload: true,
+								start: true,
+								cache: false,
+								onsuccess: function(data2){
+									
+									ShowArchivePopupWindow(true);
+									
+								},
+								onfailure: function(){
+									
+									ShowArchivePopupWindow(false);
+									
+								}
+							});
+							
+							return;
+						}
+						
+						
 					}
+					
+					ShowArchivePopupWindow(false);
 					
 				});
 				
@@ -225,9 +251,27 @@ function CallAddPopupWindowPrepareContent()
 	return WrapperPC;
 }
 
+function ShowArchivePopupWindow(success)
+{
+	wcomm_PopupWindowCA2 = new BX.PopupWindow(
+		"CallAddPopupWindow",
+		null,
+		{
+			"zIndex": 90001,
+			"closeByEsc": true,
+			"autoHide": false,
+			"offsetLeft": -50,
+			"closeIcon": false,
+			"overlay": {backgroundColor: 'black', opacity: '80' },
+			"className": "crm-list-end-deal",
+			"content": ArchivePopupWindowPrepareContent(success)							
+		}
+	);
 
+	wcomm_PopupWindowCA2.show();
+}
 
-function CallAddPopupWindowPrepareContent2(success)
+function ArchivePopupWindowPrepareContent(success)
 {
 	WrapperPC = BX.create("DIV");
 	
