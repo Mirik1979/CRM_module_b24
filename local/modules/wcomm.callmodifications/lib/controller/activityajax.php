@@ -50,7 +50,12 @@ class ActivityAjax extends Controller
 			{				
 				$HLiBlock_CallDisplayPopupClass::Delete($row["ID"]);
 				
-				return ['show' => 'true', 'OWNER_TYPE_ID' => $row["UF_OWNER_TYPE_ID"], 'OWNER_ID' => $row["UF_OWNER_ID"]];
+				return [
+					'show' => 'true', 
+					'OWNER_TYPE_ID' => $row["UF_OWNER_TYPE_ID"], 
+					'OWNER_ID' => $row["UF_OWNER_ID"], 
+					'COMPANY_ID' => $row["UF_COMPANY_ID"]
+				];
 			}
 			
 		}

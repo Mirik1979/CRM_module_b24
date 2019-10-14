@@ -177,7 +177,7 @@ class EventListener
 		if($CallsCount < 1)
 		{
 			
-			self::AddOrUpdateCallDisplayPopup($GLOBALS['USER']->GetID(), $arrParam["OWNER_TYPE_ID"], $arrParam["OWNER_ID"]);
+			self::AddOrUpdateCallDisplayPopup($GLOBALS['USER']->GetID(), $arrParam["OWNER_TYPE_ID"], $arrParam["OWNER_ID"], $CompanyID);
 			
 			return true;
 		}
@@ -226,7 +226,7 @@ class EventListener
 		return ($CountC + $CountM);
 	}
 	
-	static function AddOrUpdateCallDisplayPopup($UserID, $OwnerTypeID, $OwnerID)
+	static function AddOrUpdateCallDisplayPopup($UserID, $OwnerTypeID, $OwnerID, $CompanyID)
 	{
 
 		self::$HLiBlock_CallDisplayPopupClass = self::GetHLiBlockID(self::HLiBLOCK_CDP_NAME);
@@ -245,7 +245,8 @@ class EventListener
 				$arFields = array (
 					"UF_OWNER_TYPE_ID" => $OwnerTypeID,
 					"UF_OWNER_ID" => $OwnerID,
-					"UF_USER_ID" => $UserID
+					"UF_USER_ID" => $UserID,
+					"UF_COMPANY_ID" => $CompanyID
 				);
 								
 				$result = self::$HLiBlock_CallDisplayPopupClass::update($row["ID"],$arFields);
@@ -260,7 +261,8 @@ class EventListener
 				$arFields = array (
 					"UF_OWNER_TYPE_ID" => $OwnerTypeID,
 					"UF_OWNER_ID" => $OwnerID,
-					"UF_USER_ID" => $UserID
+					"UF_USER_ID" => $UserID,
+					"UF_COMPANY_ID" => $CompanyID
 				);
 								
 				$result = self::$HLiBlock_CallDisplayPopupClass::add($arFields);

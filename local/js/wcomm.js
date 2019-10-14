@@ -2,6 +2,7 @@ wcomm_PopupWindowCA = null;
 wcomm_PopupWindowCA2 = null;
 wcomm_CALL_OWNER_TYPE_ID = null;
 wcomm_CALL_OWNER_ID = null;
+wcomm_COMPANY_ID = null;
 
 WCOMM_CALL_BIZ_PROC_ID = 20;
 
@@ -26,6 +27,7 @@ BX.addCustomEvent('onAfterActivitySave', function(params)
 				{
 					wcomm_CALL_OWNER_TYPE_ID = response['data']['OWNER_TYPE_ID'];
 					wcomm_CALL_OWNER_ID = response['data']['OWNER_ID'];
+					wcomm_COMPANY_ID = response['data']['COMPANY_ID'];
 					
 					wcomm_PopupWindowCA = new BX.PopupWindow(
 						"CallAddPopupWindow",
@@ -158,7 +160,7 @@ function CallMeetingPopupWindowPrepareContent()
 	
 	
 
-	if(wcomm_CALL_OWNER_TYPE_ID == BX.CrmEntityType.enumeration.company)
+	if(true)
 	{
 
 		failureTitle = BX.message('CRM_WCOMM_TO_ARCHIVE');
@@ -189,7 +191,7 @@ function CallMeetingPopupWindowPrepareContent()
 
 				var request = BX.ajax.runAction('wcomm:callmodifications.api.activityajax.archivecampaign', {
 					data: {
-						CompanyID: wcomm_CALL_OWNER_ID
+						CompanyID: wcomm_COMPANY_ID
 					}
 				});
 					 
@@ -209,7 +211,7 @@ function CallMeetingPopupWindowPrepareContent()
 									"module_id": "crm",
 									"entity": "CCrmDocumentCompany",
 									"document_type": "COMPANY",
-									"document_id": "COMPANY_" + wcomm_CALL_OWNER_ID,
+									"document_id": "COMPANY_" + wcomm_COMPANY_ID,
 								},
 								method: 'POST',
 								dataType: 'json',
