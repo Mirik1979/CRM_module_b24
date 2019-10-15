@@ -128,7 +128,7 @@ foreach($arResult['CONTACT'] as $sKey =>  $arContact)
 		'ONCLICK' => "BX.Crm.Page.open('".CUtil::JSEscape($arContact['PATH_TO_CONTACT_SHOW'])."')",
 		'DEFAULT' => true
 	);
-	if($arContact['EDIT'] && $USER->isAdmin())
+	if($arContact['EDIT'])
 	{
 		$arActions[] = array(
 			'TITLE' => GetMessage('CRM_CONTACT_EDIT_TITLE'),
@@ -197,7 +197,7 @@ foreach($arResult['CONTACT'] as $sKey =>  $arContact)
 
 		$arActions[] = array('SEPARATOR' => true);
 
-		if($arContact['EDIT'] && $USER->isAdmin())
+		if($arContact['EDIT'])
 		{
 		    if ($USER->isAdmin()) {
                 $arActions[] = $arActivityMenuItems[] = array(
@@ -301,7 +301,7 @@ foreach($arResult['CONTACT'] as $sKey =>  $arContact)
 				);
 			}
 
-			if($arResult['IS_BIZPROC_AVAILABLE'])
+			if($arResult['IS_BIZPROC_AVAILABLE'] && $USER->isAdmin())
 			{
 				$arActions[] = array('SEPARATOR' => true);
 

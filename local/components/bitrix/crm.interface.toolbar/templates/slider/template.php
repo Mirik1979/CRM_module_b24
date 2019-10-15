@@ -113,7 +113,7 @@ if($communicationPanel)
 			{
 				?><div id="<?=htmlspecialcharsbx($emailButtonId)?>" class="ui-btn ui-btn-light-border ui-btn-icon-mail ui-btn-themes"></div><?
 			}?>
-			<script type="text/javascript">
+			    <script type="text/javascript">
 				BX.ready(
 					function()
 					{
@@ -235,7 +235,7 @@ foreach($items as $item)
 	$icon = isset($item['ICON']) ? htmlspecialcharsbx($item['ICON']) : '';
 	$onClick = isset($item['ONCLICK']) ? htmlspecialcharsbx($item['ONCLICK']) : '';
 
-	if($type === 'crm-context-menu' && $USER->isAdmin())
+	if($type === 'crm-context-menu')
 	{
 		$menuItems = isset($item['ITEMS']) && is_array($item['ITEMS']) ? $item['ITEMS'] : array();
 
@@ -455,7 +455,7 @@ foreach($items as $item)
 		<?
 		endif;
 	}
-	else
+	elseif ($USER->isAdmin())
 	{
 		?><a target="_top" class="webform-small-button webform-small-button-blue crm-top-toolbar-add<?=$icon !== '' ? " {$icon}" : ''?>" href="<?=$link?>" title="<?=$title?>"<?=$onClick !== '' ? " onclick=\"{$onClick}; return false;\"" : ''?>><?=$text?></a><?
 	}

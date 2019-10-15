@@ -130,7 +130,7 @@ foreach($arResult['DEAL'] as $sKey =>  $arDeal)
 		'DEFAULT' => true
 	);
 
-	if($arDeal['EDIT'] && $USER->isAdmin())
+	if($arDeal['EDIT'])
 	{
 		$arActions[] = array(
 			'TITLE' => GetMessage('CRM_DEAL_EDIT_TITLE'),
@@ -176,7 +176,7 @@ foreach($arResult['DEAL'] as $sKey =>  $arDeal)
 		);
 	}
 
-	$arActions[] = array('SEPARATOR' => true);
+	$arActions[] = array('SEPARATOR' => false);
 
 	if(!$isInternal && $arParams['IS_RECURRING'] !== 'Y')
 	{
@@ -196,7 +196,7 @@ foreach($arResult['DEAL'] as $sKey =>  $arDeal)
 				}
 				if(!empty($arSchemeList))
 				{
-					$arActions[] = array('SEPARATOR' => true);
+					$arActions[] = array('SEPARATOR' => false);
 					$arActions[] = array(
 						'TITLE' => GetMessage('CRM_DEAL_CREATE_ON_BASIS_TITLE'),
 						'TEXT' => GetMessage('CRM_DEAL_CREATE_ON_BASIS'),
@@ -213,7 +213,7 @@ foreach($arResult['DEAL'] as $sKey =>  $arDeal)
 				);
 			}
 
-			$arActions[] = array('SEPARATOR' => true);
+			$arActions[] = array('SEPARATOR' => false);
 		}
 
 		if($arDeal['EDIT'])
@@ -307,7 +307,7 @@ foreach($arResult['DEAL'] as $sKey =>  $arDeal)
 
 			if($arResult['IS_BIZPROC_AVAILABLE'])
 			{
-				$arActions[] = array('SEPARATOR' => true);
+				$arActions[] = array('SEPARATOR' => false);
 				if(isset($arContact['PATH_TO_BIZPROC_LIST']) && $arContact['PATH_TO_BIZPROC_LIST'] !== '')
 					$arActions[] = array(
 						'TITLE' => GetMessage('CRM_DEAL_BIZPROC_TITLE'),
