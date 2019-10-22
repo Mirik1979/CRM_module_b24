@@ -62,7 +62,7 @@ class StoreTable extends DataManager
         return $stores;
     }
 
-    public static function onBeforeDelete(Entity\Event $event)
+    /*public static function onBeforeDelete(Entity\Event $event)
     {
         $primary = $event->getParameter("primary");
         $rs = static::GetByID($primary["ID"]);
@@ -74,7 +74,7 @@ class StoreTable extends DataManager
         }
     }
 
-    /*Удаление старого файла при обновлении элемента*/
+
     public static function onBeforeUpdate(Entity\Event $event)
     {
         $fields = $event->getParameter("fields");
@@ -88,6 +88,6 @@ class StoreTable extends DataManager
                 }
             }
         }
-    }
+    } */
 
 }
