@@ -31,79 +31,8 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
         parent::__construct($component);
 
-        self::$headers = array(
-            array(
-                'id' => 'ID',
-                'name' => Loc::getMessage('CRMSTORES_HEADER_ID'),
-                'sort' => 'ID',
-                'first_order' => 'desc',
-                'type' => 'int',
-            ),
-            array(
-                'id' => 'NAME',
-                'name' => Loc::getMessage('CRMSTORES_HEADER_NAME'),
-                'sort' => 'NAME',
-                'default' => true,
-            ),
-            array(
-                'id' => 'ASSIGNED_BY',
-                'name' => Loc::getMessage('CRMSTORES_HEADER_ASSIGNED_BY'),
-                'sort' => 'ASSIGNED_BY_ID',
-                'default' => true,
-            ),
-            array(
-                'id' => 'ADDRESS',
-                'name' => Loc::getMessage('CRMSTORES_HEADER_ADDRESS'),
-                'sort' => 'ADDRESS',
-                'default' => true,
-            ),
-            array(
-                'id' => 'SITE',
-                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_SITE'),
-                'default' => true,
-            )
-        );
-
-        self::$filterFields = array(
-            array(
-                'id' => 'ID',
-                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_ID')
-            ),
-            array(
-                'id' => 'NAME',
-                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_NAME'),
-                'default' => true,
-            ),
-            array(
-                'id' => 'ASSIGNED_BY_ID',
-                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_ASSIGNED_BY'),
-                'type' => 'dest_selector',
-                'default' => true,
-                'params' => array(
-                    'apiVersion' => 3,
-                    'context' => 'CRM_CONTACT_FILTER_ASSIGNED_BY_ID',
-                    'multiple' => 'Y',
-                    'contextCode' => 'U',
-                    'enableAll' => 'N',
-                    'enableSonetgroups' => 'N',
-                    'allowEmailInvitation' => 'N',
-                    'allowSearchEmailUsers' => 'N',
-                    'departmentSelectDisable' => 'Y',
-                    'isNumeric' => 'Y',
-                    'prefix' => 'U'
-                )
-            ),
-            array(
-                'id' => 'ADDRESS',
-                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_ADDRESS'),
-                'default' => true,
-            ),
-            array(
-                'id' => 'SITE',
-                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_SITE'),
-                'default' => true,
-            )
-        );
+        self::$headers = $this->getHeaders();
+        self::$filterFields = $this->getFilters();
 
         self::$filterPresets = array(
             'my_stores' => array(
@@ -200,11 +129,116 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         $this->includeComponentTemplate();
     }
 
+    private function getHeaders()
+    {
+        global $USER_FIELD_MANAGER;
+        $headers = array (
+            array(
+                'id' => 'ID',
+                'name' => Loc::getMessage('CRMSTORES_HEADER_ID'),
+                'sort' => 'ID',
+                'first_order' => 'desc',
+                'type' => 'int',
+            ),
+            array(
+                'id' => 'NAME',
+                'name' => Loc::getMessage('CRMSTORES_HEADER_NAME'),
+                'sort' => 'NAME',
+                'default' => true,
+            ),
+            array(
+                'id' => 'ASSIGNED_BY',
+                'name' => Loc::getMessage('CRMSTORES_HEADER_ASSIGNED_BY'),
+                'sort' => 'ASSIGNED_BY_ID',
+                'default' => true,
+            ),
+            array(
+                'id' => 'ADDRESS',
+                'name' => Loc::getMessage('CRMSTORES_HEADER_ADDRESS'),
+                'sort' => 'ADDRESS',
+                'default' => true,
+            )
+        );
+        if (Bitrix\Main\Loader::includeModule('crm')) {
+            $CCrmFields = new CCrmFields($USER_FIELD_MANAGER, StoreTable::getUfId());
+        }
+        $arUserFields = $CCrmFields->GetFields();
+        //$arUserFields = $USER_FIELD_MANAGER->GetUserFields(self::getUfId());
+        foreach ($arUserFields as $FIELD_ID => $arField)
+        {
+            $newheader = array(
+                'id' => $FIELD_ID,
+                'name' => $arField['EDIT_FORM_LABEL'],
+                'sort' => $FIELD_ID,
+                'default' => $arField['SHOW_IN_LIST'],
+            );
+            array_push($headers, $newheader);
+        }
+
+        return $headers;
+    }
+
+    private function getFilters()
+    {
+        global $USER_FIELD_MANAGER;
+        $filter = array (
+            array(
+                'id' => 'ID',
+                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_ID')
+            ),
+            array(
+                'id' => 'NAME',
+                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_NAME'),
+                'default' => true,
+            ),
+            array(
+                'id' => 'ASSIGNED_BY_ID',
+                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_ASSIGNED_BY'),
+                'type' => 'dest_selector',
+                'default' => true,
+                'params' => array(
+                    'apiVersion' => 3,
+                    'context' => 'CRM_STORES_FILTER_ASSIGNED_BY_ID',
+                    'multiple' => 'Y',
+                    'contextCode' => 'U',
+                    'enableAll' => 'N',
+                    'enableSonetgroups' => 'N',
+                    'allowEmailInvitation' => 'N',
+                    'allowSearchEmailUsers' => 'N',
+                    'departmentSelectDisable' => 'Y',
+                    'isNumeric' => 'Y',
+                    'prefix' => 'U'
+                )
+            ),
+            array(
+                'id' => 'ADDRESS',
+                'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_ADDRESS'),
+                'default' => true,
+            )
+        );
+        if (\Bitrix\Main\Loader::includeModule('crm')) {
+            $CCrmFields = new CCrmFields($USER_FIELD_MANAGER, StoreTable::getUfId());
+        }
+        $arUserFields = $CCrmFields->GetFields();
+
+        foreach ($arUserFields as $FIELD_ID => $arField) {
+            $newheader = array(
+                'id' => $FIELD_ID,
+                'name' => $arField['EDIT_FORM_LABEL'],
+                'default' => $arField['SHOW_IN_LIST']
+            );
+            array_push($filter, $newheader);
+        }
+
+        return $filter;
+    }
+
+
     private function getStores($params = array())
     {
-        $dbStores = StoreTable::getList($params);
-        $stores = $dbStores->fetchAll();
 
+        $stores = StoreTable::getListEx($params);
+        
         $userIds = array_column($stores, 'ASSIGNED_BY_ID');
         $userIds = array_unique($userIds);
         $userIds = array_filter(
@@ -248,7 +282,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
         $allRows = $request->get('action_all_rows_' . self::GRID_ID) == 'Y';
         if ($allRows) {
-            $dbStores = StoreTable::getList(array(
+            $dbStores = StoreTable::getListEx(array(
                 'filter' => $currentFilter,
                 'select' => array('ID'),
             ));
