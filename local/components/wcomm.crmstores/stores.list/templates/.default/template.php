@@ -15,6 +15,15 @@ if (!Loader::includeModule('crm')) {
     return;
 }
 
+if (CModule::IncludeModule('bitrix24') && !\Bitrix\Crm\CallList\CallList::isAvailable())
+{
+    CBitrix24::initLicenseInfoPopupJS();
+}
+
+//$context = Context::getCurrent();
+//$request = $context->getRequest();
+//print_r($request);
+
 $asset = Asset::getInstance();
 $asset->addJs('/bitrix/js/crm/interface_grid.js');
 $asset->addJs('/bitrix/js/crm/activity.js');
@@ -61,13 +70,15 @@ $gridManagerCfg = array(
 );
 $prefix = $arResult['GRID_ID'];
 
+$prefix1 = 'CRM_COMPANY_LIST_V12';
+
 $snippet = new \Bitrix\Main\Grid\Panel\Snippet();
 $applyButton = $snippet->getApplyButton(
     array(
         'ONCHANGE' => array(
             array(
                 'ACTION' => Bitrix\Main\Grid\Panel\Actions::CALLBACK,
-                'DATA' => array(array('JS' => "BX.CrmUIGridExtension.processApplyButtonClick('{$gridManagerID}')"))
+                'DATA' => array(array('JS' => "BX.CrmUIGridExtension.processApplyButtonClick('{$gridManagerId}')"))
             )
         )
     )
@@ -81,7 +92,7 @@ $snippet->setButtonActions(
         array(
             'ACTION' => Bitrix\Main\Grid\Panel\Actions::CALLBACK,
             'CONFIRM' => false,
-            'DATA' => array(array('JS' => "BX.CrmUIGridExtension.applyAction('{$gridManagerID}', 'delete')"))
+            'DATA' => array(array('JS' => "BX.CrmUIGridExtension.applyAction('{$gridManagerId}', 'delete')"))
         )
     )
 );
@@ -96,13 +107,12 @@ $actionList[] = array(
         ),
         array(
             'ACTION' => Bitrix\Main\Grid\Panel\Actions::CALLBACK,
-            'DATA' => array(array('JS' => "BX.CrmUIGridExtension.processActionChange('{$gridManagerID}', 'tasks')"))
+            'DATA' => array(array('JS' => "BX.CrmUIGridExtension.processActionChange('{$gridManagerId}', 'tasks')"))
         )
     )
 );
-if(!Bitrix\Main\Grid\Context::isInternalRequest())
-{
-    $APPLICATION->IncludeComponent(
+
+$APPLICATION->IncludeComponent(
         'bitrix:intranet.user.selector.new',
         '',
         array(
@@ -116,8 +126,8 @@ if(!Bitrix\Main\Grid\Context::isInternalRequest())
         ),
         null,
         array('HIDE_ICONS' => 'Y')
-    );
-}
+);
+
 $actionList[] = array(
     'NAME' => GetMessage('CRMSTORES_ASSIGN_TO'),
     'VALUE' => 'assign_to',
@@ -141,16 +151,16 @@ $actionList[] = array(
         array(
             'ACTION' => Bitrix\Main\Grid\Panel\Actions::CALLBACK,
             'DATA' => array(
-                array('JS' => "BX.CrmUIGridExtension.prepareAction('{$gridManagerID}', 'assign_to',  { searchInputId: 'action_assigned_by_search_control', dataInputId: 'action_assigned_by_id_control', componentName: '{$prefix}_ACTION_ASSIGNED_BY' })")
+                array('JS' => "BX.CrmUIGridExtension.prepareAction('{$gridManagerId}', 'assign_to',  { searchInputId: 'action_assigned_by_search_control', dataInputId: 'action_assigned_by_id_control', componentName: '{$prefix}_ACTION_ASSIGNED_BY' })")
             )
         ),
         array(
             'ACTION' => Bitrix\Main\Grid\Panel\Actions::CALLBACK,
-            'DATA' => array(array('JS' => "BX.CrmUIGridExtension.processActionChange('{$gridManagerID}', 'assign_to')"))
+            'DATA' => array(array('JS' => "BX.CrmUIGridExtension.processActionChange('{$gridManagerId}', 'assign_to')"))
         )
     )
 );
-$actionList[] = array(
+/*$actionList[] = array(
     'NAME' => GetMessage('CRMSTORES_ACTION_DELETE_TEXT'),
     'VALUE' => 'delete',
     'ONCHANGE' => array(
@@ -159,9 +169,9 @@ $actionList[] = array(
             'DATA' => array(array('JS' => "BX.CrmUIGridExtension.applyAction('{$gridManagerID}', 'delete')"))
         )
     )
-);
+); */
 
-$controlPanel['GROUPS'][0]['ITEMS'][] = $button;
+$controlPanel['GROUPS'][0]['ITEMS'][] = $snippet->getRemoveButton();
 $controlPanel['GROUPS'][0]['ITEMS'][] = $snippet->getEditButton();
 $controlPanel['GROUPS'][0]['ITEMS'][] = array(
     "TYPE" => \Bitrix\Main\Grid\Panel\Types::DROPDOWN,
@@ -183,6 +193,8 @@ foreach ($arResult['STORES'] as $store) {
         $arParams['URL_TEMPLATES']['DETAIL'],
         array('STORE_ID' => $store['ID'])
     );
+    //$viewUrl = $viewUrl."?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
+
     $editUrl = CComponentEngine::makePathFromTemplate(
         $arParams['URL_TEMPLATES']['EDIT'],
         array('STORE_ID' => $store['ID'])
@@ -226,7 +238,7 @@ foreach ($arResult['STORES'] as $store) {
             'TITLE' => GetMessage('CRMSTORES_TASK_TITLE'),
             'TEXT' => GetMessage('CRMSTORES_TASK'),
             'ONCLICK' => "BX.CrmUIGridExtension.processMenuCommand(
-                            '{$gridManagerId1}', 
+                            '{$gridManagerId}', 
                             BX.CrmUIGridMenuCommand.createActivity, 
                             { typeId: BX.CrmActivityType.task, settings: { ownerID: {$store['ID']} } }
                         )"
@@ -240,7 +252,8 @@ foreach ($arResult['STORES'] as $store) {
             array(
                 'TITLE' => Loc::getMessage('CRMSTORES_ACTION_VIEW_TITLE'),
                 'TEXT' => Loc::getMessage('CRMSTORES_ACTION_VIEW_TEXT'),
-                'ONCLICK' => 'BX.Crm.Page.open(' . Json::encode($viewUrl) . ')',
+                //'ONCLICK' => 'BX.Crm.Page.open(' . Json::encode($viewUrl) . ')',
+                'ONCLICK' =>'BX.Crm.Page.open(' . Json::encode($viewUrl) . ')',
                 'DEFAULT' => true
             ),
             array(
@@ -279,6 +292,8 @@ foreach ($arResult['STORES'] as $store) {
             'ADDRESS' => $store['ADDRESS'],
         )
     );
+    $arEntitySubMenuItems = array();
+    $arActivityMenuItems = array();
 }
 
 //$snippet = new Snippet();
@@ -320,8 +335,10 @@ $APPLICATION->IncludeComponent(
                 'ownerTypeName' => 'STORE',
                 'gridId' => $arResult['GRID_ID'],
                 'serviceUrl' => $arResult['SERVICE_URL'],
-                // служебное
-                //'taskCreateUrl' => '/company/personal/user/5/tasks/task/edit/0/?UF_CRM_TASK=#ENTITY_KEYS#&TITLE=CRM%3A+&TAGS=crm&back_url=%2Fcrm%2Fcompany%2Flist%2F'
+                'activityEditorId' => $activityEditorID,
+                'activityServiceUrl' => '/bitrix/components/bitrix/crm.activity.editor/ajax.php?siteID=' . SITE_ID . '&' . bitrix_sessid_get(),
+                // надо будет исправить
+                'taskCreateUrl' => '/company/personal/user/5/tasks/task/edit/0/?UF_CRM_TASK=#ENTITY_KEYS#&TITLE=CRM%3A+&TAGS=crm&back_url=%2Fcrm%2Fcompany%2Flist%2F'
             ),
             'MESSAGES' => array(
                 'deletionDialogTitle' => Loc::getMessage('CRMSTORES_DELETE_DIALOG_TITLE'),
@@ -356,5 +373,142 @@ $APPLICATION->IncludeComponent(
                 );
             }
 		}
+    );
+</script>
+<script type="text/javascript">
+    BX.ready(
+        function()
+        {
+            BX.CrmLongRunningProcessDialog.messages =
+                {
+                    startButton: "<?=GetMessageJS('CRM_COMPANY_LRP_DLG_BTN_START')?>",
+                    stopButton: "<?=GetMessageJS('CRM_COMPANY_LRP_DLG_BTN_STOP')?>",
+                    closeButton: "<?=GetMessageJS('CRM_COMPANY_LRP_DLG_BTN_CLOSE')?>",
+                    wait: "<?=GetMessageJS('CRM_COMPANY_LRP_DLG_WAIT')?>",
+                    requestError: "<?=GetMessageJS('CRM_COMPANY_LRP_DLG_REQUEST_ERR')?>"
+                };
+
+            var gridId = "<?= CUtil::JSEscape($arResult['GRID_ID'])?>";
+            BX.Crm.BatchDeletionManager.create(
+                gridId,
+                {
+                    gridId: gridId,
+                    entityTypeId: <?=CCrmOwnerType::Company?>,
+                    container: "batchDeletionWrapper",
+                    stateTemplate: "<?=GetMessageJS('CRM_COMPANY_STEPWISE_STATE_TEMPLATE')?>",
+                    messages:
+                        {
+                            title: "<?=GetMessageJS('CRM_COMPANY_LIST_DEL_PROC_DLG_TITLE')?>",
+                            confirmation: "<?=GetMessageJS('CRM_COMPANY_LIST_DEL_PROC_DLG_SUMMARY')?>",
+                            summaryCaption: "<?=GetMessageJS('CRM_COMPANY_BATCH_DELETION_COMPLETED')?>",
+                            summarySucceeded: "<?=GetMessageJS('CRM_COMPANY_BATCH_DELETION_COUNT_SUCCEEDED')?>",
+                            summaryFailed: "<?=GetMessageJS('CRM_COMPANY_BATCH_DELETION_COUNT_FAILED')?>"
+                        }
+                }
+            );
+
+            BX.Crm.AnalyticTracker.config =
+                {
+                    id: "company_list",
+                    settings: { params: <?=CUtil::PhpToJSObject($arResult['ANALYTIC_TRACKER'])?> }
+                };
+        }
+    );
+</script>
+<script type="text/javascript">
+    BX.ready(
+        function()
+        {
+            var link = BX("rebuildCompanyAttrsLink");
+            if(link)
+            {
+                BX.bind(
+                    link,
+                    "click",
+                    function(e)
+                    {
+                        var msg = BX("rebuildCompanyAttrsMsg");
+                        if(msg)
+                        {
+                            msg.style.display = "none";
+                        }
+                    }
+                );
+            }
+        }
+    );
+</script>
+<script type="text/javascript">
+    BX.ready(
+        function()
+        {
+            BX.CrmRequisitePresetSelectDialog.messages =
+                {
+                    title: "<?=GetMessageJS("CRM_COMPANY_RQ_TX_SELECTOR_TITLE")?>",
+                    presetField: "<?=GetMessageJS("CRM_COMPANY_RQ_TX_SELECTOR_FIELD")?>"
+                };
+
+            BX.CrmRequisiteConverter.messages =
+                {
+                    processDialogTitle: "<?=GetMessageJS('CRM_COMPANY_RQ_TX_PROC_DLG_TITLE')?>",
+                    processDialogSummary: "<?=GetMessageJS('CRM_COMPANY_RQ_TX_PROC_DLG_DLG_SUMMARY')?>"
+                };
+
+            var converter = BX.CrmRequisiteConverter.create(
+                "converter",
+                {
+                    entityTypeName: "<?=CUtil::JSEscape(CCrmOwnerType::CompanyName)?>",
+                    serviceUrl: "<?=SITE_DIR?>bitrix/components/bitrix/crm.company.list/list.ajax.php?&<?=bitrix_sessid_get()?>"
+                }
+            );
+
+            BX.addCustomEvent(
+                converter,
+                'ON_COMPANY_REQUISITE_TRANFER_COMPLETE',
+                function()
+                {
+                    var msg = BX("transferRequisitesMsg");
+                    if(msg)
+                    {
+                        msg.style.display = "none";
+                    }
+                }
+            );
+
+            var transferLink = BX("transferRequisitesLink");
+            if(transferLink)
+            {
+                BX.bind(
+                    transferLink,
+                    "click",
+                    function(e)
+                    {
+                        converter.convert();
+                        return BX.PreventDefault(e);
+                    }
+                );
+            }
+
+            var skipTransferLink = BX("skipTransferRequisitesLink");
+            if(skipTransferLink)
+            {
+                BX.bind(
+                    skipTransferLink,
+                    "click",
+                    function(e)
+                    {
+                        converter.skip();
+
+                        var msg = BX("transferRequisitesMsg");
+                        if(msg)
+                        {
+                            msg.style.display = "none";
+                        }
+
+                        return BX.PreventDefault(e);
+                    }
+                );
+            }
+        }
     );
 </script>

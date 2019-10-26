@@ -18,7 +18,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
     const GRID_ID = 'CRMSTORES_LIST';
     const SORTABLE_FIELDS = array('ID', 'NAME', 'ASSIGNED_BY_ID', 'ADDRESS');
     const FILTERABLE_FIELDS = array('ID', 'NAME', 'ASSIGNED_BY_ID', 'ADDRESS');
-    const SUPPORTED_ACTIONS = array('delete');
+    const SUPPORTED_ACTIONS = array('delete', 'assign_to');
     const SUPPORTED_SERVICE_ACTIONS = array('GET_ROW_COUNT');
 
     private static $headers;
@@ -274,10 +274,37 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         $context = Context::getCurrent();
         $request = $context->getRequest();
 
-        $action = $request->get('action_button_' . self::GRID_ID);
+        $uriString = $request->getUserAgent();
+        //$q = $request->getQueryList();
+        $p = $request->getPostList();
+        $method = $request->getRequestMethod();
+        \Bitrix\Main\Diag\Debug::writeToFile($method, "", "__miros.log");
+        \\
+        if ($p['controls']['action_button_CRMSTORES_LIST']=='assign_to') {
+            $newassigned = $p['controls']['ACTION_ASSIGNED_BY_ID'];
+            $action = $p['controls']['action_button_CRMSTORES_LIST'];
+            \Bitrix\Main\Diag\Debug::writeToFile($p['rows'], "", "__miros.log");
+            foreach ($p['rows'] as $key => $param) {
+                \Bitrix\Main\Diag\Debug::writeToFile($param, "", "__miros.log");
+                StoreTable::update($param, array('ASSIGNED_BY_ID' => $newassigned));
+            }
+        }
+        //\Bitrix\Main\Diag\Debug::writeToFile($key, "", "__miros.log");
+        \Bitrix\Main\Diag\Debug::writeToFile($newassigned, "", "__miros.log");
+
+
+        if ($action=="") {
+            $action = $request->get('action_button_' . self::GRID_ID);
+        }
+
+        //\Bitrix\Main\Diag\Debug::writeToFile($storeupdate, "", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($newassigned, "", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile("ID".$request->get('ID'), "", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile("assigned".$newassigned, "", "__miros.log");
+        //
 
         if (!in_array($action, self::SUPPORTED_ACTIONS)) {
-            return;
+           return;
         }
 
         $allRows = $request->get('action_all_rows_' . self::GRID_ID) == 'Y';
@@ -300,14 +327,27 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         if (empty($storeIds)) {
             return;
         }
+        \Bitrix\Main\Diag\Debug::writeToFile($action, "", "__miros.log");
+        if ($action == 'assign_to') {
+            \Bitrix\Main\Diag\Debug::writeToFile("assign_to", "", "__miros.log");
+            $arUpdateData = array(
+                'ASSIGNED_BY_ID' => $newassigned
+            );
+            foreach ($storeIds as $storeId) {
+                \Bitrix\Main\Diag\Debug::writeToFile($storeId, "", "__miros.log");
+                \Bitrix\Main\Diag\Debug::writeToFile($param['ACTION_ASSIGNED_BY_ID'], "", "__miros.log");
+                StoreTable::update(4, array('ASSIGNED_BY_ID' => 5));
+            }
+
+        }
+
 
         switch ($action) {
             case 'delete':
                 foreach ($storeIds as $storeId) {
                     StoreTable::delete($storeId);
                 }
-            break;
-
+                break;
             default:
             break;
         }
