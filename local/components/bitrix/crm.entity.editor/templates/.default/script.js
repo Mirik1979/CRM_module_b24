@@ -125,6 +125,7 @@ if(typeof BX.Crm.EntityEditor === "undefined")
 			this._enablePageTitleContols = BX.prop.getBoolean(this._settings, "enablePageTitleControls", true);
 			if(this._enablePageTitleContols)
 			{
+				console.log("ennn");
 				this._pageTitle = BX("pagetitle");
 				this._buttonWrapper = BX("pagetitle_btn_wrapper");
 				this._editPageTitleButton = BX("pagetitle_edit");
@@ -1447,6 +1448,7 @@ if(typeof BX.Crm.EntityEditor === "undefined")
 		{
 			if(mode === BX.Crm.EntityEditorMode.edit)
 			{
+				console.log("here1");
 				this._pageTitle.style.display = "none";
 
 				if(this._buttonWrapper)
@@ -1483,6 +1485,8 @@ if(typeof BX.Crm.EntityEditor === "undefined")
 			}
 			else
 			{
+				console.log("here2");
+
 				if(this._pageTitleInput)
 				{
 					this._pageTitleInput = BX.remove(this._pageTitleInput);
@@ -1542,7 +1546,10 @@ if(typeof BX.Crm.EntityEditor === "undefined")
 				this._buttonWrapper.appendChild(this._copyPageUrlButton);
 			}
 
-			this._pageTitle.innerHTML = BX.util.htmlspecialchars(caption);
+			// caption пусто
+			if(caption !== "") {
+				this._pageTitle.innerHTML = BX.util.htmlspecialchars(caption);
+			}
 		},
 		adjustSize: function()
 		{
@@ -4126,6 +4133,7 @@ if(typeof BX.Crm.EntityConfigItem === "undefined")
 		},
 		getTitle: function()
 		{
+			console.log("here");
 			return this._title;
 		},
 		toJSON: function()
@@ -7273,6 +7281,10 @@ if(typeof BX.Crm.EntityEditorControl === "undefined")
 		},
 		getTitle: function()
 		{
+			console.log("hhhhhh");
+
+
+
 			if(!this._schemeElement)
 			{
 				return "";

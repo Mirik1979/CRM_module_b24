@@ -77,7 +77,7 @@ $APPLICATION->IncludeComponent(
     'bitrix:crm.entity.details.frame',
     '',
     array(
-        'ENTITY_TYPE_ID' => CCrmOwnerType::Company,
+        'ENTITY_TYPE_ID' => 'CRM_STORES',
         'ENTITY_ID' => $arResult['VARIABLES']['STORE_ID'],
         'ENABLE_TITLE_EDIT' => true
     )
