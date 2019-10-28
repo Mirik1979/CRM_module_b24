@@ -112,7 +112,7 @@ if($action === 'SAVE')
     //\Bitrix\Main\Diag\Debug::writeToFile("miros", "POST", "__miros.log");
 	$fieldsInfo = Wcomm\CrmStores\Entity\StoreTable::GetFieldsInfo();
 
-    \Bitrix\Main\Diag\Debug::writeToFile($fieldsInfo, "POST", "__miros.log");
+    \Bitrix\Main\Diag\Debug::writeToFile($fieldsInfo, "FINFO", "__miros.log");
     $ufID = StoreTable::getUfId();
     //\Bitrix\Main\Diag\Debug::writeToFile($ufID, "UF", "__miros.log");
 
@@ -139,7 +139,10 @@ if($action === 'SAVE')
 		{
 			$presentFields = array();
 		}
-	}
+	} else {
+        $arUserFields = $USER_FIELD_MANAGER->GetUserFields(StoreTable::getUfId());
+        $presentFields = array_merge($fieldsInfo, $arUserFields);
+    }
     \Bitrix\Main\Diag\Debug::writeToFile("prf", "prfields", "__miros.log");
     \Bitrix\Main\Diag\Debug::writeToFile($presentFields, "prfields", "__miros.log");
 
@@ -162,15 +165,24 @@ if($action === 'SAVE')
         }
 	}
 
+
 	foreach($presentFields as $name => $info)
 	{
-        if ($_POST[$name]) {
+	    if(isNew) {
             $fields[$name] = $_POST[$name];
         } else {
-            $fields[$name] = $presentFields[$name];
+            if ($_POST[$name]) {
+                $fields[$name] = $_POST[$name];
+            } else {
+                $fields[$name] = $presentFields[$name];
+            }
 
         }
+
 	}
+
+
+
 
 	if($isNew && isset($params['IS_MY_COMPANY']) && $params['IS_MY_COMPANY'] === 'Y')
 	{
@@ -231,12 +243,17 @@ if($action === 'SAVE')
 			$entity = new StoreTable(false);
 			if($isNew)
 			{
-				$ID = $entity->Add($fields, true, array('REGISTER_SONET_EVENT' => true));
+                \Bitrix\Main\Diag\Debug::writeToFile($fields, "FIELDSTOADD", "__miros.log");
+			    unset($fields['ID']);
+                $oID = $entity->Add($fields, true, array('REGISTER_SONET_EVENT' => true));
+                $ID = $oID->getId();
+                \Bitrix\Main\Diag\Debug::writeToFile($ID, "ID", "__miros.log");
 				if($ID <= 0)
 				{
 					$errorMessage = $entity->LAST_ERROR;
 				}
-			}
+
+            }
 			else
 			{
                 \Bitrix\Main\Diag\Debug::writeToFile($fields, "forupdate", "__miros.log");
@@ -284,7 +301,7 @@ if($action === 'SAVE')
 
 
 
-	/*CBitrixComponent::includeComponentClass('wcomm.crmstores:store.details');
+	CBitrixComponent::includeComponentClass('wcomm.crmstores:store.details');
 	$component = new CStoreDetailsComponent();
 	$component->initializeParams($params);
 	$component->setEntityID($ID);
@@ -294,32 +311,28 @@ if($action === 'SAVE')
 		'ENTITY_INFO' => $component->prepareEntityInfo()
 	);
 
+    \Bitrix\Main\Diag\Debug::writeToFile($result, "result", "__miros.log");
+
+
 	if($isNew)
 	{
 		$result['EVENT_PARAMS'] = array(
-			'entityInfo' => \CCrmEntitySelectorHelper::PrepareEntityInfo(
-				CCrmOwnerType::CompanyName,
-				$ID,
-				array(
-					'ENTITY_EDITOR_FORMAT' => true,
-					'NAME_TEMPLATE' =>
-						isset($params['NAME_TEMPLATE'])
-							? $params['NAME_TEMPLATE']
-							: \Bitrix\Crm\Format\PersonNameFormatter::getFormat()
-				)
+			'entityInfo' => array (
+			    'ID' => $ID,
+                'type' => 'STORES',
+                'typename' => 'STORES',
+                'place' => 'stores',
+                'title' => $fields['NAME'],
+                'url' => '/crm/stores/details/'.$ID.'/',
 			)
 		);
 
 		// возможно тут переадресация - надо смотреть
-		$result['REDIRECT_URL'] = \CCrmOwnerType::GetDetailsUrl(
-			\CCrmOwnerType::Company,
-			$ID,
-			false,
-			array('ENABLE_SLIDER' => true)
-		);
+		$result['REDIRECT_URL'] = '/crm/stores/details/'.$ID.'/?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER';
+
 	}
 
-	__CrmCompanyDetailsEndJsonResonse($result); */
+	__CrmCompanyDetailsEndJsonResonse($result);
 }
 elseif($action === 'DELETE')
 {

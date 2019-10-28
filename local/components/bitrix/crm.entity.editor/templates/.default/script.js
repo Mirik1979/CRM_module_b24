@@ -1547,9 +1547,11 @@ if(typeof BX.Crm.EntityEditor === "undefined")
 			}
 
 			// caption пусто
-			if(caption !== "") {
-				this._pageTitle.innerHTML = BX.util.htmlspecialchars(caption);
-			}
+			//if(caption == "") {
+			//	caption = "Название объекта";
+			//}
+
+			this._pageTitle.innerHTML = BX.util.htmlspecialchars(caption);
 		},
 		adjustSize: function()
 		{

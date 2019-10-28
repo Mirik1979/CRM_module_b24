@@ -196,10 +196,10 @@ foreach ($arResult['STORES'] as $store) {
     //$viewUrl = $viewUrl."?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
 
     $editUrl = CComponentEngine::makePathFromTemplate(
-        $arParams['URL_TEMPLATES']['EDIT'],
+        $arParams['URL_TEMPLATES']['DETAIL'],
         array('STORE_ID' => $store['ID'])
     );
-
+    $editUrl = $editUrl."?init_mode=edit";
     $deleteUrlParams = http_build_query(array(
         'action_button_' . $arResult['GRID_ID'] => 'delete',
         'ID' => array($store['ID']),

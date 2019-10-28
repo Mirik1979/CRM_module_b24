@@ -63,7 +63,7 @@ $APPLICATION->IncludeComponent(
             array(
                 'TEXT' => Loc::getMessage('CRMSTORES_ADD'),
                 'TITLE' => Loc::getMessage('CRMSTORES_ADD'),
-                'LINK' => CComponentEngine::makePathFromTemplate($urlTemplates['EDIT'], array('STORE_ID' => 0)),
+                'LINK' => CComponentEngine::makePathFromTemplate($urlTemplates['DETAIL'], array('STORE_ID' => 0)),
                 'ICON' => 'btn-add',
             ),
             array(
