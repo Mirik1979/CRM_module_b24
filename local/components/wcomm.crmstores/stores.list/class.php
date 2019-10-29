@@ -279,7 +279,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         $p = $request->getPostList();
         $method = $request->getRequestMethod();
         \Bitrix\Main\Diag\Debug::writeToFile($method, "", "__miros.log");
-        \\
+
         if ($p['controls']['action_button_CRMSTORES_LIST']=='assign_to') {
             $newassigned = $p['controls']['ACTION_ASSIGNED_BY_ID'];
             $action = $p['controls']['action_button_CRMSTORES_LIST'];
