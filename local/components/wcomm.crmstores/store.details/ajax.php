@@ -72,6 +72,8 @@ Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 $currentUserID = CCrmSecurityHelper::GetCurrentUserID();
 $currentUserPermissions =  CCrmPerms::GetCurrentUserPermissions();
 
+
+
 $action = isset($_POST['ACTION']) ? $_POST['ACTION'] : '';
 if($action === '' && isset($_POST['MODE']))
 {
@@ -168,7 +170,7 @@ if($action === 'SAVE')
 
 	foreach($presentFields as $name => $info)
 	{
-	    if(isNew) {
+	    if($isNew) {
             $fields[$name] = $_POST[$name];
         } else {
             if ($_POST[$name]) {
@@ -336,25 +338,36 @@ if($action === 'SAVE')
 }
 elseif($action === 'DELETE')
 {
-	$ID = isset($_POST['ACTION_ENTITY_ID']) ? max((int)$_POST['ACTION_ENTITY_ID'], 0) : 0;
+    if (!Main\Loader::includeModule('wcomm.crmstores')) {
+        // \Bitrix\Main\Diag\Debug::writeToFile("modulenonactive", "POST", "__miros.log");
+        ShowError(Loc::getMessage('модуль не установлен'));
+        return;
+    }
+
+    \Bitrix\Main\Diag\Debug::writeToFile($_POST, "delete", "__miros.log");
+    $ID = isset($_POST['ACTION_ENTITY_ID']) ? max((int)$_POST['ACTION_ENTITY_ID'], 0) : 0;
 	if($ID <= 0)
 	{
 		__CrmCompanyDetailsEndJsonResonse(array('ERROR' => GetMessage('CRM_COMPANY_NOT_FOUND')));
 	}
 
-	if(!\CCrmCompany::CheckDeletePermission($ID, $currentUserPermissions))
-	{
-		__CrmCompanyDetailsEndJsonResonse(array('ERROR' => GetMessage('CRM_COMPANY_ACCESS_DENIED')));
-	}
+	//if(!\CCrmCompany::CheckDeletePermission($ID, $currentUserPermissions))
+	//{
+	//	__CrmCompanyDetailsEndJsonResonse(array('ERROR' => GetMessage('CRM_COMPANY_ACCESS_DENIED')));
+	//}
+    // остановка бизнес-процессовб можно забить так как БП автоматичекие
+	//$bizProc = new CCrmBizProc('COMPANY');
+	//if (!$bizProc->Delete($ID, \CCrmCompany::GetPermissionAttributes(array($ID))))
+	//{
+	//	__CrmCompanyDetailsEndJsonResonse(array('ERROR' => $bizProc->LAST_ERROR));
+	//}
 
-	$bizProc = new CCrmBizProc('COMPANY');
-	if (!$bizProc->Delete($ID, \CCrmCompany::GetPermissionAttributes(array($ID))))
-	{
-		__CrmCompanyDetailsEndJsonResonse(array('ERROR' => $bizProc->LAST_ERROR));
-	}
 
-	$entity = new \CCrmCompany(false);
-	if (!$entity->Delete($ID, array('PROCESS_BIZPROC' => false)))
+    //Wcomm\CrmStores\Entity\StoreTable::Delete($ID);
+
+    $entity = new StoreTable(false);
+	//if (!$entity->Delete($ID, array('PROCESS_BIZPROC' => false)))
+    if (!$entity->Delete($ID))
 	{
 		/** @var CApplicationException $ex */
 		$ex = $APPLICATION->GetException();

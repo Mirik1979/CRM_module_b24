@@ -79,7 +79,7 @@ class CStoreDetailsComponent extends CBitrixComponent
 		// замена на CRM_STORES
         $this->userFieldEntityID = 'CRM_STORES';
 		//$this->userFieldEntityID = \CCrmCompany::GetUserFieldEntityID();
-        \Bitrix\Main\Diag\Debug::writeToFile($this->userFieldEntityID, "UID", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($this->userFieldEntityID, "UID", "__miros.log");
 		$this->userType = new \CCrmUserType($USER_FIELD_MANAGER, $this->userFieldEntityID);
 		$this->userFieldDispatcher = \Bitrix\Main\UserField\Dispatcher::instance();
         // мультиполя - тут совсем не нужны
@@ -413,8 +413,8 @@ class CStoreDetailsComponent extends CBitrixComponent
 				'elements' =>
 					array_merge(
 						array(
-							array('name' => 'ASSIGNED_BY_ID'),
-                            array('name' => 'ADDRESS')
+							array('name' => 'ASSIGNED_BY_ID') //,
+                            //array('name' => 'ADDRESS')
 
 						),
 						$userFieldConfigElements
@@ -434,14 +434,14 @@ class CStoreDetailsComponent extends CBitrixComponent
 					'id' => 'tab_deal',
 					'name' => Loc::getMessage('CRMSTORES_TAB_DEAL'),
 					'loader' => array(
-						'serviceUrl' => '/bitrix/components/bitrix/crm.deal.list/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
+						'serviceUrl' => '/local/components/bitrix/crm.deal.list/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
 						'componentData' => array(
 							'template' => '',
 							'params' => array(
 								'DEAL_COUNT' => '20',
 								'PATH_TO_DEAL_SHOW' => $this->arResult['PATH_TO_DEAL_SHOW'],
 								'PATH_TO_DEAL_EDIT' => $this->arResult['PATH_TO_DEAL_EDIT'],
-								'INTERNAL_FILTER' => array('COMPANY_ID' => $this->entityID),
+								'INTERNAL_FILTER' => array('UF_STORE' => $this->entityID),
 								'INTERNAL_CONTEXT' => array('COMPANY_ID' => $this->entityID),
 								'GRID_ID_SUFFIX' => 'COMPANY_DETAILS',
 								'TAB_ID' => 'tab_deal',
@@ -457,21 +457,21 @@ class CStoreDetailsComponent extends CBitrixComponent
 					'id' => 'tab_quote',
 					'name' => Loc::getMessage('CRMSTORES_TAB_QUOTE'),
 					'loader' => array(
-						'serviceUrl' => '/bitrix/components/bitrix/crm.quote.list/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
+						'serviceUrl' => '/local/components/bitrix/crm.quote.list/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
 						'componentData' => array(
 							'template' => '',
 							'params' => array(
 								'QUOTE_COUNT' => '20',
 								'PATH_TO_QUOTE_SHOW' => $this->arResult['PATH_TO_QUOTE_SHOW'],
 								'PATH_TO_QUOTE_EDIT' => $this->arResult['PATH_TO_QUOTE_EDIT'],
-								'INTERNAL_FILTER' => array('COMPANY_ID' => $this->entityID),
+								'INTERNAL_FILTER' => array('UF_STORE' => $this->entityID),
 								'INTERNAL_CONTEXT' => array('COMPANY_ID' => $this->entityID),
 								'GRID_ID_SUFFIX' => 'COMPANY_DETAILS',
 								'TAB_ID' => 'tab_quote',
 								'NAME_TEMPLATE' => $this->arResult['NAME_TEMPLATE'],
 								'ENABLE_TOOLBAR' => true,
 								'PRESERVE_HISTORY' => true,
-								'ADD_EVENT_NAME' => 'CrmCreateQuoteFromCompany'
+								'ADD_EVENT_NAME' => 'CrmCreateQuoteFromStore'
 							)
 						)
 					)
@@ -480,7 +480,7 @@ class CStoreDetailsComponent extends CBitrixComponent
 					'id' => 'tab_invoice',
 					'name' => Loc::getMessage('CRMSTORES_TAB_INVOICES'),
 					'loader' => array(
-						'serviceUrl' => '/bitrix/components/bitrix/crm.invoice.list/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
+						'serviceUrl' => '/local/components/bitrix/crm.invoice.list/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
 						'componentData' => array(
 							'template' => '',
 							'params' => array(
@@ -491,7 +491,7 @@ class CStoreDetailsComponent extends CBitrixComponent
 								'PATH_TO_DEAL_EDIT' => $this->arResult['PATH_TO_DEAL_EDIT'],
 								'PATH_TO_INVOICE_EDIT' => $this->arResult['PATH_TO_INVOICE_EDIT'],
 								'PATH_TO_INVOICE_PAYMENT' => $this->arResult['PATH_TO_INVOICE_PAYMENT'],
-								'INTERNAL_FILTER' => array('UF_COMPANY_ID' => $this->entityID),
+								'INTERNAL_FILTER' => array('UF_STORE' => $this->entityID),
 								'SUM_PAID_CURRENCY' => \CCrmCurrency::GetBaseCurrencyID(),
 								'GRID_ID_SUFFIX' => 'COMPANY_DETAILS',
 								'TAB_ID' => 'tab_invoice',
@@ -682,17 +682,17 @@ class CStoreDetailsComponent extends CBitrixComponent
 		{
 			$this->arResult['TABS'][] = array(
 				'id' => 'tab_deal',
-				'name' => Loc::getMessage('CRM_COMPANY_TAB_DEAL'),
+				'name' => Loc::getMessage('CRMSTORES_TAB_DEAL'),
 				'enabled' => false
 			);
 			$this->arResult['TABS'][] = array(
 				'id' => 'tab_quote',
-				'name' => Loc::getMessage('CRM_COMPANY_TAB_QUOTE'),
+				'name' => Loc::getMessage('CRMSTORES_TAB_QUOTE'),
 				'enabled' => false
 			);
 			$this->arResult['TABS'][] = array(
 				'id' => 'tab_invoice',
-				'name' => Loc::getMessage('CRM_COMPANY_TAB_INVOICES'),
+				'name' => Loc::getMessage('CRMSTORES_TAB_INVOICES'),
 				'enabled' => false
 			);
 			/* пока лочим
@@ -801,7 +801,7 @@ class CStoreDetailsComponent extends CBitrixComponent
                 'editable' => true,
                 'data' => array(array('lineCount' => 6))
             ),
-            array(
+            /*array(
                 'name' => 'ADDRESS',
                 'title' => 'Адрес объекта',
                 'type' => 'text',
@@ -810,7 +810,7 @@ class CStoreDetailsComponent extends CBitrixComponent
                 'required' => true,
                 'editable' => true,
                 'data' => array(array('lineCount' => 6))
-            ),
+            ), */
             array(
                 'name' => 'ASSIGNED_BY_ID',
                 'title' => 'Ответственный за объект',

@@ -5271,13 +5271,17 @@ if(typeof BX.Crm.EntityModel === "undefined")
 		},
 		getCaption: function()
 		{
-			return "";
+			var title = this.getField("NAME");
+			return BX.type.isString(title) ? title : "";
+			//return "";
 		},
 		setCaption: function(caption)
 		{
+			this.setField("NAME", caption);
 		},
 		prepareCaptionData: function(data)
 		{
+			data["NAME"] = this.getField("NAME", "");
 		}
 	};
 	BX.Crm.EntityModel.create = function(id, settings)

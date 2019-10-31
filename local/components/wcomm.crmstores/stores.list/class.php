@@ -16,7 +16,9 @@ use Bitrix\Main\Web\Uri;
 class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 {
     const GRID_ID = 'CRMSTORES_LIST';
-    const SORTABLE_FIELDS = array('ID', 'NAME', 'ASSIGNED_BY_ID', 'ADDRESS');
+
+
+    //const SORTABLE_FIELDS = array('ID', 'NAME', 'ASSIGNED_BY_ID', 'ADDRESS');
     const FILTERABLE_FIELDS = array('ID', 'NAME', 'ASSIGNED_BY_ID', 'ADDRESS');
     const SUPPORTED_ACTIONS = array('delete', 'assign_to');
     const SUPPORTED_SERVICE_ACTIONS = array('GET_ROW_COUNT');
@@ -58,11 +60,14 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         $grid = new Grid\Options(self::GRID_ID);
 
         //region Sort
+        //сортировки смотрим здесь
         $gridSort = $grid->getSorting();
+        $supportedFields = StoreTable::GetFieldsInfoUf();
         $sort = array_filter(
             $gridSort['sort'],
             function ($field) {
-                return in_array($field, self::SORTABLE_FIELDS);
+                //return in_array($field, $supportedFields);
+                return $field;
             },
             ARRAY_FILTER_USE_KEY
         );
@@ -74,6 +79,8 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         //region Filter
         $gridFilter = new Filter\Options(self::GRID_ID, self::$filterPresets);
         $gridFilterValues = $gridFilter->getFilter(self::$filterFields);
+        //\Bitrix\Main\Diag\Debug::writeToFile($gridFilterValues, "gf", "__miros.log");
+
         $gridFilterValues = array_filter(
             $gridFilterValues,
             function ($fieldName) {
@@ -151,28 +158,36 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                 'name' => Loc::getMessage('CRMSTORES_HEADER_ASSIGNED_BY'),
                 'sort' => 'ASSIGNED_BY_ID',
                 'default' => true,
-            ),
+            ) /*,
             array(
                 'id' => 'ADDRESS',
                 'name' => Loc::getMessage('CRMSTORES_HEADER_ADDRESS'),
                 'sort' => 'ADDRESS',
                 'default' => true,
-            )
+            ) */
         );
         if (Bitrix\Main\Loader::includeModule('crm')) {
             $CCrmFields = new CCrmFields($USER_FIELD_MANAGER, StoreTable::getUfId());
         }
         $arUserFields = $CCrmFields->GetFields();
+        //\Bitrix\Main\Diag\Debug::writeToFile($arUserFields, "UFFF", "__miros.log");
         //$arUserFields = $USER_FIELD_MANAGER->GetUserFields(self::getUfId());
+        //echo "<pre>";
+        //print_r($arUserFields);
+        //echo "</pre>";
+
         foreach ($arUserFields as $FIELD_ID => $arField)
         {
-            $newheader = array(
-                'id' => $FIELD_ID,
-                'name' => $arField['EDIT_FORM_LABEL'],
-                'sort' => $FIELD_ID,
-                'default' => $arField['SHOW_IN_LIST'],
-            );
-            array_push($headers, $newheader);
+            if($arField['SHOW_IN_LIST']=='Y') {
+                $newheader = array(
+                    'id' => $FIELD_ID,
+                    'name' => $arField['EDIT_FORM_LABEL'],
+                    'sort' => $FIELD_ID,
+                    'default' => $arField['SHOW_IN_LIST'],
+                );
+                array_push($headers, $newheader);
+
+            }
         }
 
         return $headers;
@@ -213,21 +228,112 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             array(
                 'id' => 'ADDRESS',
                 'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_ADDRESS'),
-                'default' => true,
+                'type' => 'list',
+                'params' => array('multiple'=>'N'),
+                'default' => 'Y',
+                'items' => array("Да","Нет")
             )
         );
         if (\Bitrix\Main\Loader::includeModule('crm')) {
             $CCrmFields = new CCrmFields($USER_FIELD_MANAGER, StoreTable::getUfId());
         }
         $arUserFields = $CCrmFields->GetFields();
+        $arUserFieldsdouble = $this->prepareEntityUserFieldInfos();
 
         foreach ($arUserFields as $FIELD_ID => $arField) {
-            $newheader = array(
-                'id' => $FIELD_ID,
-                'name' => $arField['EDIT_FORM_LABEL'],
-                'default' => $arField['SHOW_IN_LIST']
-            );
-            array_push($filter, $newheader);
+
+
+
+            if($arField['SHOW_FILTER']!='N') {
+                if ($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['USER_TYPE_ID'] == 'enumeration') {
+                    foreach ($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['ENUM'] as $enumval) {
+                        $enumvalues[$enumval['ID']] = $enumval['VALUE'];
+                    }
+                    $newfilter = array(
+                        'id' => $FIELD_ID,
+                        'name' => $arField['EDIT_FORM_LABEL'],
+                        'type' => 'list',
+                        'params' => array('multiple' => 'Y'),
+                        'default' => 'Y',
+                        'items' => $enumvalues
+                    );
+
+                } elseif($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['USER_TYPE_ID'] == 'crm' &&
+                    $arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['SETTINGS']['COMPANY']=='Y') {
+
+                    $newfilter = array(
+                        'id' => $FIELD_ID,
+                        'name' => $arField['EDIT_FORM_LABEL'],
+                        'type' => 'dest_selector',
+                        'params' => array(
+                            'apiVersion' => 3,
+                            'context' => 'CRM_UF_FILTER_ENTITY',
+                            'contextCode' => 'CRM',
+                            'useClientDatabase' => 'N',
+                            'enableAll' => 'N',
+                            'enableDepartments' => 'N',
+                            'enableUsers' => 'N',
+                            'enableSonetgroups' => 'N',
+                            'allowEmailInvitation' => 'N',
+                            'allowSearchEmailUsers' => 'N',
+                            'departmentSelectDisable' => 'Y',
+                            'enableCrm' => 'Y',
+                            'multiple' => 'N',
+                            'convertJson' => 'Y',
+                            'enableCrmCompanies' => 'Y',
+                            'addTabCrmCompanies' => 'N',
+                            'addTabCrmLeads' => 'N',
+                            'addTabCrmDeals' => 'N',
+                            'addTabCrmContacts' => 'N'
+                    ));
+
+                } elseif($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['USER_TYPE_ID'] == 'crm' &&
+                    $arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['SETTINGS']['CONTACT']=='Y') {
+                    //
+                    $newfilter = array(
+                        'id' => $FIELD_ID,
+                        'name' => $arField['EDIT_FORM_LABEL'],
+                        'type' => 'dest_selector',
+                        'params' => array(
+                            'apiVersion' => 3,
+                            'context' => 'CRM_UF_FILTER_ENTITY',
+                            'contextCode' => 'CRM',
+                            'useClientDatabase' => 'N',
+                            'enableAll' => 'N',
+                            'enableDepartments' => 'N',
+                            'enableUsers' => 'N',
+                            'enableSonetgroups' => 'N',
+                            'allowEmailInvitation' => 'N',
+                            'allowSearchEmailUsers' => 'N',
+                            'departmentSelectDisable' => 'Y',
+                            'enableCrm' => 'Y',
+                            'multiple' => 'N',
+                            'convertJson' => 'Y',
+                            'enableCrmContacts' => 'Y',
+                            'addTabCrmContacts' => 'N',
+                            'addTabCrmLeads' => 'N',
+                            'addTabCrmDeals' => 'N',
+                            'addTabCrmCompanies' => 'N'
+                        ));
+
+
+                } elseif($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['USER_TYPE_ID'] == 'date') {
+                    $newfilter = array(
+                        'id' => $FIELD_ID,
+                        'name' => $arField['EDIT_FORM_LABEL'],
+                        'type' => 'date',
+                        'default' => $arField['SHOW_IN_LIST']
+                    );
+                }
+                else {
+                    $newfilter = array(
+                        'id' => $FIELD_ID,
+                        'name' => $arField['EDIT_FORM_LABEL'],
+                        'default' => $arField['SHOW_IN_LIST']
+                    );
+                }
+                array_push($filter, $newfilter);
+            }
         }
 
         return $filter;
@@ -236,6 +342,8 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
     private function getStores($params = array())
     {
+
+        global $USER_FIELD_MANAGER;
 
         $stores = StoreTable::getListEx($params);
         
@@ -255,15 +363,178 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         foreach ($dbUsers as $user) {
             $users[$user['ID']] = $user;
         }
+        //\Bitrix\Main\Diag\Debug::writeToFile($stores, "array", "__miros.log");
+
+        $userFieldsadd = $this->prepareEntityUserFieldInfos();
+        //\Bitrix\Main\Diag\Debug::writeToFile($userFieldsadd, "array", "__miros.log");
 
         foreach ($stores as &$store) {
             if (intval($store['ASSIGNED_BY_ID']) > 0) {
                 $store['ASSIGNED_BY'] = $users[$store['ASSIGNED_BY_ID']];
             }
+            foreach ($userFieldsadd as $field => $fieldval) {
+                //\Bitrix\Main\Diag\Debug::writeToFile($field, "array", "__miros.log");
+                if ($store[$field]==array()) {
+                    $store[$field] = "";
+                }
+                if ($store[$field]) {
+                    if($fieldval['data']['fieldInfo']['USER_TYPE_ID']=='enumeration' &&
+                        $fieldval['data']['fieldInfo']['MULTIPLE']=='Y') {
+                        $text ='';
+                        foreach($store[$field] as $storeval) {
+                            foreach($fieldval['data']['fieldInfo']['ENUM'] as $enumval) {
+                                if($enumval['ID']==$storeval) {
+                                    if ($text) {
+                                        $comma = ',';
+                                    } else {
+                                        $comma = '';
+                                    }
+                                    $text = $text.$comma.$enumval['VALUE'];
+                                }
+                            }
+                        }
+                        $store[$field]=$text;
+                    } elseif($fieldval['data']['fieldInfo']['USER_TYPE_ID']=='enumeration' &&
+                        $fieldval['data']['fieldInfo']['MULTIPLE']=='N') {
+                        foreach($fieldval['data']['fieldInfo']['ENUM'] as $enumval) {
+                            if($enumval['ID']==$store[$field]) {
+                                $store[$field] = $enumval['VALUE'];
+                            }
+                        }
+                    } elseif($fieldval['data']['fieldInfo']['USER_TYPE_ID']=='crm' &&
+                        $fieldval['data']['fieldInfo']['MULTIPLE']=='Y') {
+                        if ($fieldval['data']['fieldInfo']['SETTINGS']['COMPANY']=='Y') {
+                            $text ='';
+                            foreach($store[$field] as $storeval) {
+                                $res = CCrmCompany::GetbyID($storeval);
+                                $newtext = "<a href=\"/crm/company/show/".$storeval."/\" target=\"_blank\" bx-tooltip-user-id=\"".$storeval."\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.company.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_company\">".$res['TITLE']."</a>";
+                                if ($text) {
+                                    $comma = ',';
+                                } else {
+                                    $comma = '';
+                                }
+                                $text = $text.$comma.$newtext;
+
+                            }
+                            $store[$field] = $text;
+                        } elseif($fieldval['data']['fieldInfo']['SETTINGS']['CONTACT']=='Y') {
+                            \Bitrix\Main\Diag\Debug::writeToFile($store[$field], "ffff", "__miros.log");
+                            $text ='';
+                            foreach($store[$field] as $storeval) {
+                                $res = CCrmContact::GetbyID($storeval);
+                                $newtext =  "<a href=\"/crm/contact/show/".$storeval."/\" target=\"_blank\" bx-tooltip-user-id=\"".$storeval."\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.contact.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_contact\">".$res['FULL_NAME']."</a>";
+                                if ($text) {
+                                    $comma = ',';
+                                } else {
+                                    $comma = '';
+                                }
+                                $text = $text.$comma.$newtext;
+                            }
+                            $store[$field] = $text;
+                        }
+                    } elseif($fieldval['data']['fieldInfo']['USER_TYPE_ID']=='crm' &&
+                        $fieldval['data']['fieldInfo']['MULTIPLE']=='N') {
+                        if ($fieldval['data']['fieldInfo']['SETTINGS']['COMPANY']=='Y') {
+                            $res = CCrmCompany::GetbyID($store[$field]);
+                            $store[$field] = "<a href=\"/crm/company/show/".$store[$field]."/\" target=\"_blank\" bx-tooltip-user-id=\"".$store[$field]."\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.company.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_company\">".$res['TITLE']."</a>";
+                        } elseif($fieldval['data']['fieldInfo']['SETTINGS']['CONTACT']=='Y') {
+                            $res = CCrmContact::GetbyID($store[$field]);
+                            $store[$field] = "<a href=\"/crm/contact/show/".$store[$field]."/\" target=\"_blank\" bx-tooltip-user-id=\"".$store[$field]."\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.contact.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_contact\">".$res['FULL_NAME']."</a>";
+
+                        }
+
+                    }
+
+                }
+            }
+
         }
 
         return $stores;
     }
+
+    public function prepareEntityUserFieldInfos()
+    {
+        global $USER_FIELD_MANAGER;
+
+        if($this->userFieldInfos !== null)
+        {
+            return $this->userFieldInfos;
+        }
+
+        if (Bitrix\Main\Loader::includeModule('crm')) {
+            $userFieldEntityID = 'CRM_STORES';
+            $userType = new \CCrmUserType($USER_FIELD_MANAGER, $userFieldEntityID);
+            $userFields = $userType->GetEntityFields($userType);
+            //\Bitrix\Main\Diag\Debug::writeToFile($userFields, "array", "__miros.log");
+        }
+
+        $this->userFieldInfos = array();
+        $enumerationFields = array();
+        foreach($userFields as $userField)
+        {
+            $fieldName = $userField['FIELD_NAME'];
+            $fieldInfo = array(
+                'USER_TYPE_ID' => $userField['USER_TYPE_ID'],
+                //'ENTITY_ID' => $this->userFieldEntityID,
+                //'ENTITY_VALUE_ID' => $this->entityID,
+                'FIELD' => $fieldName,
+                'MULTIPLE' => $userField['MULTIPLE'],
+                'MANDATORY' => $userField['MANDATORY'],
+                'SETTINGS' => isset($userField['SETTINGS']) ? $userField['SETTINGS'] : null
+                //'CONTEXT' => $this->guid
+            );
+
+            if($userField['USER_TYPE_ID'] === 'enumeration')
+            {
+                $enumerationFields[$fieldName] = $userField;
+            }
+            /*elseif($userField['USER_TYPE_ID'] === 'file')
+            {
+                // смотреть на файл
+                $fieldInfo['ADDITIONAL'] = array(
+                    'URL_TEMPLATE' => \CComponentEngine::MakePathFromTemplate(
+                        '/bitrix/components/bitrix/crm.company.show/show_file.php?ownerId=#owner_id#&fieldName=#field_name#&fileId=#file_id#',
+                        array(
+                            'owner_id' => $this->entityID,
+                            'field_name' => $fieldName
+                        )
+                    )
+                );
+            } */
+
+            $this->userFieldInfos[$fieldName] = array(
+                'name' => $fieldName,
+                'title' => isset($userField['EDIT_FORM_LABEL']) ? $userField['EDIT_FORM_LABEL'] : $fieldName,
+                'type' => 'userField',
+                'data' => array('fieldInfo' => $fieldInfo)
+            );
+
+            if(isset($userField['MANDATORY']) && $userField['MANDATORY'] === 'Y')
+            {
+                $this->userFieldInfos[$fieldName]['required'] = true;
+            }
+        }
+
+        if(!empty($enumerationFields))
+        {
+            $enumInfos = \CCrmUserType::PrepareEnumerationInfos($enumerationFields);
+            foreach($enumInfos as $fieldName => $enums)
+            {
+                if(isset($this->userFieldInfos[$fieldName])
+                    && isset($this->userFieldInfos[$fieldName]['data'])
+                    && isset($this->userFieldInfos[$fieldName]['data']['fieldInfo'])
+                )
+                {
+                    $this->userFieldInfos[$fieldName]['data']['fieldInfo']['ENUM'] = $enums;
+                }
+            }
+        }
+
+        return $this->userFieldInfos;
+    }
+
+
 
     private function processGridActions($currentFilter)
     {
@@ -278,19 +549,19 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         //$q = $request->getQueryList();
         $p = $request->getPostList();
         $method = $request->getRequestMethod();
-        \Bitrix\Main\Diag\Debug::writeToFile($method, "", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($method, "", "__miros.log");
 
         if ($p['controls']['action_button_CRMSTORES_LIST']=='assign_to') {
             $newassigned = $p['controls']['ACTION_ASSIGNED_BY_ID'];
             $action = $p['controls']['action_button_CRMSTORES_LIST'];
-            \Bitrix\Main\Diag\Debug::writeToFile($p['rows'], "", "__miros.log");
+            //\Bitrix\Main\Diag\Debug::writeToFile($p['rows'], "", "__miros.log");
             foreach ($p['rows'] as $key => $param) {
-                \Bitrix\Main\Diag\Debug::writeToFile($param, "", "__miros.log");
+                //\Bitrix\Main\Diag\Debug::writeToFile($param, "", "__miros.log");
                 StoreTable::update($param, array('ASSIGNED_BY_ID' => $newassigned));
             }
         }
         //\Bitrix\Main\Diag\Debug::writeToFile($key, "", "__miros.log");
-        \Bitrix\Main\Diag\Debug::writeToFile($newassigned, "", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($newassigned, "", "__miros.log");
 
 
         if ($action=="") {
@@ -327,8 +598,8 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         if (empty($storeIds)) {
             return;
         }
-        \Bitrix\Main\Diag\Debug::writeToFile($action, "", "__miros.log");
-        if ($action == 'assign_to') {
+        //\Bitrix\Main\Diag\Debug::writeToFile($action, "", "__miros.log");
+        /*if ($action == 'assign_to') {
             \Bitrix\Main\Diag\Debug::writeToFile("assign_to", "", "__miros.log");
             $arUpdateData = array(
                 'ASSIGNED_BY_ID' => $newassigned
@@ -339,7 +610,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                 StoreTable::update(4, array('ASSIGNED_BY_ID' => 5));
             }
 
-        }
+        } */
 
 
         switch ($action) {
