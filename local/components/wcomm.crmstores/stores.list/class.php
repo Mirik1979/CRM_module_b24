@@ -19,13 +19,18 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
 
     //const SORTABLE_FIELDS = array('ID', 'NAME', 'ASSIGNED_BY_ID', 'ADDRESS');
-    const FILTERABLE_FIELDS = array('ID', 'NAME', 'ASSIGNED_BY_ID', 'ADDRESS');
+    const FILTERABLE_FIELDS = array('ID', 'NAME', 'ASSIGNED_BY_ID', 'ADDRESS', 'UF_CRM_1571643566',
+        'UF_CRM_1571643637', 'UF_CRM_1571643659', 'UF_CRM_1571643700', 'UF_CRM_1571643732', 'UF_CRM_1571643763',
+        'UF_CRM_1571643763', 'UF_CRM_1571643779', 'UF_CRM_1571643790', 'UF_CRM_1571643803', 'UF_CRM_1571643821',
+        'UF_CRM_1571643839', 'UF_CRM_1572340128', 'UF_CRM_1572343737', 'UF_CRM_1572343737', 'UF_CRM_1572343845', 'UF_CRM_1572343864',
+        'UF_CRM_1572343891', 'UF_CRM_1572343927',  'UF_CRM_1571643700');
     const SUPPORTED_ACTIONS = array('delete', 'assign_to');
     const SUPPORTED_SERVICE_ACTIONS = array('GET_ROW_COUNT');
 
     private static $headers;
     private static $filterFields;
     private static $filterPresets;
+    private static $supportedFields;
 
     public function __construct(CBitrixComponent $component = null)
     {
@@ -33,8 +38,14 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
         parent::__construct($component);
 
+        if (!Loader::includeModule('wcomm.crmstores')) {
+            ShowError(Loc::getMessage('CRMSTORES_NO_MODULE'));
+            return;
+        }
+
         self::$headers = $this->getHeaders();
         self::$filterFields = $this->getFilters();
+        self::$supportedFields = $this->getallFields();
 
         self::$filterPresets = array(
             'my_stores' => array(
@@ -62,7 +73,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         //region Sort
         //сортировки смотрим здесь
         $gridSort = $grid->getSorting();
-        $supportedFields = StoreTable::GetFieldsInfoUf();
+
         $sort = array_filter(
             $gridSort['sort'],
             function ($field) {
@@ -79,12 +90,18 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         //region Filter
         $gridFilter = new Filter\Options(self::GRID_ID, self::$filterPresets);
         $gridFilterValues = $gridFilter->getFilter(self::$filterFields);
-        //\Bitrix\Main\Diag\Debug::writeToFile($gridFilterValues, "gf", "__miros.log");
+        $gridFilterValues =  $this->refineFilter($gridFilterValues);
+        //\Bitrix\Main\Diag\Debug::writeToFile(self::FILTERABLE_FIELDS, "const", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile(self::$supportedFields, "var", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($gridFilterValues, "grf0+", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($gridFilterValues1, "grf0", "__miros.log");
 
         $gridFilterValues = array_filter(
             $gridFilterValues,
             function ($fieldName) {
-                return in_array($fieldName, self::FILTERABLE_FIELDS);
+                //return in_array($fieldName, self::FILTERABLE_FIELDS);
+                return in_array($fieldName, self::$supportedFields);
+                //return $fieldName;
             },
             ARRAY_FILTER_USE_KEY
         );
@@ -105,7 +122,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             $pager->setCurrentPage(1);
         }
         //endregion
-
+        //\Bitrix\Main\Diag\Debug::writeToFile($gridFilterValues, "grf", "__miros.log");
         $stores = $this->getStores(array(
             'filter' => $gridFilterValues,
             'limit' => $pager->getLimit(),
@@ -135,6 +152,62 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
         $this->includeComponentTemplate();
     }
+
+    private function getallFields() {
+
+        global $USER_FIELD_MANAGER;
+        $arr = array ('ID', 'NAME', 'ASSIGNED_BY_ID', '>=UF_CRM_1571643821', '<=UF_CRM_1571643821',
+            '>=UF_CRM_1571643839', '<=UF_CRM_1571643839', '>=UF_CRM_1571643779', '<=UF_CRM_1571643779',
+            '>=UF_CRM_1571643790', '<=UF_CRM_1571643790', '>=UF_CRM_1571643803', '<=UF_CRM_1571643803');
+        $arUserFields = $USER_FIELD_MANAGER->GetUserFields(StoreTable::getUfId());
+        foreach ($arUserFields as $key => $fval) {
+            array_push($arr, $key);
+        }
+        return $arr;
+    }
+
+    private function refineFilter($params = array())
+    {
+        //\Bitrix\Main\Diag\Debug::writeToFile('begin', "usrf", "__miros.log");
+        $arUserFieldsdouble = $this->prepareEntityUserFieldInfos();
+        //\Bitrix\Main\Diag\Debug::writeToFile($arUserFieldsdouble, "usrf", "__miros.log");
+        $fields = $params;
+
+        foreach ($params as $key => $param) {
+            //UF_CRM_1571643821_datesel
+            $clkey = str_replace('_datesel', '', $key);
+            $clkey = str_replace('_numsel', '', $clkey);
+            \Bitrix\Main\Diag\Debug::writeToFile($key, "usrfkey", "__miros.log");
+            if ($arUserFieldsdouble[$clkey]['data']['fieldInfo']['USER_TYPE_ID']=='crm' &&
+                $arUserFieldsdouble[$clkey]['data']['fieldInfo']['MULTIPLE']=='N') {
+                //\Bitrix\Main\Diag\Debug::writeToFile('match', "usrfkey", "__miros.log");
+                $str = preg_replace("/[^0-9]/", '', $param);
+                $fields[$key] = $str;
+            } elseif($arUserFieldsdouble[$clkey ]['data']['fieldInfo']['USER_TYPE_ID']=='crm' &&
+                $arUserFieldsdouble[$clkey]['data']['fieldInfo']['MULTIPLE']=='Y') {
+                //\Bitrix\Main\Diag\Debug::writeToFile($param, "prmv", "__miros.log");
+                $str = preg_replace("/[^0-9]/", '', $param);
+                $newvalarr = array($str);
+                $fields[$key] = $newvalarr;
+            } elseif($arUserFieldsdouble[$clkey]['data']['fieldInfo']['USER_TYPE_ID']=='date') {
+                $datebegin = $fields[$clkey."_from"];
+                $dateend = $fields[$clkey."_to"];
+                $fields[">=".$clkey] = ConvertDateTime($datebegin, "DD.MM.YYYY")." 00:00:00";
+                $fields["<=".$clkey] = ConvertDateTime($dateend, "DD.MM.YYYY")." 23:59:00";
+            } elseif($arUserFieldsdouble[$clkey]['data']['fieldInfo']['USER_TYPE_ID']=='double') {
+                if($fields[$clkey."_from"]) {
+                    $fields[">=".$clkey] = $fields[$clkey."_from"];
+                }
+                if($fields[$clkey."_to"]) {
+                    $fields["<=".$clkey] = $fields[$clkey."_to"];
+                }
+
+            }
+        }
+        \Bitrix\Main\Diag\Debug::writeToFile($fields, "usrfkey", "__miros.log");
+        return $fields;
+    }
+
 
     private function getHeaders()
     {
@@ -224,15 +297,15 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                     'isNumeric' => 'Y',
                     'prefix' => 'U'
                 )
-            ),
+            ) /*,
             array(
                 'id' => 'ADDRESS',
                 'name' => Loc::getMessage('CRMSTORES_FILTER_FIELD_ADDRESS'),
                 'type' => 'list',
                 'params' => array('multiple'=>'N'),
-                'default' => 'Y',
+                'default' => 'N',
                 'items' => array("Да","Нет")
-            )
+            )  */
         );
         if (\Bitrix\Main\Loader::includeModule('crm')) {
             $CCrmFields = new CCrmFields($USER_FIELD_MANAGER, StoreTable::getUfId());
@@ -241,8 +314,6 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         $arUserFieldsdouble = $this->prepareEntityUserFieldInfos();
 
         foreach ($arUserFields as $FIELD_ID => $arField) {
-
-
 
             if($arField['SHOW_FILTER']!='N') {
                 if ($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['USER_TYPE_ID'] == 'enumeration') {
@@ -324,6 +395,14 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                         'type' => 'date',
                         'default' => $arField['SHOW_IN_LIST']
                     );
+                } elseif($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['USER_TYPE_ID'] == 'double' /*||
+                    $arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['USER_TYPE_ID'] == 'money' */) {
+                    $newfilter = array(
+                        'id' => $FIELD_ID,
+                        'name' => $arField['EDIT_FORM_LABEL'],
+                        'type' => 'number',
+                        'default' => $arField['SHOW_IN_LIST']
+                    );
                 }
                 else {
                     $newfilter = array(
@@ -344,7 +423,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
     {
 
         global $USER_FIELD_MANAGER;
-
+        //\Bitrix\Main\Diag\Debug::writeToFile($params, "searchparams", "__miros.log");
         $stores = StoreTable::getListEx($params);
         
         $userIds = array_column($stores, 'ASSIGNED_BY_ID');
@@ -418,7 +497,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                             }
                             $store[$field] = $text;
                         } elseif($fieldval['data']['fieldInfo']['SETTINGS']['CONTACT']=='Y') {
-                            \Bitrix\Main\Diag\Debug::writeToFile($store[$field], "ffff", "__miros.log");
+                            //\Bitrix\Main\Diag\Debug::writeToFile($store[$field], "ffff", "__miros.log");
                             $text ='';
                             foreach($store[$field] as $storeval) {
                                 $res = CCrmContact::GetbyID($storeval);
