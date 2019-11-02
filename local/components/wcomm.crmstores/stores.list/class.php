@@ -2,6 +2,7 @@
 defined('B_PROLOG_INCLUDED') || die;
 
 use Wcomm\CrmStores\Entity\StoreTable;
+use WComm\CrmStores\BizProc\StoreDocument;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -696,6 +697,10 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             case 'delete':
                 foreach ($storeIds as $storeId) {
                     StoreTable::delete($storeId);
+                    if (Loader::includeModule('bizproc')) {
+                        CBPDocument::OnDocumentDelete(StoreDocument::getComplexDocumentId($storeId), $bpErrors);
+                    }
+
                 }
                 break;
             default:

@@ -135,11 +135,14 @@ if($arParams['TYPE'] === 'details')
 	{
 		$copyUrl = CHTTP::urlAddParams(
 			CComponentEngine::MakePathFromTemplate(
-				$arParams['PATH_TO_COMPANY_DETAILS'],
-				array('company_id' => $arParams['ELEMENT_ID'])
+				'/crm/stores/details/#store_id#/',
+				array('store_id' => $arParams['ELEMENT_ID'])
 			),
 			array('copy' => 1)
 		);
+
+		\Bitrix\Main\Diag\Debug::writeToFile($copyUrl, "2222", "__miros.log");
+
 		$arResult['BUTTONS'][] = array(
 			'TEXT' => GetMessage('COMPANY_COPY'),
 			'TITLE' => GetMessage('COMPANY_COPY_TITLE'),

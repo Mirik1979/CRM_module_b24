@@ -9,6 +9,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_befo
 use Bitrix\Main;
 use Bitrix\Crm;
 use Wcomm\CrmStores\Entity\StoreTable;
+use WComm\CrmStores\BizProc\StoreDocument;
 
 if (!CModule::IncludeModule('crm'))
 {
@@ -254,7 +255,16 @@ if($action === 'SAVE')
 				{
 					$errorMessage = $entity->LAST_ERROR;
 				}
-
+                if (!Main\Loader::includeModule('bizproc')) {
+                    return array();
+                }
+                CBPDocument::AutoStartWorkflows(
+                    StoreDocument::getComplexDocumentType(),
+                    CBPDocumentEventType::Create,
+                    StoreDocument::getComplexDocumentId($ID),
+                    array(),
+                    $errors
+                );
             }
 			else
 			{
@@ -264,6 +274,23 @@ if($action === 'SAVE')
                     \Bitrix\Main\Diag\Debug::writeToFile("nonupd", "FINFOS", "__miros.log");
 				    $errorMessage = $entity->LAST_ERROR;
 				}
+                if (!Main\Loader::includeModule('bizproc')) {
+                    return array();
+                }
+
+                //static $eventMap = array(
+                //    self::EVENT_CREATED => CBPDocumentEventType::Create,
+                //    self::EVENT_UPDATED => CBPDocumentEventType::Edit,
+                //);
+
+                CBPDocument::AutoStartWorkflows(
+                      StoreDocument::getComplexDocumentType(),
+                      \CBPDocumentEventType::Edit,
+                      StoreDocument::getComplexDocumentId($ID),
+                      array(),
+                      $errors
+                );
+
 			}
 		}
 

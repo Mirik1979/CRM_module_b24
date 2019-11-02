@@ -7,6 +7,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Web\Json;
+use Bitrix\Crm\Tracking;
 
 /** @var CBitrixComponentTemplate $this */
 
@@ -280,8 +281,26 @@ foreach ($arResult['STORES'] as $store) {
         'data' => $store,
         'columns' => array(
             'ID' => $store['ID'],
-            'NAME' => '<a href="' . $viewUrl . '" target="_self">' . $store['NAME'] . '</a>',
-            'ASSIGNED_BY' => empty($store['ASSIGNED_BY']) ? '' : CCrmViewHelper::PrepareUserBaloonHtml(
+            'NAME' => '<a href="' . $viewUrl . '" target="_self">' . $store['NAME'] . '</a><p style="font-size: 12px; margin-top: -2px">'.$store['UF_CRM_1572591277'].'</p>',
+            //'NAME' => CCrmViewHelper::RenderClientSummary(
+            //    $viewUrl,
+            //    $store['NAME'],
+            //    Tracking\UI\Grid::enrichSourceName(
+            //        "test"
+            //    )
+            //),
+
+            /* 'NAME' => CCrmViewHelper::RenderClientSummary(
+                $arCompany['PATH_TO_COMPANY_SHOW'],
+                $arCompany['TITLE'],
+                Tracking\UI\Grid::enrichSourceName(
+                    \CCrmOwnerType::Company,
+                    $arCompany['ID'],
+                    $arCompany['COMPANY_TYPE_NAME']
+                ), */
+
+
+                'ASSIGNED_BY' => empty($store['ASSIGNED_BY']) ? '' : CCrmViewHelper::PrepareUserBaloonHtml(
                 array(
                     'PREFIX' => "STORE_{$store['ID']}_RESPONSIBLE",
                     'USER_ID' => $store['ASSIGNED_BY_ID'],

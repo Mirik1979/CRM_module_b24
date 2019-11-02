@@ -10,6 +10,8 @@ class CWcommCrmStoresStoresComponent extends CBitrixComponent
     const SEF_DEFAULT_TEMPLATES = array(
         'details' => '#STORE_ID#/',
         'edit' => '#STORE_ID#/edit/',
+        'bizproc_workflow_admin' => 'bp_list/',
+        'bizproc_workflow_edit' => 'bp_edit/#ID#/',
     );
 
     public function executeComponent()

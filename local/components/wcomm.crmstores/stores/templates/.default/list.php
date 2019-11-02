@@ -26,6 +26,7 @@ $APPLICATION->IncludeComponent(
 $urlTemplates = array(
     'DETAIL' => $arResult['SEF_FOLDER'] . $arResult['SEF_URL_TEMPLATES']['details'],
     'EDIT' => $arResult['SEF_FOLDER'] . $arResult['SEF_URL_TEMPLATES']['edit'],
+    'BP_LIST' => $arResult['SEF_FOLDER'] . $arResult['SEF_URL_TEMPLATES']['bizproc_workflow_admin']
 );
 
 /*$APPLICATION->IncludeComponent(
@@ -85,6 +86,11 @@ $APPLICATION->IncludeComponent(
                 'TEXT' => Loc::getMessage('CRMSTORES_DEDUPE'),
                 'TITLE' => Loc::getMessage('CRMSTORES_DEDUPE'),
                 'LINK' => '/crm/company/dedupe/'
+            ),
+            array(
+                'TEXT' => Loc::getMessage('CRMSTORES_CONFIGURE_WORKFLOWS'),
+                'TITLE' => Loc::getMessage('CRMSTORES_CONFIGURE_WORKFLOWS'),
+                'LINK' => $urlTemplates['BP_LIST']
             )
         )
     ),
