@@ -15,6 +15,11 @@ $arComponentParameters = array(
                 'NAME' => Loc::getMessage('CRMSTORES_EDIT_URL_TEMPLATE'),
                 'DEFAULT' => '#STORE_ID#/edit/',
                 'VARIABLES' => array('STORE_ID')
+            ),
+            'import'=>array(
+                'NAME' => Loc::getMessage('CRMSTORES_IMPORT_URL_TEMPLATE'),
+                'DEFAULT' => 'import/'
+
             )
         )
     )

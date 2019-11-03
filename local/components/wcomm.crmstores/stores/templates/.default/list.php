@@ -73,7 +73,7 @@ $APPLICATION->IncludeComponent(
             array(
                 'TEXT' => Loc::getMessage('CRMSTORES_IMPORT'),
                 'TITLE' => Loc::getMessage('CRMSTORES_IMPORT'),
-                'LINK' => '/crm/company/import/',
+                'LINK' => '/crm/stores/import/',
                 'ICON' => 'btn-import'
             ),
             array(

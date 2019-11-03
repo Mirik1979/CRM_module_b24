@@ -1,6 +1,7 @@
 <?php
 defined('B_PROLOG_INCLUDED') || die;
 
+
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -10,9 +11,11 @@ class CWcommCrmStoresStoresComponent extends CBitrixComponent
     const SEF_DEFAULT_TEMPLATES = array(
         'details' => '#STORE_ID#/',
         'edit' => '#STORE_ID#/edit/',
+        'import' => 'import/',
         'bizproc_workflow_admin' => 'bp_list/',
         'bizproc_workflow_edit' => 'bp_edit/#ID#/',
     );
+
 
     public function executeComponent()
     {
@@ -43,11 +46,17 @@ class CWcommCrmStoresStoresComponent extends CBitrixComponent
         if (empty($page)) {
             $page = 'list';
         }
+        global $APPLICATION;
+        $pathtostore = '/crm/stores/';
+        $import = '/crm/stores/import/';
+
 
         $this->arResult = array(
             'SEF_FOLDER' => $this->arParams['SEF_FOLDER'],
             'SEF_URL_TEMPLATES' => $sefTemplates,
             'VARIABLES' => $arVariables,
+            'PATH_TO_STORE_LIST' => $pathtostore,
+            'PATH_TO_STORE_IMPORT' => $import
         );
 
         $this->includeComponentTemplate($page);
