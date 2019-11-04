@@ -5,7 +5,7 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/php_interface/init.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/local/vendor/autoload.php');
 
 //Выносим вызов событий в одно меесто
-//local\Helpers\SetEvents::init();
+local\Helpers\SetEvents::init();
 local\Helpers\SetConst::init();
 
 //wcomm {
@@ -30,12 +30,12 @@ if(!(isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y"))
 
 // } wcomm
 // добавляем объекты в меню
-AddEventHandler('crm', 'OnAfterCrmControlPanelBuild', function (&$items) {
-    $items[] = array(
-        'ID' => 'CONSTRUCTION',
-        'MENU_ID' => 'menu_crm_construction',
-        'NAME' => 'Объекты',
-        'TITLE' => 'Строительные объекты',
-        'URL' => '/crm/construction/'
-    );
-});
+//AddEventHandler('crm', 'OnAfterCrmControlPanelBuild', function (&$items) {
+//  $items[] = array(
+//      'ID' => 'CONSTRUCTION',
+//       'MENU_ID' => 'menu_crm_construction',
+//      'NAME' => 'Объекты',
+//      'TITLE' => 'Строительные объекты',
+//      'URL' => '/crm/construction/'
+//  );
+//});
