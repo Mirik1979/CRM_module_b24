@@ -641,7 +641,11 @@ if(!empty($htmlEditorConfigs))
 				"<?=CUtil::JSEscape($guid)?>",
 				<?=\CUtil::PhpToJSObject($arResult['REST_PLACEMENT_TAB_CONFIG'])?>
 			);
-			<?}?>
+			<?}
+
+            //\Bitrix\Main\Diag\Debug::writeToFile($arResult, "", "__miros.log");
+
+			?>
 
 			BX.Crm.EntityEditor.setDefault(
 				BX.Crm.EntityEditor.create(

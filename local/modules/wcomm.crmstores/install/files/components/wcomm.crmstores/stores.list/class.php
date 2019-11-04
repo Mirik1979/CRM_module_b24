@@ -305,6 +305,9 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             case 'delete':
                 foreach ($storeIds as $storeId) {
                     StoreTable::delete($storeId);
+                    if (Loader::includeModule('bizproc')) {
+                        CBPDocument::OnDocumentDelete(StoreDocument::getComplexDocumentId($storeId), $bpErrors);
+                    }
                 }
             break;
 

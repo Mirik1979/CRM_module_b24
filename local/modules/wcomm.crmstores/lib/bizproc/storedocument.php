@@ -1,9 +1,7 @@
 <?php
+namespace WComm\CrmStores\BizProc;
 
-namespace Academy\CrmStores\BizProc;
-
-
-use Academy\CrmStores\Entity\StoreTable;
+use WComm\CrmStores\Entity\StoreTable;
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
@@ -18,7 +16,7 @@ if (!Loader::includeModule('bizproc')) {
 }
 
 /**
- * Описывает типы документов и документы для модуля academy.crmstores.
+ * Описывает типы документов и документы для модуля wcomm.crmstores.
  *
  * Определен один тип документа - "Торговая точка" с идентификатором "store".
  *
@@ -32,7 +30,7 @@ class StoreDocument implements \IBPWorkflowDocument
      */
     static public function getComplexDocumentType()
     {
-        return array('academy.crmstores', self::class, 'store');
+        return array('wcomm.crmstores', self::class, 'store');
     }
 
     /**
@@ -42,7 +40,7 @@ class StoreDocument implements \IBPWorkflowDocument
      */
     static public function getComplexDocumentId($storeId)
     {
-        return array('academy.crmstores', self::class, $storeId);
+        return array('wcomm.crmstores', self::class, $storeId);
     }
 
     /**
@@ -65,13 +63,21 @@ class StoreDocument implements \IBPWorkflowDocument
      */
     static public function GetDocument($documentId)
     {
+
+        global $USER_FIELD_MANAGER;
         if (intval($documentId) <= 0) {
             throw new ArgumentException('Invalid store ID.', 'documentId');
         }
 
         $dbStore = StoreTable::getById($documentId);
         $store = $dbStore->fetch();
-
+        $arUserFields = $USER_FIELD_MANAGER->GetUserFields("CRM_STORES");
+        foreach ($arUserFields as $key => $arUserFieldval) {
+              $value = $USER_FIELD_MANAGER->GetUserFieldValue('CRM_STORES', $key, $documentId);
+              $store[$key] = $value;
+        }
+        //$value = $USER_FIELD_MANAGER->GetUserFieldValue('CRM_STORES', 'UF_CRM_1571643659', $documentId);
+        //$store['UF_CRM_1571643659'] = $value;
         return self::convertStoreToBp($store);
     }
 
@@ -81,7 +87,9 @@ class StoreDocument implements \IBPWorkflowDocument
      */
     static public function GetDocumentFields($documentType)
     {
-        return array(
+        global $USER_FIELD_MANAGER;
+
+        $iniarr = array(
             'ID' => array(
                 'Name' => Loc::getMessage('CRMSTORES_FIELD_ID'),
                 'Type' => FieldType::INT,
@@ -96,21 +104,64 @@ class StoreDocument implements \IBPWorkflowDocument
                 'Editable' => true,
                 'Required' => true,
             ),
-            'ADDRESS' => array(
-                'Name' => Loc::getMessage('CRMSTORES_FIELD_ADDRESS'),
-                'Type' => FieldType::STRING,
-                'Filterable' => true,
-                'Editable' => true,
-                'Required' => true,
-            ),
             'ASSIGNED_BY_ID' => array(
                 'Name' => Loc::getMessage('CRMSTORES_FIELD_ASSIGNED_BY_ID'),
                 'Type' => FieldType::USER,
                 'Filterable' => true,
                 'Editable' => true,
                 'Required' => false,
-            ),
+            ) /*,
+            'UF_CRM_1571643659' => array(
+                //'Name' => "Площадь пятна застройки",
+                'Name' => "UUU",
+                'Type' => FieldType::INT,
+                'Filterable' => true,
+                'Editable' => true,
+                'Required' => false,
+            ) */
+
+
         );
+
+        $arUserFields = $USER_FIELD_MANAGER->GetUserFields("CRM_STORES");
+
+        foreach($arUserFields as $key => $val) {
+            if ($val['USER_TYPE_ID']!='file') {
+                if($val['USER_TYPE_ID']=='double' || $val['USER_TYPE_ID']=='enumeration'
+                    || $val['USER_TYPE_ID']=='crm') {
+                    $newfield = array(
+                        'Name' => $val['FIELD_NAME'],
+                        'Type' => FieldType::INT,
+                        'Filterable' => true,
+                        'Editable' => true,
+                        'Required' => false,
+                    );
+                } elseif($val['USER_TYPE_ID']=='money' || $val['USER_TYPE_ID']=='url'
+                    || $val['USER_TYPE_ID']=='address') {
+                    $newfield = array(
+                        'Name' => $val['FIELD_NAME'],
+                        'Type' => FieldType::STRING,
+                        'Filterable' => true,
+                        'Editable' => true,
+                        'Required' => false,
+                    );
+                } elseif ($val['USER_TYPE_ID']=='date') {
+                    $newfield = array(
+                        'Name' => $val['FIELD_NAME'],
+                        'Type' => FieldType::DATETIME,
+                        'Filterable' => true,
+                        'Editable' => true,
+                        'Required' => false,
+                    );
+
+
+                }
+                $iniarr[$val['FIELD_NAME']] = $newfield;
+
+                //array_push($iniarr, $newfield);
+            }
+        }
+        return $iniarr;
     }
 
     /**
@@ -149,7 +200,7 @@ class StoreDocument implements \IBPWorkflowDocument
     {
         $result = StoreTable::update($documentId, self::convertStoreFromBp($arFields));
 
-        if ($result->isSuccess()) {
+        /*if ($result->isSuccess()) {
             \CBPDocument::AutoStartWorkflows(
                 self::getComplexDocumentType(),
                 \CBPDocumentEventType::Edit,
@@ -157,7 +208,7 @@ class StoreDocument implements \IBPWorkflowDocument
                 array(),
                 $errors
             );
-        }
+        } */
     }
 
     /**
@@ -209,7 +260,7 @@ class StoreDocument implements \IBPWorkflowDocument
     static public function GetDocumentAdminPage($documentId)
     {
         return \CComponentEngine::makePathFromTemplate(
-            Option::get('academy.crmstores', 'STORE_DETAIL_TEMPLATE'),
+            Option::get('wcomm.crmstores', 'STORE_DETAIL_TEMPLATE'),
             array('STORE_ID' => $documentId)
         );
     }

@@ -55,6 +55,11 @@ $urlTemplates = array(
     $component
 ); */
 
+$entityType = CCrmOwnerType::DealName;
+$stExportId = 'STEXPORT_'.$entityType.'_MANAGER';
+$randomSequence = new Bitrix\Main\Type\RandomSequence($stExportId);
+$stExportManagerId = $stExportId.'_'.$randomSequence->randString();
+
 $APPLICATION->IncludeComponent(
     'bitrix:crm.interface.toolbar',
     'title',
@@ -73,13 +78,13 @@ $APPLICATION->IncludeComponent(
             array(
                 'TEXT' => Loc::getMessage('CRMSTORES_IMPORT'),
                 'TITLE' => Loc::getMessage('CRMSTORES_IMPORT'),
-                'LINK' => '/crm/company/import/',
+                'LINK' => '/crm/stores/import/',
                 'ICON' => 'btn-import'
             ),
             array(
                 'TEXT' => Loc::getMessage('CRMSTORES_EXPORT'),
                 'TITLE' => Loc::getMessage('CRMSTORES_EXPORT'),
-                'ONCLICK' => 'BX.Crm.ExportManager.items[\'STEXPORT_COMPANY_MANAGER_MEg2VEg38A\'].startExport(\'excel\')',
+                'ONCLICK' => "BX.Crm.ExportManager.items['".CUtil::JSEscape($stExportManagerId)."'].startExport('excel')",
                 'ICON' => 'btn-import'
             ),
             array(

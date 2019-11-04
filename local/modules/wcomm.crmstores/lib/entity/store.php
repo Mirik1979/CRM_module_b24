@@ -48,6 +48,41 @@ class StoreTable extends DataManager
         );
     }
 
+    public static function GetFieldsInfo()
+    {
+        return array(
+            'ID' => array (
+                'TYPE' => 'interger',
+                'ATTRIBUTES' => array('R-0'
+                )
+            ),
+            'NAME' => array (
+                'TYPE' => 'string',
+                'ATTRIBUTES' => array('REQ'
+                )
+            ),
+            //'ADDRESS' => array (
+            //    'TYPE' => 'string',
+            //    'ATTRIBUTES' => array('REQ'
+            //    )
+            //),
+            'ASSIGNED_BY_ID' => array (
+                'TYPE' => 'user'
+            )
+        );
+    }
+
+    public static function GetFieldsInfoUf()
+    {
+
+        global $USER_FIELD_MANAGER;
+        $arF = self::GetFieldsInfo();
+        $arUserFields = $USER_FIELD_MANAGER->GetUserFields(self::getUfId());
+        array_merge($arF, $arUserFields);
+
+    }
+
+
     public static function getListEx($params = array()) {
         global $USER_FIELD_MANAGER;
         $dbResult = self::GetList($params);

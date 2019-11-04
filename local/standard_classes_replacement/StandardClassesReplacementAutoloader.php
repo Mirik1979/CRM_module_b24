@@ -18,6 +18,7 @@ class StandardClassesReplacementAutoloader
 		{
 			self::$arrReplaceableClasses = Array(
 				strtolower("CCrmCurrencyHelper") => "/modules/crm/classes/general/crm_currency_helper.php",
+                //strtolower("CCrmFields") => "/modules/crm/classes/general/crm_fields.php",
 				strtolower("CCrmCurrency") => "/modules/crm/classes/general/crm_currency.php",
 				strtolower("Bitrix\Currency\Helpers\Editor") => "/modules/currency/lib/helpers/editor.php",
 				strtolower("Bitrix\Currency\UserField\Money") => "/modules/currency/lib/userfield/money.php",

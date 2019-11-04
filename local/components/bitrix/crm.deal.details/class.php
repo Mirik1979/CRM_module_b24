@@ -84,7 +84,12 @@ class CCrmDealDetailsComponent extends CBitrixComponent
 	}
 	public function initializeParams(array $params)
 	{
-		foreach($params as $k => $v)
+
+        //\Bitrix\Main\Diag\Debug::writeToFile("here", "prm", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "prm", "__miros.log");
+	    //\Bitrix\Main\Diag\Debug::writeToFile($params, "prm", "__miros.log");
+
+	    foreach($params as $k => $v)
 		{
 			if($k === 'INITIAL_DATA' && is_array($v))
 			{
@@ -186,6 +191,11 @@ class CCrmDealDetailsComponent extends CBitrixComponent
 		/** @global \CMain $APPLICATION */
 		global $APPLICATION;
 
+        //\Bitrix\Main\Diag\Debug::writeToFile("here", "prm", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "prm", "__miros.log");
+
+
+
 		//region Params
 		$this->arResult['ENTITY_ID'] = isset($this->arParams['~ENTITY_ID']) ? (int)$this->arParams['~ENTITY_ID'] : 0;
 		$extras = isset($this->arParams['~EXTRAS']) && is_array($this->arParams['~EXTRAS'])
@@ -274,6 +284,14 @@ class CCrmDealDetailsComponent extends CBitrixComponent
 
 		$this->arResult['INITIAL_DATA'] = isset($this->arParams['~INITIAL_DATA']) && is_array($this->arParams['~INITIAL_DATA'])
 			? $this->arParams['~INITIAL_DATA'] : array();
+
+		if(!$this->arResult['INITIAL_DATA']) {
+            if($_REQUEST['UF_STORE']) {
+                //\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST['UF_STORE'], "prmsss", "__miros.log");
+                $this->arResult['INITIAL_DATA']['UF_STORE'] = $_REQUEST['UF_STORE'];
+            }
+		}
+
 
 		$this->defaultFieldValues = array();
 		//endregion
@@ -1378,7 +1396,7 @@ class CCrmDealDetailsComponent extends CBitrixComponent
 		}
 		*/
 		//endregion
-        \Bitrix\Main\Diag\Debug::writeToFile("yeahh");
+        //\Bitrix\Main\Diag\Debug::writeToFile("yeahh");
 
 		$this->entityFieldInfos = array_merge(
 			$this->entityFieldInfos,
@@ -2718,13 +2736,16 @@ class CCrmDealDetailsComponent extends CBitrixComponent
 
 	protected function tryGetFieldValueFromRequest($name, array &$params)
 	{
-		$value = $this->request->get($name);
+
+
+	    $value = $this->request->get($name);
 		if($value === null)
 		{
 			return false;
 		}
 
 		$params[$name] = $value;
+        //\Bitrix\Main\Diag\Debug::writeToFile($params, "prm0", "__miros.log");
 		return true;
 	}
 }

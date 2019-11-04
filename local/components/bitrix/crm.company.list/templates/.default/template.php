@@ -34,6 +34,9 @@ Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/dialog.js');
 
 ?><div id="batchDeletionWrapper"></div><?
 
+
+
+
 if($arResult['NEED_FOR_REBUILD_DUP_INDEX']):
 	?><div id="rebuildCompanyDupIndexMsg" class="crm-view-message">
 		<?=GetMessage('CRM_COMPANY_REBUILD_DUP_INDEX', array('#ID#' => 'rebuildCompanyDupIndexLink', '#URL#' => '#'))?>
@@ -69,6 +72,10 @@ if($arResult['NEED_FOR_TRANSFER_REQUISITES']):
 	</div><?
 endif;
 
+//echo "<pre>";
+//print_r($arResult);
+//echo "</pre>";
+
 $isInternal = $arResult['INTERNAL'];
 $callListUpdateMode = $arResult['CALL_LIST_UPDATE_MODE'];
 $allowWrite = $arResult['PERMS']['WRITE'] && !$callListUpdateMode;
@@ -95,6 +102,8 @@ if(!$isInternal):
 	);
 endif;
 $gridManagerID = $arResult['GRID_ID'].'_MANAGER';
+//print_r($gridManagerID);
+
 $gridManagerCfg = array(
 	'ownerType' => 'COMPANY',
 	'gridId' => $arResult['GRID_ID'],
@@ -117,10 +126,16 @@ $now = time() + CTimeZone::GetOffset();
 
 foreach($arResult['COMPANY'] as $sKey =>  $arCompany)
 {
-	$arEntitySubMenuItems = array();
+	//print_r($arCompany['PATH_TO_COMPANY_SHOW']);
+
+    $arEntitySubMenuItems = array();
 	$arActivityMenuItems = array();
 	$arActivitySubMenuItems = array();
 	$arActions = array();
+
+    echo "<pre>";
+    //print_r($arCompany['PATH_TO_COMPANY_SHOW']);
+    echo "</pre>";
 
 	$arActions[] = array(
 		'TITLE' => GetMessage('CRM_COMPANY_SHOW_TITLE'),

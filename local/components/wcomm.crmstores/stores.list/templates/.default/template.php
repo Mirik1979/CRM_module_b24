@@ -208,10 +208,12 @@ foreach ($arResult['STORES'] as $store) {
     ));
     $deleteUrl = $arParams['SEF_FOLDER'] . '?' . $deleteUrlParams;
     // здесь возможно надо будет поправить чтобы объект тянулся в сделку
+    $dealurl = '/crm/deal/details/0/?UF_STORE='.$store['ID'];
+
     $arEntitySubMenuItems[] = array(
         'TITLE' => GetMessage('CRMSTORES_DEAL_ADD_TITLE'),
         'TEXT' => GetMessage('CRMSTORES_DEAL_ADD_SHORT'),
-        'ONCLICK' => "BX.Crm.Page.open('".CUtil::JSEscape('/crm/deal/details/0/')."')"
+        'ONCLICK' => "BX.Crm.Page.open('".CUtil::JSEscape($dealurl)."')"
     );
     if(IsModuleInstalled(CRM_MODULE_CALENDAR_ID)) {
         $arActivityMenuItems[] = array(

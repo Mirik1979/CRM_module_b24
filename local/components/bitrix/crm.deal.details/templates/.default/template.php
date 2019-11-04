@@ -14,6 +14,10 @@ $activityEditorID = "{$prefix}_editor";
 
 \Bitrix\Main\UI\Extension::load(["crm.scoringbutton"]);
 
+//echo "<pre>";
+//print_r($arResult);
+//echo "</pre>";
+
 //region LEGEND
 if(isset($arResult['LEGEND']))
 {

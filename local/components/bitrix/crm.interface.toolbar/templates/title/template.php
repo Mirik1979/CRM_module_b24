@@ -18,9 +18,10 @@ $enableMoreButton = false;
 
 foreach($arParams['BUTTONS'] as $item)
 {
-	if(!$enableMoreButton && isset($item['NEWBAR']) && $item['NEWBAR'] === true)
+
+    if(!$enableMoreButton && isset($item['NEWBAR']) && $item['NEWBAR'] === true)
 	{
-		$enableMoreButton = true;
+	    $enableMoreButton = true;
 		continue;
 	}
 

@@ -77,7 +77,7 @@ elseif($quoteID > 0)
 
 if(!$isPermitted)
 {
-	die();
+	//die();
 }
 //For custom reload with params
 $ajaxLoaderParams = array(

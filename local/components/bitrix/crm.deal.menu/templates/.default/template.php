@@ -15,6 +15,8 @@ global $APPLICATION;
 \Bitrix\Main\UI\Extension::load("ui.alerts");
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/category.js');
 
+\Bitrix\Main\Diag\Debug::writeToFile($arResult, "exparams", "__miros.log");
+
 //print_r($arResult);
 
 if (!empty($arResult['BUTTONS']))
@@ -145,6 +147,8 @@ if(isset($arResult['CATEGORY_CHANGER'])):
 	);
 </script><?
 endif;
+
+
 if (is_array($arResult['STEXPORT_PARAMS']))
 {
 	\Bitrix\Main\UI\Extension::load('ui.progressbar');
