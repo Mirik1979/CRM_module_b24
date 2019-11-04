@@ -347,6 +347,8 @@ class CStoreDetailsComponent extends CBitrixComponent
 		$this->arResult['ENTITY_INFO'] = array(
 			'ENTITY_ID' => $this->entityID,
 			'ENTITY_TYPE_ID' => CCrmOwnerType::Company,
+
+            //    CCrmOwnerType::Company,
 			//'ENTITY_TYPE_NAME' => CCrmOwnerType::CompanyName,
             // странный ID
             //'ENTITY_TYPE_ID' => 4,
@@ -1103,7 +1105,7 @@ class CStoreDetailsComponent extends CBitrixComponent
 				// смотреть на файл
 			    $fieldInfo['ADDITIONAL'] = array(
 					'URL_TEMPLATE' => \CComponentEngine::MakePathFromTemplate(
-						'/bitrix/components/bitrix/crm.company.show/show_file.php?ownerId=#owner_id#&fieldName=#field_name#&fileId=#file_id#',
+						'/local/components/wcomm.crmstores/store.details/show_file.php?ownerId=#owner_id#&fieldName=#field_name#&fileId=#file_id#',
 						array(
 							'owner_id' => $this->entityID,
 							'field_name' => $fieldName
