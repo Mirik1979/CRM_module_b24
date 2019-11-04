@@ -64,6 +64,9 @@ CUtil::JSPostUnescape();
 $APPLICATION->RestartBuffer();
 Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
+
+//\Bitrix\Main\Diag\Debug::writeToFile($_POST, "INIPOST", "__miros.log");
+
 $currentUserID = CCrmSecurityHelper::GetCurrentUserID();
 $currentUserPermissions =  CCrmPerms::GetCurrentUserPermissions();
 

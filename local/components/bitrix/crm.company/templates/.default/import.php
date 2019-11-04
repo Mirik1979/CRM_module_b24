@@ -7,6 +7,10 @@ $cpActiveItemID = ($arResult['MYCOMPANY_MODE'] === 'Y') ? '' : 'COMPANY';
 
 $isMyCompanyMode = (isset($arResult['MYCOMPANY_MODE']) && $arResult['MYCOMPANY_MODE'] === 'Y');
 
+//echo "<pre>";
+//print_r($arResult);
+//echo "</pre>";
+
 global $APPLICATION;
 $APPLICATION->IncludeComponent(
 	'bitrix:crm.control_panel',

@@ -449,8 +449,8 @@ class CStoreDetailsComponent extends CBitrixComponent
 								'TAB_ID' => 'tab_deal',
 								'NAME_TEMPLATE' => $this->arResult['NAME_TEMPLATE'],
 								'ENABLE_TOOLBAR' => true,
-								'PRESERVE_HISTORY' => true,
-								'ADD_EVENT_NAME' => 'CrmCreateDealFromCompany'
+								'PRESERVE_HISTORY' => true//,
+								//'ADD_EVENT_NAME' => 'CrmCreateDealFromCompany'
 							)
 						)
 					)

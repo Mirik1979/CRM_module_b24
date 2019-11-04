@@ -13,6 +13,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
 global $USER_FIELD_MANAGER, $USER, $APPLICATION, $DB;
 
+
+//\Bitrix\Main\Diag\Debug::writeToFile("start", "start", "__miros.log");
+
 $isErrorOccured = false;
 $errorMessage = '';
 
@@ -378,6 +381,8 @@ if(!$bInternal && isset($_REQUEST['counter']))
 		}
 	}
 }
+
+//\Bitrix\Main\Diag\Debug::writeToFile($arFilter, "filter1", "__miros.log");
 
 $enableReportFilter = Main\Application::getInstance()->getContext()->getRequest()->getQuery('from_analytics');
 
@@ -1110,7 +1115,9 @@ foreach ($arFilter as $k => $v)
 	}
 }
 
-\Bitrix\Crm\UI\Filter\EntityHandler::internalize($arResult['FILTER'], $arFilter);
+//\Bitrix\Main\Diag\Debug::writeToFile($arFilter, "filter1", "__miros.log");
+
+//\Bitrix\Crm\UI\Filter\EntityHandler::internalize($arResult['FILTER'], $arFilter);
 
 //region POST & GET actions processing
 if($actionData['ACTIVE'])
@@ -2811,6 +2818,7 @@ if($arResult['ENABLE_TOOLBAR'])
 	if(!empty($addParams))
 	{
 		$arResult['DEAL_ADD_URL_PARAMS'] = $addParams;
+		// get параметры отсюда
 		$arResult['PATH_TO_DEAL_ADD'] = CHTTP::urlAddParams(
 			$arResult['PATH_TO_DEAL_ADD'],
 			$addParams

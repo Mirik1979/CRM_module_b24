@@ -517,19 +517,26 @@ if(!$isInternal
 }
 //endregion
 
-if($arResult['ENABLE_TOOLBAR'])
-{
-	$addButton =array(
-		'TEXT' => GetMessage('CRM_QUOTE_LIST_ADD_SHORT'),
-		'TITLE' => GetMessage('CRM_QUOTE_LIST_ADD'),
-		'LINK' => $arResult['PATH_TO_QUOTE_ADD'],
-		'ICON' => 'btn-new'
-	);
 
-	if($arResult['ADD_EVENT_NAME'] !== '')
-	{
-		$addButton['ONCLICK'] = "BX.onCustomEvent(window, '{$arResult['ADD_EVENT_NAME']}')";
-	}
+if($arResult['ENABLE_TOOLBAR'] && $arResult['ADD_EVENT_NAME']!='CrmCreateQuoteFromStore')
+{
+
+
+        $addButton =array(
+            'TEXT' => GetMessage('CRM_QUOTE_LIST_ADD_SHORT'),
+            'TITLE' => GetMessage('CRM_QUOTE_LIST_ADD'),
+            'LINK' => $arResult['PATH_TO_QUOTE_ADD'],
+            'ICON' => 'btn-new'
+        );
+
+        if($arResult['ADD_EVENT_NAME'] !== '')
+        {
+            $addButton['ONCLICK'] = "BX.onCustomEvent(window, '{$arResult['ADD_EVENT_NAME']}')";
+        }
+
+
+
+
 
 	$APPLICATION->IncludeComponent(
 		'bitrix:crm.interface.toolbar',

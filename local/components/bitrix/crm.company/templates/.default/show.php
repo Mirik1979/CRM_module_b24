@@ -6,7 +6,7 @@ $cpID = ($arResult['MYCOMPANY_MODE'] === 'Y') ? 'MYCOMPANY_LIST' : 'COMPANY_LIST
 $cpActiveItemID = ($arResult['MYCOMPANY_MODE'] === 'Y') ? '' : 'COMPANY';
 
 $isMyCompanyMode = (isset($arResult['MYCOMPANY_MODE']) && $arResult['MYCOMPANY_MODE'] === 'Y');
-
+\Bitrix\Main\Diag\Debug::writeToFile("nothere", "", "__miros.log");
 /** @var CMain $APPLICATION */
 $APPLICATION->IncludeComponent(
 	'bitrix:crm.control_panel',

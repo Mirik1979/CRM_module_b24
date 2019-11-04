@@ -388,7 +388,7 @@ if (!$bInternal)
 
 	foreach($effectiveFilterFieldIDs as $filterFieldID)
 	{
-		$filterField = $entityFilter->getField($filterFieldID);
+		            $filterField = $entityFilter->getField($filterFieldID);
 		if($filterField)
 		{
 			$arResult['FILTER'][] = $filterField->toArray();

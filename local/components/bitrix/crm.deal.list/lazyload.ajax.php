@@ -26,7 +26,7 @@ global $APPLICATION;
 Header('Content-Type: text/html; charset='.LANG_CHARSET);
 $APPLICATION->ShowAjaxHead();
 
-if(\Bitrix\Main\ModuleManager::isModuleInstalled('rest'))
+/*if(\Bitrix\Main\ModuleManager::isModuleInstalled('rest'))
 {
 	$APPLICATION->IncludeComponent(
 		'bitrix:app.placement',
@@ -41,10 +41,14 @@ if(\Bitrix\Main\ModuleManager::isModuleInstalled('rest'))
 		null,
 		array('HIDE_ICONS' => 'Y')
 	);
-}
+} */
+
+
 
 $componentData = isset($_REQUEST['PARAMS']) && is_array($_REQUEST['PARAMS']) ? $_REQUEST['PARAMS'] : array();
 $componentParams = isset($componentData['params']) && is_array($componentData['params']) ? $componentData['params'] : array();
+
+//\Bitrix\Main\Diag\Debug::writeToFile($componentData, "request", "__miros.log");
 
 //Security check
 $userPermissions = CCrmPerms::GetCurrentUserPermissions();
@@ -77,14 +81,14 @@ elseif($quoteID > 0)
 {
 	$isPermitted = CCrmQuote::CheckReadPermission($quoteID, $userPermissions);
 }
-
+// поправить когда будет ролевая модель
 if(!$isPermitted)
 {
-	die();
+	//die();
 }
 //For custom reload with params
 $ajaxLoaderParams = array(
-	'url' => '/bitrix/components/bitrix/crm.deal.list/lazyload.ajax.php?&site='.SITE_ID.'&'.bitrix_sessid_get(),
+	'url' => '/bitrix/components/local/crm.deal.list/lazyload.ajax.php?&site='.SITE_ID.'&'.bitrix_sessid_get(),
 	'method' => 'POST',
 	'dataType' => 'ajax',
 	'data' => array('PARAMS' => $componentData)
@@ -98,6 +102,8 @@ $componentParams['AJAX_LOADER'] = $ajaxLoaderParams;
 
 //Enable sanitaizing
 $componentParams['IS_EXTERNAL_CONTEXT'] = 'Y';
+
+//\Bitrix\Main\Diag\Debug::writeToFile($componentParams, "params", "__miros.log");
 
 $APPLICATION->IncludeComponent('bitrix:crm.deal.list',
 	isset($componentData['template']) ? $componentData['template'] : '',

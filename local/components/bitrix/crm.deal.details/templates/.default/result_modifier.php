@@ -63,6 +63,8 @@ $arResult['ENTITY_DATA']['LAST_CONTACT_INFOS'] = $emp;
 
 $arResult['ENTITY_DATA']['LAST_CONTACT_INFOS'][0] = $cit;
 
+//$arResult['INITIAL_DATA']['UF_STORE'] = 32;
+
 //\Bitrix\Main\Diag\Debug::writeToFile("newres");
 //\Bitrix\Main\Diag\Debug::writeToFile($arResult);
 

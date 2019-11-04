@@ -93,6 +93,8 @@ $CCrmQuote = new CCrmQuote(false);
 $userID = CCrmSecurityHelper::GetCurrentUserID();
 $isAdmin = CCrmPerms::IsAdmin();
 
+//\Bitrix\Main\Diag\Debug::writeToFile($arResult, "quote", "__miros.log");
+
 $arResult['CURRENT_USER_ID'] = CCrmSecurityHelper::GetCurrentUserID();
 $arParams['PATH_TO_QUOTE_LIST'] = CrmCheckPath('PATH_TO_QUOTE_LIST', $arParams['PATH_TO_QUOTE_LIST'], $APPLICATION->GetCurPage());
 $arParams['PATH_TO_QUOTE_DETAILS'] = CrmCheckPath('PATH_TO_QUOTE_DETAILS', $arParams['PATH_TO_QUOTE_DETAILS'], $APPLICATION->GetCurPage().'?quote_id=#quote_id#&details');

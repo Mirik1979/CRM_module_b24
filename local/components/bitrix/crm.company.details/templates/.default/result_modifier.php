@@ -18,4 +18,7 @@ foreach ($arResult['ENTITY_DATA']['CLIENT_INFO']['CONTACT_DATA'] as $index => $i
 
 $arResult['ENTITY_DATA']['CLIENT_INFO']['CONTACT_DATA'] = $arr;
 
+//$arResult['ENTITY_INFO']['TITLE'] = "";
+//$arResult['ENTITY_FIELDS'][1]['isHeading'] = "";
+//$arResult['ENTITY_DATA']['IS_MY_COMPANY'] = true;
 

@@ -14,6 +14,12 @@ $activityEditorID = "{$prefix}_editor";
 $isMyCompany = $arResult['IS_MY_COMPANY'];
 $isClientCompany = !$isMyCompany;
 
+//\Bitrix\Main\Diag\Debug::writeToFile("moduledtails", "", "__miros.log");
+
+//echo "<pre>";
+//print_r($arResult);
+//echo "<pre>";
+
 $APPLICATION->IncludeComponent(
 	'bitrix:crm.activity.editor',
 	'',

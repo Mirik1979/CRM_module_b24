@@ -8,8 +8,9 @@ $APPLICATION->IncludeComponent(
 		'SEF_MODE' => 'Y',
 		'SEF_FOLDER' => '/crm/stores/',
 		'SEF_URL_TEMPLATES' => array(
-			'details' => '#STORE_ID#/',
+			'details' => 'details/#STORE_ID#/',
 			'edit' => '#STORE_ID#/edit/',
+            'import' => 'import/'
 		)
 	),
 	false
