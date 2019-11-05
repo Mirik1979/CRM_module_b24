@@ -97,6 +97,9 @@ class StoreTable extends DataManager
         return $stores;
     }
 
+
+
+
     /*public static function onBeforeDelete(Entity\Event $event)
     {
         $primary = $event->getParameter("primary");
