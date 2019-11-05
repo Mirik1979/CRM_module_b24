@@ -86,14 +86,18 @@ class CurrencyFromUser
 			{
 				if(array_key_exists(self::OP_COMPANY_FIELD_NAME, $arrUser))
 				{
-					$rsOpCompany = \CUserFieldEnum::GetList(array(), array("ID" => $arrUser[self::OP_COMPANY_FIELD_NAME], ));
+										
+					return $arrUser[self::OP_COMPANY_FIELD_NAME];
+					
+					/*$rsOpCompany = \CUserFieldEnum::GetList(array(), array("ID" => $arrUser[self::OP_COMPANY_FIELD_NAME], ));
 					if($arrOpCompany = $rsOpCompany->GetNext())
 					{
+						
 						if($arrOpCompany["XML_ID"] != "")
 						{
 							return $arrOpCompany["XML_ID"];
 						}
-					}
+					}*/
 				}
 			}
 			
