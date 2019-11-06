@@ -444,7 +444,7 @@ class CStoreDetailsComponent extends CBitrixComponent
 								'PATH_TO_DEAL_SHOW' => $this->arResult['PATH_TO_DEAL_SHOW'],
 								'PATH_TO_DEAL_EDIT' => $this->arResult['PATH_TO_DEAL_EDIT'],
 								'INTERNAL_FILTER' => array('UF_STORE' => $this->entityID),
-								'INTERNAL_CONTEXT' => array('COMPANY_ID' => $this->entityID),
+								'INTERNAL_CONTEXT' => array('STORE_ID' => $this->entityID),
 								'GRID_ID_SUFFIX' => 'COMPANY_DETAILS',
 								'TAB_ID' => 'tab_deal',
 								'NAME_TEMPLATE' => $this->arResult['NAME_TEMPLATE'],

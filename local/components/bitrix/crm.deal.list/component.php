@@ -2813,6 +2813,10 @@ if($arResult['ENABLE_TOOLBAR'])
 		{
 			$addParams['company_id'] = $internalContext['COMPANY_ID'];
 		}
+        if(isset($internalContext['STORE_ID']))
+        {
+            $addParams['store_id'] = $internalContext['STORE_ID'];
+        }
 	}
 
 	if(!empty($addParams))
