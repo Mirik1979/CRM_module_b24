@@ -632,14 +632,29 @@ class TasksTaskComponent extends TasksBaseComponent
 		{
 			$data['TITLE'] = $title;
 		}
+        // захват объекта тут
+
+
 
 		// crm links
 		$ufCrm = Integration\CRM\UserField::getMainSysUFCode();
+        //\Bitrix\Main\Diag\Debug::writeToFile($ufCrm, "crmuf0", "__miros.log");
 		$crm = $this->hitState->get('INITIAL_TASK_DATA.'.$ufCrm);
-		if($crm != '')
-		{
-			$data[$ufCrm] = array($crm);
-		}
+        //\Bitrix\Main\Diag\Debug::writeToFile($crm, "crmuf2", "__miros.log");
+
+        $str = substr($crm, 0,2 );
+        $str1 = substr($crm, 0,1 );
+        if($str == "CO" || $str1 == 'C' || $str1=='D' || $str1=='L') {
+            $data[$ufCrm] = array($crm);
+        } else {
+            $crm = "S".$crm;
+            $data[$ufCrm] = array($crm);
+        }
+
+		//if($crm != '')
+		//{
+		//	$data[$ufCrm] = array($crm);
+		//}
 
 		$ufMail = Integration\Mail\UserField::getMainSysUFCode();
 		$email = $this->hitState->get('INITIAL_TASK_DATA.'.$ufMail);
@@ -949,7 +964,9 @@ class TasksTaskComponent extends TasksBaseComponent
 
 	protected function getDataUserFields()
 	{
-		$this->arResult['AUX_DATA']['USER_FIELDS'] = static::getUserFields($this->task !== null ? $this->task->getId() : 0);
+
+        global $USER_FIELD_MANAGER;
+        $this->arResult['AUX_DATA']['USER_FIELDS'] = static::getUserFields($this->task !== null ? $this->task->getId() : 0);
 
 		// restore uf values from task data
 		if(Type::isIterable($this->arResult['AUX_DATA']['USER_FIELDS']))
@@ -958,7 +975,17 @@ class TasksTaskComponent extends TasksBaseComponent
 			{
 				if(isset($this->arResult['DATA']['TASK'][$ufCode]))
 				{
-					$this->arResult['AUX_DATA']['USER_FIELDS'][$ufCode]['VALUE'] = $this->arResult['DATA']['TASK'][$ufCode];
+					//$inidata = $this->arResult['DATA']['TASK'][$ufCode];
+                    //$value = $USER_FIELD_MANAGER->GetUserFieldValue('TASKS_TASK', 'UF_CRM_TASK', $this->task->getId());
+                    //$newcrmUF = array_merge($inidata, $value);
+                    //$this->arResult['AUX_DATA']['USER_FIELDS'][$ufCode]['VALUE'] = $newcrmUF;
+
+                    $this->arResult['AUX_DATA']['USER_FIELDS'][$ufCode]['VALUE'] = $this->arResult['DATA']['TASK'][$ufCode];
+
+
+
+
+
 				}
 			}
 		}

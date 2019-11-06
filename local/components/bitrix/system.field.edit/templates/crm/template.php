@@ -14,6 +14,10 @@ CUtil::InitJSCore(array('ajax', 'popup'));
 $APPLICATION->SetAdditionalCSS('/bitrix/js/crm/css/crm.css');
 $APPLICATION->AddHeadScript('/bitrix/js/crm/crm.js');
 
+\Bitrix\Main\Diag\Debug::writeToFile($arParams, "params", "__miros.log");
+\Bitrix\Main\Diag\Debug::writeToFile($arResult, "result", "__miros.log");
+
+
 $fieldName = $arParams['arUserField']['~FIELD_NAME'];
 $formName = isset($arParams['form_name']) ? strval($arParams['form_name']) : '';
 $fieldUID = strtolower(str_replace('_', '-', $fieldName));
@@ -73,6 +77,13 @@ else
 			$selectorOptions['addTabCrmDeals'] = 'Y';
 			$tabsCounter++;
 		}
+		if (in_array('STORE', $arParams['ENTITY_TYPE'])) {
+            $selectorOptions['enableCrmStores'] = 'Y';
+            $selectorOptions['addTabCrmStores'] = 'Y';
+            $tabsCounter++;
+        }
+
+
 		/*if (in_array(\CCrmOwnerType::OrderName, $arParams['ENTITY_TYPE']))
 		{
 			$selectorOptions['enableCrmOrders'] = 'Y';
@@ -87,6 +98,8 @@ else
 			$selectorOptions['addTabCrmDeals'] = 'N';
 			$selectorOptions['addTabCrmOrders'] = 'N';
 		}
+
+
 
 		$APPLICATION->IncludeComponent(
 			"bitrix:main.user.selector",

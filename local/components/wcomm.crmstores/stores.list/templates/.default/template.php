@@ -236,6 +236,7 @@ foreach ($arResult['STORES'] as $store) {
                         )"
         );
     }
+
     if(IsModuleInstalled('tasks')) {
         $arActivityMenuItems[] = array(
             'TITLE' => GetMessage('CRMSTORES_TASK_TITLE'),

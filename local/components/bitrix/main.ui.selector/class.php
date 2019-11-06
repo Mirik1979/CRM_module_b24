@@ -93,7 +93,7 @@ class CMainUiSelector extends CBitrixComponent
 			));
 		}
 
-        \Bitrix\Main\Diag\Debug::writeToFile($this->arResult['ENTITIES'] , "entitites", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($this->arResult['ENTITIES'] , "entitites", "__miros.log");
 	}
 
 	protected function prepareResult()
