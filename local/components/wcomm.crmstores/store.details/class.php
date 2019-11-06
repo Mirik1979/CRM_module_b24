@@ -444,7 +444,7 @@ class CStoreDetailsComponent extends CBitrixComponent
 								'PATH_TO_DEAL_SHOW' => $this->arResult['PATH_TO_DEAL_SHOW'],
 								'PATH_TO_DEAL_EDIT' => $this->arResult['PATH_TO_DEAL_EDIT'],
 								'INTERNAL_FILTER' => array('UF_STORE' => $this->entityID),
-								'INTERNAL_CONTEXT' => array('COMPANY_ID' => $this->entityID),
+								'INTERNAL_CONTEXT' => array('STORE_ID' => $this->entityID),
 								'GRID_ID_SUFFIX' => 'COMPANY_DETAILS',
 								'TAB_ID' => 'tab_deal',
 								'NAME_TEMPLATE' => $this->arResult['NAME_TEMPLATE'],
@@ -587,17 +587,17 @@ class CStoreDetailsComponent extends CBitrixComponent
 					)
 				); */
                 // к истории возвращаемся потом
-				/*$this->arResult['TABS'][] = array(
+				$this->arResult['TABS'][] = array(
 				'id' => 'tab_event',
-				'name' => Loc::getMessage('CRM_COMPANY_TAB_EVENT'),
+				'name' => Loc::getMessage('CRMSTORES_TAB_EVENT'),
 				'loader' => array(
-					'serviceUrl' => '/bitrix/components/bitrix/crm.event.view/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
+					'serviceUrl' => '/local/components/bitrix/crm.event.view/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
 					'componentData' => array(
 						'template' => '',
 						'contextId' => "COMPANY_{$this->entityID}_EVENT",
 						'params' => array(
 							'AJAX_OPTION_ADDITIONAL' => "COMPANY_{$this->entityID}_EVENT",
-							'ENTITY_TYPE' => CCrmOwnerType::CompanyName,
+							'ENTITY_TYPE' => 'CRM_STORES',
 							'ENTITY_ID' => $this->entityID,
 							'PATH_TO_USER_PROFILE' => $this->arResult['PATH_TO_USER_PROFILE'],
 							'TAB_ID' => 'tab_event',
@@ -608,7 +608,7 @@ class CStoreDetailsComponent extends CBitrixComponent
 						)
 					)
 				)
-			    ); */
+			    );
 
 				/* вырубаем - портрет не нужен
 				$this->arResult['TABS'][] = array(
@@ -733,11 +733,27 @@ class CStoreDetailsComponent extends CBitrixComponent
 
 		//region VIEW EVENT
         // пишем событие просмотра - пока отключаем
+        if($this->entityID > 0) {
+            $CCrmEvent = new CCrmEvent();
+            $CCrmEvent->Add(
+                array(
+                    'ENTITY_TYPE'=> 'CRM_STORES',
+                    'ENTITY_ID' => $this->entityID,
+                    'EVENT_ID' => 'INFO',
+                    'EVENT_TEXT_1' => 'Карточка объекта просмотрена',
+                    'DATE_CREATE' => date("d.m.Y G:i:s"),
+                    //'FILES' => array(
+                    //  CFile::MakeFileArray('/bitrix/templates/bitrix24/images/template_sprite_21.png')
+                    //)
+                )
+            );
+        }
+
         /*
-		if($this->entityID > 0 && \Bitrix\Crm\Settings\HistorySettings::getCurrent()->isViewEventEnabled())
-		{
-			CCrmEvent::RegisterViewEvent(CCrmOwnerType::Company, $this->entityID, $this->userID);
-		} */
+        if($this->entityID > 0 && \Bitrix\Crm\Settings\HistorySettings::getCurrent()->isViewEventEnabled())
+        {
+                CCrmEvent::RegisterViewEvent(CCrmOwnerType::Company, $this->entityID, $this->userID);
+        } */
 		//endregion
         // ура шабон
 		$this->includeComponentTemplate();
