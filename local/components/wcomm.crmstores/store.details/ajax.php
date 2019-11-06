@@ -68,7 +68,7 @@ CUtil::JSPostUnescape();
 $APPLICATION->RestartBuffer();
 Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
-\Bitrix\Main\Diag\Debug::writeToFile($_POST, "POST", "__miros.log");
+//\Bitrix\Main\Diag\Debug::writeToFile($_POST, "POST", "__miros.log");
 
 $currentUserID = CCrmSecurityHelper::GetCurrentUserID();
 $currentUserPermissions =  CCrmPerms::GetCurrentUserPermissions();
@@ -95,7 +95,7 @@ if($action === 'SAVE')
 
     }
     $ID = isset($_POST['ACTION_ENTITY_ID']) ? max((int)$_POST['ACTION_ENTITY_ID'], 0) : 0;
-    \Bitrix\Main\Diag\Debug::writeToFile($_POST, "POST", "__miros.log");
+    //\Bitrix\Main\Diag\Debug::writeToFile($_POST, "POST", "__miros.log");
 	/* ролевая модель
 	if(($ID > 0 && !\CCrmCompany::CheckUpdatePermission($ID, $currentUserPermissions))
 		|| ($ID === 0 && !\CCrmCompany::CheckCreatePermission($currentUserPermissions))
@@ -115,7 +115,7 @@ if($action === 'SAVE')
     //\Bitrix\Main\Diag\Debug::writeToFile("miros", "POST", "__miros.log");
 	$fieldsInfo = Wcomm\CrmStores\Entity\StoreTable::GetFieldsInfo();
 
-    \Bitrix\Main\Diag\Debug::writeToFile($fieldsInfo, "FINFO", "__miros.log");
+    //\Bitrix\Main\Diag\Debug::writeToFile($fieldsInfo, "FINFO", "__miros.log");
     $ufID = StoreTable::getUfId();
     //\Bitrix\Main\Diag\Debug::writeToFile($ufID, "UF", "__miros.log");
 
@@ -146,8 +146,8 @@ if($action === 'SAVE')
         $arUserFields = $USER_FIELD_MANAGER->GetUserFields(StoreTable::getUfId());
         $presentFields = array_merge($fieldsInfo, $arUserFields);
     }
-    \Bitrix\Main\Diag\Debug::writeToFile("prf", "prfields", "__miros.log");
-    \Bitrix\Main\Diag\Debug::writeToFile($presentFields, "prfields", "__miros.log");
+    //\Bitrix\Main\Diag\Debug::writeToFile("prf", "prfields", "__miros.log");
+    //\Bitrix\Main\Diag\Debug::writeToFile($presentFields, "prfields", "__miros.log");
 
 	// копроваие
 	 $sourceFields = array();
@@ -192,7 +192,7 @@ if($action === 'SAVE')
 		$fields['IS_MY_COMPANY'] = 'Y';
 	}
 
-    \Bitrix\Main\Diag\Debug::writeToFile($fields, "FINFOS", "__miros.log");
+    //\Bitrix\Main\Diag\Debug::writeToFile($fields, "FINFOS", "__miros.log");
 
 	//region CLIENT
 	/*$clientData = null;
@@ -246,11 +246,11 @@ if($action === 'SAVE')
 			$entity = new StoreTable(false);
 			if($isNew)
 			{
-                \Bitrix\Main\Diag\Debug::writeToFile($fields, "FIELDSTOADD", "__miros.log");
+                //\Bitrix\Main\Diag\Debug::writeToFile($fields, "FIELDSTOADD", "__miros.log");
 			    unset($fields['ID']);
                 $oID = $entity->Add($fields, true, array('REGISTER_SONET_EVENT' => true));
                 $ID = $oID->getId();
-                \Bitrix\Main\Diag\Debug::writeToFile($ID, "ID", "__miros.log");
+                //\Bitrix\Main\Diag\Debug::writeToFile($ID, "ID", "__miros.log");
 				if($ID <= 0)
 				{
 					$errorMessage = $entity->LAST_ERROR;
@@ -268,13 +268,30 @@ if($action === 'SAVE')
             }
 			else
 			{
-                \Bitrix\Main\Diag\Debug::writeToFile($fields, "forupdate", "__miros.log");
+                //\Bitrix\Main\Diag\Debug::writeToFile($fields, "forupdate", "__miros.log");
 			    if(!$entity->Update($ID, $fields, true, true,  array('REGISTER_SONET_EVENT' => true)))
 				{
-                    \Bitrix\Main\Diag\Debug::writeToFile("nonupd", "FINFOS", "__miros.log");
+                    //\Bitrix\Main\Diag\Debug::writeToFile("nonupd", "FINFOS", "__miros.log");
 				    $errorMessage = $entity->LAST_ERROR;
 				}
-                if (!Main\Loader::includeModule('bizproc')) {
+
+                $CCrmEvent = new CCrmEvent();
+                $CCrmEvent->Add(
+                    array(
+                        'ENTITY_TYPE'=> 'CRM_STORES',
+                        'ENTITY_ID' => $ID,
+                        'EVENT_ID' => 'INFO',
+                        'EVENT_TEXT_1' => 'Карточка объекта изменена',
+                        'DATE_CREATE' => date("d.m.Y G:i:s"),
+                        //'FILES' => array(
+                        //  CFile::MakeFileArray('/bitrix/templates/bitrix24/images/template_sprite_21.png')
+                        //)
+                    )
+                );
+
+
+
+			    if (!Main\Loader::includeModule('bizproc')) {
                     return array();
                 }
 
@@ -371,7 +388,7 @@ elseif($action === 'DELETE')
         return;
     }
 
-    \Bitrix\Main\Diag\Debug::writeToFile($_POST, "delete", "__miros.log");
+    //\Bitrix\Main\Diag\Debug::writeToFile($_POST, "delete", "__miros.log");
     $ID = isset($_POST['ACTION_ENTITY_ID']) ? max((int)$_POST['ACTION_ENTITY_ID'], 0) : 0;
 	if($ID <= 0)
 	{

@@ -173,7 +173,7 @@ $actionList[] = array(
 ); */
 
 $controlPanel['GROUPS'][0]['ITEMS'][] = $snippet->getRemoveButton();
-$controlPanel['GROUPS'][0]['ITEMS'][] = $snippet->getEditButton();
+//$controlPanel['GROUPS'][0]['ITEMS'][] = $snippet->getEditButton();
 $controlPanel['GROUPS'][0]['ITEMS'][] = array(
     "TYPE" => \Bitrix\Main\Grid\Panel\Types::DROPDOWN,
     "ID" => "action_button_{$prefix}",
