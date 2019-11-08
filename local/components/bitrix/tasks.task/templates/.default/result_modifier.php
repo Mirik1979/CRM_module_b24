@@ -497,6 +497,8 @@ if(Bitrix\Tasks\Util\Type::isIterable($taskData['SE_PARAMETER']))
 		$params[$param['CODE']] = $param;
 	}
 }
+// учитываем объекты в отображении
+$arResult['AUX_DATA']["USER_FIELDS"]['UF_CRM_TASK']['SETTINGS']['STORE'] = 'Y';
 
 foreach(array(1, 2) as $propCode)
 {

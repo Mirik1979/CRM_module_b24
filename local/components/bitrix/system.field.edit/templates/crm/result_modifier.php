@@ -56,6 +56,14 @@ if (isset($arSettings['ORDER']) && $arSettings['ORDER'] === 'Y')
 		$arParams['ENTITY_TYPE'][] = CCrmOwnerType::OrderName;
 	}
 }
+if (isset($arSettings['STORE']) && $arSettings['STORE'] === 'Y')
+{
+    //$arSupportedTypes[] = CCrmOwnerType::OrderName;
+    //if(\Bitrix\Crm\Order\Permissions\Order::checkReadPermission(0, $userPermissions))
+    //{
+    $arParams['ENTITY_TYPE'][] = 'STORE';
+    //}
+}
 if (isset($arSettings['PRODUCT']) && $arSettings['PRODUCT'] === 'Y')
 {
 	$arSupportedTypes[] = 'PRODUCT';
@@ -96,14 +104,16 @@ $arResult['LIST_PREFIXES'] = [
 	'CONTACT' => 'C',
 	'COMPANY' => 'CO',
 	'LEAD' => 'L',
-	'ORDER' => 'O'
+	'ORDER' => 'O',
+    'STORE' => 'S'
 ];
 $arResult['SELECTOR_ENTITY_TYPES'] = [
 	'DEAL' => 'deals',
 	'CONTACT' => 'contacts',
 	'COMPANY' => 'companies',
 	'LEAD' => 'leads',
-	'ORDER' => 'orders'
+	'ORDER' => 'orders',
+    'STORE' => 'stores'
 ];
 
 foreach ($arResult['VALUE'] as $key => $value)
@@ -164,6 +174,12 @@ foreach ($arResult['VALUE'] as $key => $value)
 $arResult['ELEMENT'] = array();
 $arResult['ENTITY_TYPE'] = array();
 // last 50 entity
+if (in_array('STORE', $arParams['ENTITY_TYPE'])) {
+    $arResult['ENTITY_TYPE'][] = 'store';
+
+}
+
+
 if (in_array('LEAD', $arParams['ENTITY_TYPE'], true))
 {
 	$hasNameFormatter = method_exists("CCrmLead", "PrepareFormattedName");

@@ -1,0 +1,30 @@
+<?
+$MESS["TASKS_COUNTER_EMPTY"] = "Es gibt keine Aufgaben, die Ihre sofortige Aufmerksamkeit erfordern";
+$MESS["TASKS_COUNTER_EXPIRED_CANDIDATES_PLURAL_0"] = "fast überfällig";
+$MESS["TASKS_COUNTER_EXPIRED_CANDIDATES_PLURAL_1"] = "fast überfällig";
+$MESS["TASKS_COUNTER_EXPIRED_CANDIDATES_PLURAL_2"] = "fast überfällig";
+$MESS["TASKS_COUNTER_EXPIRED_PLURAL_0"] = "überfällig";
+$MESS["TASKS_COUNTER_EXPIRED_PLURAL_1"] = "überfällig";
+$MESS["TASKS_COUNTER_EXPIRED_PLURAL_2"] = "überfällig";
+$MESS["TASKS_COUNTER_NEW_PLURAL_0"] = "nicht angezeigt";
+$MESS["TASKS_COUNTER_NEW_PLURAL_1"] = "nicht angezeigt";
+$MESS["TASKS_COUNTER_NEW_PLURAL_2"] = "nicht angezeigt";
+$MESS["TASKS_COUNTER_TOTAL"] = "Aufgaben:";
+$MESS["TASKS_COUNTER_TOTAL_PLURAL_0"] = "Aufgabe";
+$MESS["TASKS_COUNTER_TOTAL_PLURAL_1"] = "Aufgaben";
+$MESS["TASKS_COUNTER_TOTAL_PLURAL_2"] = "Aufgaben";
+$MESS["TASKS_COUNTER_WAIT_CTRL_PLURAL_0"] = "muss kontrolliert werden";
+$MESS["TASKS_COUNTER_WAIT_CTRL_PLURAL_1"] = "muss kontrolliert werden";
+$MESS["TASKS_COUNTER_WAIT_CTRL_PLURAL_2"] = "muss kontrolliert werden";
+$MESS["TASKS_COUNTER_WO_DEADLINE_PLURAL_0"] = "ohne Frist";
+$MESS["TASKS_COUNTER_WO_DEADLINE_PLURAL_1"] = "ohne Frist";
+$MESS["TASKS_COUNTER_WO_DEADLINE_PLURAL_2"] = "ohne Frist";
+$MESS["TASKS_FULL_TASK_INDEXING_TITLE"] = "Indexierung von Aufgaben und Kommentaren";
+$MESS["TASKS_GROUP_COUNTERS_SOON"] = "Zähler für Aufgaben in Projekten kommen bald";
+$MESS["TASKS_SWITCHER_ITEM_GANTT"] = "Gantt";
+$MESS["TASKS_SWITCHER_ITEM_KANBAN"] = "Kanban";
+$MESS["TASKS_SWITCHER_ITEM_LIST"] = "Liste";
+$MESS["TASKS_SWITCHER_ITEM_REPORTS"] = "Berichte";
+$MESS["TASKS_SWITCHER_ITEM_ROBOTS"] = "Automatisierungsregeln";
+$MESS["TASKS_SWITCHER_NAME"] = "Ansicht";
+?>

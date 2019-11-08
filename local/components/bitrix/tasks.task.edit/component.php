@@ -163,12 +163,15 @@ $arResult['TASK'] = null;
 $arResult['FORM_GUID'] = CTasksTools::genUuid();
 
 $arResult["USER_FIELDS"] = $GLOBALS["USER_FIELD_MANAGER"]->GetUserFields("TASKS_TASK", $arParams["TASK_ID"] ? $arParams["TASK_ID"] : 0, LANGUAGE_ID);
-
+\Bitrix\Main\Diag\Debug::writeToFile("here0", "posttask", "__miros.log");
 //Form submitted
 $arResult['needStep'] = false;
 if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && ($arResult["ACTION"] == "create" || $arResult["ACTION"] == "edit"))
 {
-	if ( ! function_exists('lambda_sgkrg455d_funcCreateSubtasks') )
+    \Bitrix\Main\Diag\Debug::writeToFile("here", "posttask", "__miros.log");
+    \Bitrix\Main\Diag\Debug::writeToFile($_POST, "posttask", "__miros.log");
+
+    if ( ! function_exists('lambda_sgkrg455d_funcCreateSubtasks') )
 	{
 		function lambda_sgkrg455d_funcCreateSubtasks($arFields, $arAllResponsibles, $index, $loggedInUserId, $woStepper = false, $parameters = array())
 		{
@@ -186,6 +189,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && ($arResult["
 				try
 				{
 					$arFieldsToSave = $arFields;
+
 
 					// transform UF files
 					if(is_array($arFieldsToSave['UF_TASK_WEBDAV_FILES']) && !empty($arFieldsToSave['UF_TASK_WEBDAV_FILES']) && \Bitrix\Main\Loader::includeModule('disk'))
@@ -348,7 +352,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && ($arResult["
 		if ($ar = $rs->Fetch())
 			$bDuplicatePostRequest = true;
 	}
-
+    \Bitrix\Main\Diag\Debug::writeToFile($_POST, "posttask", "__miros.log");
 	if (!$bDuplicatePostRequest)
 	{
 		$arResult['needStep'] = false;
