@@ -527,6 +527,64 @@ foreach($arResult['DEAL'] as $sKey =>  $arDeal)
 	$arResult['GRID_DATA'][] = &$resultItem;
 	unset($resultItem);
 }
+
+foreach ($arResult['GRID_DATA'] as &$item){
+    $item["potential"]=\local\Helpers\PotentialsHelper::getPotentials($item["id"]);
+}unset($item);
+
+$arResult['GRID_DATA_ALT']=[
+    "NOT"=>[
+        'opportunity' => 0.0,
+        'potential' => 0.0,
+        'name' => '',
+        'item' => [],
+    ],
+];
+
+foreach ($arResult['GRID_DATA'] as $val){
+    if($val["potential"]["IdPotential"]>0)
+        $idPotential=$val["potential"]["IdPotential"];
+    else
+        $idPotential="NOT";
+    if(!$arResult['GRID_DATA_ALT'][$idPotential]){
+        $arResult['GRID_DATA_ALT'][$idPotential]=[
+            'opportunity' => 0.0,
+            'potential' => 0.0,
+            'name' => $val["potential"]["NamePotential"],
+            'item' => [],
+        ];
+    }
+    $arResult['GRID_DATA_ALT'][$idPotential]['opportunity']+=$val["potential"]["opportunity"];
+    $arResult['GRID_DATA_ALT'][$idPotential]['potential']+=$val["potential"]["p"];
+    $arResult['GRID_DATA_ALT'][$idPotential]['item'][]=$val;
+}
+
+//echo "<pre>";print_r($arResult['GRID_DATA_ALT']);echo "</pre>";
+$arResult['GRID_DATA_NEW']=[];
+foreach ($arResult['GRID_DATA_ALT'] as $key=>$item){
+    if(count($item['item'])>0){
+        $arResult['GRID_DATA_NEW'][]=[
+            'id' => 'row_'.$key,
+            'actions' => [],
+            'data' => [],
+            'editable' => false,
+            'class'=>'classHide',
+            'columns' => [
+                "TITLE"=>$item["name"],
+                "DEAL_SUMMARY"=>$item["name"],
+                "STAGE_ID"=>"Потенциал: ".number_format($item["potential"],0,'.',' ').' руб.',
+                "SUM"=>"Сумма сделок/валюта: ".number_format($item["opportunity"],0,'.',' ').' руб.',
+            ],
+        ];
+    }
+    foreach ($item['item'] as $val){
+        $arResult['GRID_DATA_NEW'][]=$val;
+    }
+}
+
+$arResult['GRID_DATA']=$arResult['GRID_DATA_NEW'];
+
+
 $APPLICATION->IncludeComponent('bitrix:main.user.link',
 	'',
 	array(

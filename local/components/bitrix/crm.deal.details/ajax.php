@@ -14,6 +14,9 @@ use Bitrix\Crm\Conversion\DealConversionWizard;
 use Bitrix\Crm\Recurring;
 use Bitrix\Crm;
 
+$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
+$store_id = (int)$request->get("store_id");
+
 if (!CModule::IncludeModule('crm'))
 {
 	return;
@@ -1555,7 +1558,7 @@ elseif($action === 'PREPARE_EDITOR_HTML')
 			'ENABLE_FIELDS_CONTEXT_MENU' => $enableFieldsContextMenu,
 			'ENABLE_REQUIRED_USER_FIELD_CHECK' => $enableRequiredUserFieldCheck,
 			'USER_FIELD_ENTITY_ID' => \CCrmDeal::GetUserFieldEntityID(),
-			'SERVICE_URL' => '/bitrix/components/bitrix/crm.deal.details/ajax.php?'.bitrix_sessid_get(),
+			'SERVICE_URL' => '/local/components/bitrix/crm.deal.details/ajax.php?store_id='.$store_id.'&'.bitrix_sessid_get(),
 			'CONTEXT_ID' => \CCrmOwnerType::DealName.'_'.$ID,
 			'ENTITY_TYPE_ID' => \CCrmOwnerType::Deal,
 			'ENTITY_ID' => $ID,

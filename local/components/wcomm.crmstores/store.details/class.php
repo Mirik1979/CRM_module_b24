@@ -438,7 +438,7 @@ class CStoreDetailsComponent extends CBitrixComponent
 					'loader' => array(
 						'serviceUrl' => '/local/components/bitrix/crm.deal.list/lazyload.ajax.php?&site'.SITE_ID.'&'.bitrix_sessid_get(),
 						'componentData' => array(
-							'template' => '',
+							'template' => 'potential',
 							'params' => array(
 								'DEAL_COUNT' => '20',
 								'PATH_TO_DEAL_SHOW' => $this->arResult['PATH_TO_DEAL_SHOW'],

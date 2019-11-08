@@ -8,6 +8,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var CBitrixComponentTemplate $this */
 /** @var CCrmEntityProgressBarComponent $component */
 
+$request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
+$store_id = (int)$request->get("store_id");
+
 $guid = $arResult['GUID'];
 $prefix = strtolower($guid);
 $activityEditorID = "{$prefix}_editor";
