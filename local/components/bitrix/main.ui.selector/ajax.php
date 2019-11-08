@@ -37,7 +37,7 @@ class CMainUISelectorComponentAjaxController extends \Bitrix\Main\Engine\Control
 				}
 			}
 		}
-        \Bitrix\Main\Diag\Debug::writeToFile($result, "res2", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($result, "res2", "__miros.log");
 		return $result;
 	}
 
@@ -130,18 +130,18 @@ class CMainUISelectorComponentAjaxController extends \Bitrix\Main\Engine\Control
 
 
 
-        \Bitrix\Main\Diag\Debug::writeToFile($arrret, "res1", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($arrret, "res1", "__miros.log");
         return $arrret;
 	    //return \Bitrix\Main\UI\Selector\Entities::getData($options, $entityTypes, $selectedItems);
 	}
 
 	public function doSearchAction($searchString = '', $searchStringConverted = '', $currentTimestamp = 0, array $options = array(), array $entityTypes = array(), array $additionalData = array())
 	{
-        \Bitrix\Main\Diag\Debug::writeToFile($options, "options", "__miros.log");
-        \Bitrix\Main\Diag\Debug::writeToFile($entityTypes, "types", "__miros.log");
-        \Bitrix\Main\Diag\Debug::writeToFile($searchString, "string", "__miros.log");
-        \Bitrix\Main\Diag\Debug::writeToFile($searchStringConverted, "search", "__miros.log");
-        \Bitrix\Main\Diag\Debug::writeToFile($additionalData, "data", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($options, "options", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($entityTypes, "types", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($searchString, "string", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($searchStringConverted, "search", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($additionalData, "data", "__miros.log");
 
 
 	    $result = \Bitrix\Main\UI\Selector\Entities::search($options, $entityTypes, array(
@@ -190,15 +190,15 @@ class CMainUISelectorComponentAjaxController extends \Bitrix\Main\Engine\Control
 
 
 		$result['currentTimestamp'] = $currentTimestamp;
-        \Bitrix\Main\Diag\Debug::writeToFile($result, "res3", "__miros.log");
+        // \Bitrix\Main\Diag\Debug::writeToFile($result, "res3", "__miros.log");
 		return $result;
 	}
 
 	public function loadAllAction($entityType)
 	{
 
-        $arrttt = \Bitrix\Main\UI\Selector\Entities::loadAll($entityType);
-        \Bitrix\Main\Diag\Debug::writeToFile($arrttt, "res4", "__miros.log");
+        //$arrttt = \Bitrix\Main\UI\Selector\Entities::loadAll($entityType);
+        //\Bitrix\Main\Diag\Debug::writeToFile($arrttt, "res4", "__miros.log");
 
         return \Bitrix\Main\UI\Selector\Entities::loadAll($entityType);
 	}

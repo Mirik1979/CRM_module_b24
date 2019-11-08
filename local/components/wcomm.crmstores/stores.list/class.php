@@ -13,6 +13,8 @@ use Bitrix\Main\UI\Filter;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
 
+\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "rqstclass", "__miros.log");
+
 
 class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 {
@@ -65,7 +67,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             ShowError(Loc::getMessage('CRMSTORES_NO_MODULE'));
             return;
         }
-
+        $userID = CCrmSecurityHelper::GetCurrentUserID();
         $context = Context::getCurrent();
         $request = $context->getRequest();
 
@@ -107,7 +109,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             ARRAY_FILTER_USE_KEY
         );
         //endregion
-
+        //\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "req", "__miros.log");
         $this->processGridActions($gridFilterValues);
         $this->processServiceActions($gridFilterValues);
 
@@ -123,7 +125,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             $pager->setCurrentPage(1);
         }
         //endregion
-        //\Bitrix\Main\Diag\Debug::writeToFile($gridFilterValues, "grf", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "req", "__miros.log");
         $stores = $this->getStores(array(
             'filter' => $gridFilterValues,
             'limit' => $pager->getLimit(),
@@ -149,7 +151,25 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             'ENABLE_LIVE_SEARCH' => false,
             'DISABLE_SEARCH' => true,
             'SERVICE_URL' => $requestUri->getUri(),
+            'TASK_CREATE_URL' => CHTTP::urlAddParams(
+                CComponentEngine::MakePathFromTemplate(
+                    COption::GetOptionString('tasks', 'paths_task_user_edit', ''),
+                    array(
+                        'task_id' => 0,
+                        'user_id' => $userID
+                    )
+                ),
+                array(
+                    //'UF_CRM_TASK' => '#ENTITY_KEYS#',
+                    'UF_CRM_TASK' => '_1',
+                    'TITLE' => urlencode('CRM'),
+                    'TAGS' => urlencode('CRM'),
+                    'back_url' => urlencode()
+                )
+            )
+
         );
+
 
         $this->includeComponentTemplate();
     }
@@ -615,12 +635,30 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
     }
 
 
-
     private function processGridActions($currentFilter)
     {
+        //global $APPLICATION;
+
+
+
+        //\Bitrix\Main\Diag\Debug::writeToFile('here', "post", "__miros.log");
+        //$getAction = 'action_'.$arResult['GRID_ID'];
+        //$actionData = array(
+        //    'METHOD' => $_SERVER['REQUEST_METHOD'],
+        //    'ACTIVE' => false
+        //);
+
+        //\Bitrix\Main\Diag\Debug::writeToFile('nnn', "name", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "name", "__miros.log");
+
+        //$actionData['NAME'] = $_GET;
+        //\Bitrix\Main\Diag\Debug::writeToFile($actionData['NAME'], "name", "__miros.log");
+
         if (!check_bitrix_sessid()) {
             return;
         }
+
+        //\Bitrix\Main\Diag\Debug::writeToFile('here2', "post", "__miros.log");
 
         $context = Context::getCurrent();
         $request = $context->getRequest();
@@ -629,6 +667,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         //$q = $request->getQueryList();
         $p = $request->getPostList();
         $method = $request->getRequestMethod();
+        //\Bitrix\Main\Diag\Debug::writeToFile($p['controls']['action_button_CRMSTORES_LIST'], "post", "__miros.log");
         //\Bitrix\Main\Diag\Debug::writeToFile($method, "", "__miros.log");
 
         if ($p['controls']['action_button_CRMSTORES_LIST']=='assign_to') {
@@ -639,7 +678,52 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                 //\Bitrix\Main\Diag\Debug::writeToFile($param, "", "__miros.log");
                 StoreTable::update($param, array('ASSIGNED_BY_ID' => $newassigned));
             }
+        } elseif ($p['controls']['action_button_CRMSTORES_LIST']=='task') {
+            //LocalRedirect('www.rbc.ru');
+            //echo '<script> window.open("http://ya.ru");</script>';
+
         }
+
+
+
+
+
+
+
+        //elseif ($p['controls']['action_button_CRMSTORES_LIST']=='task') {
+
+
+        /* \Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "rqst2", "__miros.log");
+            $arTaskID = array();
+            foreach ($p['rows'] as $key => $param) {
+                \Bitrix\Main\Diag\Debug::writeToFile($param, "prm", "__miros.log");
+                $arTaskID[] = '_'.$param;
+            }
+            $APPLICATION->RestartBuffer();
+            $userID = CCrmSecurityHelper::GetCurrentUserID();
+            $taskUrl = CHTTP::urlAddParams(
+                CComponentEngine::MakePathFromTemplate(
+                    COption::GetOptionString('tasks', 'paths_task_user_edit', ''),
+                    array(
+                        'task_id' => 0,
+                        'user_id' => $userID
+                    )
+                ),
+                array(
+                    'UF_CRM_TASK' => implode(';', $arTaskID),
+                    'TITLE' => urlencode('CRM:'),
+                    'TAGS' => ''
+                    //'back_url' => ''
+                )
+            ); */
+            //\Bitrix\Main\Diag\Debug::writeToFile($taskUrl, "url", "__miros.log");
+            //LocalRedirect($taskUrl);
+            //$APPLICATION->RestartBuffer();
+            //return;
+            //echo '<script> parent.window.location = "'.CUtil::JSEscape($taskUrl).'";</script>';
+            //return;
+
+        //}
         //\Bitrix\Main\Diag\Debug::writeToFile($key, "", "__miros.log");
         //\Bitrix\Main\Diag\Debug::writeToFile($newassigned, "", "__miros.log");
 

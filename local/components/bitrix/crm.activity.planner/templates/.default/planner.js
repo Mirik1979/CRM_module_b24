@@ -5,7 +5,7 @@ BX.ready(function(){
     var DEFAULT_AJAX_URL = '/local/components/bitrix/crm.activity.planner/ajax.php?site_id=' + BX.message('SITE_ID');
     var COMMUNICATIONS_AJAX_URL = '/local/components/bitrix/crm.activity.editor/ajax.php?siteID='+BX.message('SITE_ID')+'&sessid='+BX.bitrix_sessid();
     var COMMUNICATIONS_AJAX_URL_CONTACT = '/local/components/bitrix/crm.activity.editor/ajax.php?useContact=Y&siteID='+BX.message('SITE_ID')+'&sessid='+BX.bitrix_sessid();
-
+    var COMMUNICATIONS_AJAX_URL_STORE = '/local/components/bitrix/crm.activity.editor/ajax.php?useStore=Y&siteID='+BX.message('SITE_ID')+'&sessid='+BX.bitrix_sessid();
     var Planner=BX.Crm.Activity.Planner;
     var Destination=BX.Crm.Activity.Destination;
 
@@ -139,11 +139,21 @@ BX.ready(function(){
             );
         }
 
-
-
         var communicationsNode = me.getNode('communications-container');
         if (communicationsNode)
         {
+            var commtype;
+            var commvalue;
+
+            commtype = me.getNode('communications-type').value;
+            if (commtype =='STORE')
+            {
+               commvalue ='';
+            } else {
+                commvalue = JSON.parse(me.getNode('communications-data').value);
+            }
+
+
             me.communications = new Communications(
                 communicationsNode,
                 {
@@ -158,7 +168,8 @@ BX.ready(function(){
                     entityId: me.getNodeValue('field-owner-id'),
                     containerTpl: destinationContainerTpl,
                     itemTpl: destinationItemTpl,
-                    selected: JSON.parse(me.getNode('communications-data').value),
+                    //selected: JSON.parse(me.getNode('communications-data').value),
+                    selected: commvalue,
                     //TODO: [tag: MEETING_MULTIPLE] replace rule in comment below to apply Meeting multiple communications
                     selectOne: true,//(providerId !== 'CRM_MEETING'),
                     communicationType: me.getNode('communications-container').getAttribute('data-communication-type')
@@ -191,6 +202,41 @@ BX.ready(function(){
 
             }
 
+        }
+
+        var communicationsNode3 = me.getNode('communications3-container');
+        if (communicationsNode3)
+        {
+            commtype = me.getNode('communications-type').value;
+            if (commtype =='STORE')
+            {
+                commvalue = JSON.parse(me.getNode('communications-data').value);
+            } else {
+                commvalue ='';
+            }
+
+            me.communications3 = new Stores(
+                communicationsNode3,
+                {
+                    entityType: me.getNodeValue('field-owner-type'),
+                    entityId: me.getNodeValue('field-owner-id'),
+                    containerTpl: destinationContainerTpl,
+                    itemTpl: destinationItemTpl,
+                    //selected: JSON.parse(me.getNode('communications-data').value),
+                    selected: commvalue,
+                    //TODO: [tag: MEETING_MULTIPLE] replace rule in comment below to apply Meeting multiple communications
+                    selectOne: true,//(providerId !== 'CRM_MEETING'),
+                    communicationType: me.getNode('communications3-container').getAttribute('data-communication-type')
+                }
+            );
+            if(me.communications) {
+                var val=JSON.parse(me.getNode('communications-data').value);
+                me.communications2.setSelectCompany(val[0]);
+                me.dealDestination.setSelectCompany(val[0]);
+                //if(typeof (val[0])=="undefined")
+                //   me.dealDestination.setDisabled();
+
+            }
         }
 
         if (popup)
@@ -1273,6 +1319,323 @@ BX.ready(function(){
     };
 
     Contacts.prototype.onPlannerClose = function()
+    {
+        this._communicationSearch.closeDialog();
+    };
+    // <- Contacts
+
+
+
+    // Stores  ->
+    var Stores = function(container, config)
+    {
+        this.id = 'crm-actpl-comm2-' + ('' + new Date().getTime()).substr(6);
+        this.items = [];
+
+        this.disabled=false;
+
+        var me = this;
+        if (!config)
+            config = {};
+
+        this.bindContainer = container;
+        this.ajaxUrl = COMMUNICATIONS_AJAX_URL_STORE;
+        this.itemTpl = config.itemTpl;
+
+        this.selectcompany = config.selectcompany || false;;
+
+        this.selectOne = config.selectOne || false;
+
+        this.bindContainer.appendChild(BX.clone(config.containerTpl));
+        var tagNode = this.getNode('destination-tag');
+
+        BX.bind(tagNode, 'focus', function(e) {
+            me.openDialog();
+            return BX.PreventDefault(e);
+        });
+        BX.bind(this.bindContainer, 'click', function(e) {
+            me.openDialog();
+            return BX.PreventDefault(e);
+        });
+
+        var communicationType = BX.CrmCommunicationType.undefined;
+        if (config.communicationType === 'PHONE')
+            communicationType = BX.CrmCommunicationType.phone;
+        if (config.communicationType === 'EMAIL')
+            communicationType = BX.CrmCommunicationType.email;
+
+        if(typeof(BX.CrmCommunicationSearch.messages) === 'undefined')
+        {
+            BX.CrmCommunicationSearch.messages =
+                {
+                    SearchTab: BX.message('CRM_ACTIVITY_PLANNER_COMMUNICATION_SEARCH_TAB'),
+                    NoData: BX.message('CRM_ACTIVITY_PLANNER_COMMUNICATION_SEARCH_NO_DATA')
+                }
+        }
+
+        this._communicationSearch = BX.CrmCommunicationSearch.create(this.id, {
+            //entityType : config.entityType,
+            entityId: config.entityId,
+            serviceUrl: me.ajaxUrl,
+            communicationType:  communicationType,
+            selectCallback: BX.delegate(this.selectCommunication, this),
+            enableSearch: true,
+            enableDataLoading: true,
+            dialogAutoHide: true
+        });
+
+        if (communicationType === BX.CrmCommunicationType.phone)
+        {
+            var input = this.getNode('destination-input');
+            BX.bind(input, 'keypress', BX.delegate(this.inputKeypress, this));
+        }
+
+        this.addItems(config.selected ? BX.clone(config.selected) : []);
+    };
+    Stores.prototype.inputKeypress = function(e)
+    {
+        if(!e)
+            e = window.event;
+
+        if(e.keyCode !== 13)
+            return;
+
+        var input = this.getNode('destination-input');
+
+        if(BX.type.isNotEmptyString(input.value))
+        {
+            var rx = /^\s*\+?[\d-\s\(\)]+\s*$/;
+            if (rx.test(input.value))
+            {
+                this.addItem(
+                    {
+                        entityId: '0',
+                        entityTitle: '',
+                        entityType: 'CONTACT',
+                        type: 'PHONE',
+                        value: input.value
+                    },
+                    true
+                );
+            }
+        }
+    };
+
+    Stores.prototype.getNode = function(name, scope)
+    {
+        if (!scope)
+            scope = this.bindContainer;
+
+        return scope ? scope.querySelector('[data-role="'+name+'"]') : null;
+    };
+
+    Stores.prototype.selectCommunication = function(communication)
+    {
+        this.addItem(communication.getSettings(), true);
+    };
+
+    Stores.prototype.setSelectCompany = function(selectcompany)
+    {
+        this.selectcompany=selectcompany;
+
+        if(typeof (this.selectcompany)!="undefined"){
+            this.setEnabled();
+            if(this.selectcompany.entityType=="COMPANY"){
+                var id=parseInt(this.selectcompany.entityId);
+                if(id>0){
+                    this.ajaxUrl=COMMUNICATIONS_AJAX_URL_STORE+"&contactid="+id;
+                    this._communicationSearch._settings['serviceUrl']=this.ajaxUrl;
+                    this._communicationSearch._provider._settings['serviceUrl']=this.ajaxUrl;
+
+                    if (parseInt(this._communicationSearch._provider._entityId)==0)
+                        this._communicationSearch._provider._entityId=1;
+
+                    if (this._communicationSearch._provider._entityType=="")
+                        this._communicationSearch._provider._entityType="DEAL";
+
+                    this._communicationSearch._provider._loadData();
+                }
+            }
+        }else{
+            this.setDisabled();
+        }
+    };
+
+    /*Contacts.prototype._loadData=function(_entityType,_entityId,serviceUrl)
+    {
+        var serviceUrl = this.getSetting("serviceUrl", "");
+
+        if(this._entityType === "" || this._entityId === 0 || serviceUrl === "")
+        {
+            return;
+        }
+
+        BX.ajax(
+            {
+                "url": serviceUrl,
+                "method": "POST",
+                "dataType": "json",
+                "data":
+                    {
+                        "ACTION" : "GET_ENTITY_COMMUNICATIONS",
+                        "ENTITY_TYPE": this._entityType,
+                        "ENTITY_ID": this._entityId,
+                        "COMMUNICATION_TYPE": this._commType
+                    },
+                "async": false,
+                "start": true,
+                "onsuccess": BX.delegate(this._handleRequestCompletion, this),
+                "onfailure": BX.delegate(this._handleRequestError, this)
+            }
+        );
+    }*/
+
+    Stores.prototype.addItem = function(item, closeDialog)
+    {
+
+        if (item.type === null)
+            item.type = '';
+
+        if (item.type === '' && item.value === null)
+            item.value = '';
+
+        item.entityId = parseInt(item.entityId);
+
+        for(var i = 0; i < this.items.length; ++i)
+        {
+            if (
+                this.items[i].type === item.type
+                && this.items[i].value === item.value
+                && this.items[i].entityId === item.entityId
+                && this.items[i].entityType === item.entityType
+            )
+                return;
+        }
+
+        var me = this, itemsNode = this.getNode('destination-items');
+
+        if (this.selectOne)
+        {
+            this.items = [];
+            BX.cleanNode(itemsNode);
+        }
+
+        this.items.push(item);
+
+        var container = BX.clone(this.itemTpl);
+        BX.addClass(container, container.getAttribute('data-class-prefix') + 'crm');
+
+        var containerText = this.getNode('text', container);
+        var containerDelete = this.getNode('delete', container);
+
+        containerText.innerHTML = [
+            BX.type.isString(item.entityTitle) ? BX.util.htmlspecialchars(item.entityTitle) : '',
+            BX.type.isString(item.value) ? BX.util.htmlspecialchars(item.value) : ''
+        ].join(' ');
+
+        BX.bind(containerDelete, 'click', function(e) {
+            me.deleteItem(item);
+            BX.remove(container);
+            BX.PreventDefault(e)
+        });
+
+        BX.bind(containerDelete, 'mouseover', function(){
+            BX.addClass(this.parentNode, this.getAttribute('data-hover-class'));
+        });
+
+        BX.bind(containerDelete, 'mouseout', function(){
+            BX.removeClass(this.parentNode, this.getAttribute('data-hover-class'));
+        });
+
+        itemsNode.appendChild(container);
+
+        var tagNode = this.getNode('destination-tag');
+        tagNode.innerHTML = BX.message('CRM_ACTIVITY_PLANNER_DEST_2');
+        if (closeDialog)
+            this._communicationSearch.closeDialog();
+    };
+
+    Stores.prototype.addItems = function(items)
+    {
+        for(var i = 0; i < items.length; ++i)
+        {
+            this.addItem(items[i], items[i].entityType)
+        }
+        var tagNode = this.getNode('destination-tag');
+
+        tagNode.innerHTML = (
+            items.length <= 0
+                ? BX.message('CRM_ACTIVITY_PLANNER_DEST_1')
+                : BX.message('CRM_ACTIVITY_PLANNER_DEST_2')
+        );
+    };
+
+    Stores.prototype.deleteItem = function(item)
+    {
+        for(var i = 0; i < this.items.length; ++i)
+        {
+            if (this.items[i] === item)
+                this.items.splice(i, 1);
+        }
+        return this;
+    };
+
+    Stores.prototype.openDialog = function()
+    {
+        if(!this.disabled){
+            var inputBox = this.getNode('destination-input-box');
+            var input = this.getNode('destination-input');
+            var tagNode = this.getNode('destination-tag');
+
+            BX.style(inputBox, 'display', 'inline-block');
+            BX.style(tagNode, 'display', 'none');
+
+            if(!this._communicationSearchController)
+            {
+                this._communicationSearchController = BX.CrmCommunicationSearchController.create(this._communicationSearch, input);
+                this._communicationSearchController.start();
+            }
+            this._communicationSearch.openDialog(this.bindContainer,
+                BX.delegate(this.closeDialog, this),
+                {zIndex: 999}
+            );
+
+            BX.defer(BX.focus)(input);
+        }
+
+    };
+    Stores.prototype.closeDialog = function()
+    {
+        var inputBox = this.getNode('destination-input-box');
+        var input = this.getNode('destination-input');
+        var tagNode = this.getNode('destination-tag');
+
+        if(this._communicationSearchController)
+        {
+            this._communicationSearchController.stop();
+            this._communicationSearchController = null;
+        }
+
+        BX.style(tagNode, 'display', 'inline-block');
+        BX.style(inputBox, 'display', 'none');
+        input.value = '';
+    };
+
+    Stores.prototype.setDisabled = function()
+    {
+        this.disabled=true;
+        var container = this.getNode('template-destination-container');
+        BX.addClass(container,'disabled');
+    };
+
+    Stores.prototype.setEnabled = function()
+    {
+        this.disabled=false;
+        var container = this.getNode('template-destination-container');
+        BX.removeClass(container,'disabled');
+    };
+
+    Stores.prototype.onPlannerClose = function()
     {
         this._communicationSearch.closeDialog();
     };

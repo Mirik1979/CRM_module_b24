@@ -21,6 +21,10 @@ $CommCompanyRepository=new CommCompanyRepository();
 $provider = $arResult['PROVIDER'];
 $activity = $arResult['ACTIVITY'];
 
+
+
+
+
 switch ($provider){
     case 'Bitrix\Crm\Activity\Provider\CallList':
         $provider=\local\Crm\Activity\Provider\CallListLocal::class;
@@ -114,6 +118,8 @@ $storageValues = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($storageValues
 $storageProps = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($storageProps));
 $destinationEntities = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['DESTINATION_ENTITIES']));
 $communicationsData = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['COMMUNICATIONS_DATA']));
+//$communicationsType = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['COMMUNICATIONS_DATA'][0]['entityType']));
+$communicationsType = $arResult['COMMUNICATIONS_DATA'][0]['entityType'];
 
 if($arResult['COMMUNICATIONS_DATA'][0]['entityType']=="CONTACT"){
     $communicationsData = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode([]));
@@ -248,6 +254,7 @@ $pageAsset->addCss('/bitrix/js/calendar/planner-style.css');
                     <input type="hidden" name="ownerId" value="<?=(int)$activity['OWNER_ID']?>" data-role="field-owner-id">
                     <input type="hidden" value="<?=$destinationEntities?>" data-role="destination-entities">
                     <input type="hidden" value="<?=$communicationsData?>" data-role="communications-data">
+                    <input type="hidden" value="<?=$communicationsType?>" data-role="communications-type">
                     <input type="hidden" value="<?=$communicationsData2?>" data-role="communications-data2">
                     <div class="crm-activity-slider-container" data-role="main-container">
                         <div class="crm-activity-popup-recall-container">
@@ -331,7 +338,13 @@ $pageAsset->addCss('/bitrix/js/calendar/planner-style.css');
                                 {
                                     case 'SUBJECT':
                                     case 'LOCATION':
-                                    case 'TEXT':?>
+                                    case 'TEXT':
+                                    //echo "<pre>";
+                                    //print_r($arResult);
+                                    //print_r($communicationsType);
+                                    //print_r($provider::getCommunicationType($activity['PROVIDER_TYPE_ID']));
+                                    //echo "</pre>";
+                                    ?>
                                         <div class="crm-activity-popup-info-location-container">
                                         <span class="crm-activity-popup-info-location-text"><?=htmlspecialcharsbx($field['LABEL'])?>:</span>
                                         <input type="text" name="<?=strtolower($name)?>" value="<?=htmlspecialcharsbx($field['VALUE'])?>" class="crm-activity-popup-info-location" <?if($field['PLACEHOLDER'] != ''):?>placeholder="<?=htmlspecialcharsbx($field['PLACEHOLDER'])?>"<?endif?> data-role="focus-on-show">
@@ -346,7 +359,8 @@ $pageAsset->addCss('/bitrix/js/calendar/planner-style.css');
                                     case 'COMMUNICATIONS': ?>
                                         <div class="crm-activity-popup-info-person-container">
                                         <span class="crm-activity-popup-info-person-text"><?=htmlspecialcharsbx($field['LABEL'])?>:</span>
-                                        <div class="crm-activity-popup-info-person-block" data-role="communications-container" data-communication-type="<?=$provider::getCommunicationType($activity['PROVIDER_TYPE_ID'])?>"></div><!--crm-activity-popup-info-person-block-->
+                                        <!-- <div class="crm-activity-popup-info-person-block" data-role="communications-container" data-communication-type="<?=$provider::getCommunicationType($activity['PROVIDER_TYPE_ID'])?>"></div> --> <!--crm-activity-popup-info-person-block-->
+                                            <div class="crm-activity-popup-info-person-block" data-role="communications-container" data-communication-type="<?=$provider::getCommunicationType($activity['PROVIDER_TYPE_ID'])?>"></div>
                                         </div>
                                     <?
                                         break;
@@ -357,13 +371,25 @@ $pageAsset->addCss('/bitrix/js/calendar/planner-style.css');
                                         </div>
                                     <?
                                         break;
+                                    case 'COMMUNICATIONS3': ?>
+                                        <div class="crm-activity-popup-info-person-container">
+                                            <span class="crm-activity-popup-info-person-text"><?=htmlspecialcharsbx($field['LABEL'])?>:</span>
+                                            <div class="crm-activity-popup-info-person-block" data-role="communications3-container" data-communication-type="<?=$provider::getCommunicationType($activity['PROVIDER_TYPE_ID'])?>"></div><!--crm-activity-popup-info-person-block-->
+                                        </div>
+                                        <?
+                                        break;
                                     default:
                                         if (isset($field['HTML']))
                                             echo $field['HTML'];
                                 }
                             endforeach;
                             ?>
+                            <div style="margin-top: 20px;" class="crm-activity-popup-info-person-detail-deal-container">
+                                <span class="crm-activity-popup-info-person-text"><?=GetMessage('CRM_ACTIVITY_PLANNER_DEAL')?>:</span>
+                                <div class="crm-activity-popup-info-person-detail-deal" data-role="deal-container"></div></div><!--crm-activity-popup-info-person-detail-deal-->
+
                             <div class="crm-activity-popup-info-additional-container">
+
                                 <div class="crm-activity-popup-info-person-link-container">
 									<span class="crm-activity-popup-info-person-link-triangle <?if ($arResult['ADDITIONAL_MODE']):?>crm-activity-popup-info-person-link-triangle-up<?endif;?>" data-role="additional-mode-switcher">
 										<?=GetMessage('CRM_ACTIVITY_PLANNER_ADDITIONAL')?>
@@ -402,12 +428,12 @@ $pageAsset->addCss('/bitrix/js/calendar/planner-style.css');
                                             case 'DEAL':
                                                 if ($activity['OWNER_TYPE_ID'] !== CCrmOwnerType::Order)
                                                 {
-                                                    ?>
+                                                   /* ?>
                                                     <div class="crm-activity-popup-info-person-detail-deal-container">
                                                         <span class="crm-activity-popup-info-person-text"><?=GetMessage('CRM_ACTIVITY_PLANNER_DEAL')?>:</span>
                                                         <div class="crm-activity-popup-info-person-detail-deal" data-role="deal-container"></div><!--crm-activity-popup-info-person-detail-deal-->
                                                     </div>
-                                                    <?
+                                                    <? */
                                                 }
                                                 break;
                                             case 'ORDER':

@@ -11,6 +11,11 @@ if (!CModule::IncludeModule('crm'))
 
 CModule::IncludeModule('fileman');
 
+
+\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "posttask222", "__miros.log");
+
+\Bitrix\Main\Diag\Debug::writeToFile("here111", "posttask222", "__miros.log");
+
 $arResult['CONTAINER_ID'] = isset($arParams['~CONTAINER_ID']) ? $arParams['~CONTAINER_ID'] : '';
 $arResult['PREFIX'] = isset($arParams['~PREFIX']) ? $arParams['~PREFIX'] : 'crm_default';
 $arResult['EDITOR_ID'] = isset($arParams['~EDITOR_ID']) ? $arParams['~EDITOR_ID'] : $arResult['PREFIX'].'_activity_editor';

@@ -5,6 +5,8 @@ define('NO_AGENT_CHECK', true);
 define('DisableEventsCheck', true);
 
 use Bitrix\Main\Mail;
+use WComm\CrmStores\BizProc\StoreDocument;
+use Bitrix\Main\Loader;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
@@ -71,6 +73,9 @@ if ($_REQUEST['soc_net_log_dest'] == 'search_email_comms')
 $GLOBALS['APPLICATION']->RestartBuffer();
 Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 $action = isset($_POST['ACTION']) ? $_POST['ACTION'] : '';
+\Bitrix\Main\Diag\Debug::writeToFile($action, "actioncommunications", "__miros.log");
+
+
 if(strlen($action) == 0)
 {
 	__CrmActivityEditorEndResponse(array('ERROR' => 'Invalid data!'));
@@ -2528,17 +2533,51 @@ elseif($action == 'SEARCH_COMMUNICATIONS')
 	$entityID = isset($_POST['ENTITY_ID']) ? intval($_POST['ENTITY_ID']) : 0;
 	$communicationType = isset($_POST['COMMUNICATION_TYPE']) ? strval($_POST['COMMUNICATION_TYPE']) : '';
 	$needle = isset($_POST['NEEDLE']) ? strval($_POST['NEEDLE']) : '';
+	\Bitrix\Main\Diag\Debug::writeToFile($needle, "needle", "__miros.log");
+
 
 	$contactid = isset($_REQUEST['contactid']) ? (int)$_REQUEST['contactid'] : 0;
 
 	$useContact = (isset($_REQUEST['useContact']) && trim($_REQUEST['useContact']))=="Y" ? true : false;
+	$useStore = (isset($_REQUEST['useStore']) && trim($_REQUEST['useStore']))=="Y" ? true : false;
+
+	\Bitrix\Main\Diag\Debug::writeToFile($useContact, "usecont", "__miros.log");
+	\Bitrix\Main\Diag\Debug::writeToFile($useStore, "usestor", "__miros.log");
+
 
 	if(!$useContact)
 		$results=[];
 	else
 		$results = \local\Crm\Activity\CCrmActivityLocal::FindContactCommunications($needle, $communicationType, 10,$contactid);
 
-	if(!$useContact){
+	\Bitrix\Main\Diag\Debug::writeToFile($results, "resultsbefore", "__miros.log");
+
+
+	if($useStore) {
+		\Bitrix\Main\Diag\Debug::writeToFile("usestore", "resultsafter", "__miros.log");
+
+		Loader::includeModule('wcomm.crmstores');
+
+		$params = array
+		(
+			'filter' => Array
+			(
+			),
+			'limit' => 500000,
+			'offset' => 0,
+			'order' => Array
+			(
+				'ID' => desc
+			)
+		);
+		$stores = Wcomm\CrmStores\Entity\StoreTable::getList();
+		$results = $stores->fetchAll();
+		\Bitrix\Main\Diag\Debug::writeToFile($results, "resultsafter", "__miros.log");
+	}
+
+
+
+	if(!$useContact && !$useStore){
 		//if($communicationType !== '')
 		{
 			//If communication type defined add companies communications
@@ -2558,41 +2597,57 @@ elseif($action == 'SEARCH_COMMUNICATIONS')
 	$images = array();
 
 	$userPermissions = CCrmPerms::GetCurrentUserPermissions();
-	foreach($results as &$result)
-	{
-		if(!\Bitrix\Crm\Security\EntityAuthorization::checkReadPermission(
-			$result['ENTITY_TYPE_ID'],
-			$result['ENTITY_ID'],
-			$userPermissions)
-		)
-		{
-			continue;
+	if (!$useStore) {
+		foreach ($results as &$result) {
+			if (!\Bitrix\Crm\Security\EntityAuthorization::checkReadPermission(
+				$result['ENTITY_TYPE_ID'],
+				$result['ENTITY_ID'],
+				$userPermissions)
+			) {
+				continue;
+			}
+
+			$key = "{$result['ENTITY_TYPE_ID']}_{$result['ENTITY_ID']}";
+			if (!isset($data[$key])) {
+				$data[$key] = array(
+					'ownerEntityType' => $entityType !== '' ? $entityType : CCrmOwnerType::ResolveName($result['ENTITY_TYPE_ID']),
+					'ownerEntityId' => $entityID > 0 ? $entityID : intval($result['ENTITY_ID']),
+					'entityType' => CCrmOwnerType::ResolveName($result['ENTITY_TYPE_ID']),
+					'entityId' => $result['ENTITY_ID'],
+					'entityTitle' => $result['TITLE'],
+					'entityDescription' => $result['DESCRIPTION'],
+					'tabId' => 'search',
+					'communications' => array()
+				);
+				$images[$key] = $result['ENTITY_SETTINGS']['IMAGE_FILE_ID'];
+			}
+
+			if ($result['TYPE'] !== '' && $result['VALUE'] !== '') {
+				$comm = array(
+					'type' => $result['TYPE'],
+					'value' => $result['VALUE']
+				);
+
+				$data[$key]['communications'][] = $comm;
+			}
 		}
-
-		$key = "{$result['ENTITY_TYPE_ID']}_{$result['ENTITY_ID']}";
-		if(!isset($data[$key]))
-		{
-			$data[$key] = array(
-				'ownerEntityType' => $entityType !== '' ? $entityType : CCrmOwnerType::ResolveName($result['ENTITY_TYPE_ID']),
-				'ownerEntityId' => $entityID > 0 ? $entityID : intval($result['ENTITY_ID']),
-				'entityType' => CCrmOwnerType::ResolveName($result['ENTITY_TYPE_ID']),
-				'entityId' => $result['ENTITY_ID'],
-				'entityTitle' => $result['TITLE'],
-				'entityDescription' => $result['DESCRIPTION'],
-				'tabId' => 'search',
-				'communications' => array()
-			);
-			$images[$key] = $result['ENTITY_SETTINGS']['IMAGE_FILE_ID'];
-		}
-
-		if($result['TYPE'] !== '' && $result['VALUE'] !== '')
-		{
-			$comm = array(
-				'type' => $result['TYPE'],
-				'value' => $result['VALUE']
-			);
-
-			$data[$key]['communications'][] = $comm;
+	} else {
+		foreach ($results as &$result) {
+			if (strpos($result['NAME'], $needle) !== false) {
+				$key = "0_{$result['ID']}";
+				if (!isset($data[$key])) {
+					$data[$key] = array(
+						'ownerEntityType' => 'STORE',
+						'ownerEntityId' => '',// $entityID > 0 ? $entityID : intval($result['ID']),
+						'entityType' => 'STORE',
+						'entityId' => $result['ID'],
+						'entityTitle' => $result['NAME'],
+						'entityDescription' => $result['NAME'],
+						'tabId' => 'search',
+						'communications' => array()
+					);
+				}
+			}
 		}
 	}
 	unset($result);
@@ -2767,6 +2822,7 @@ elseif($action == 'SEARCH_COMMUNICATIONS')
 	}
 	else
 	{
+		\Bitrix\Main\Diag\Debug::writeToFile($data, "finalres", "__miros.log");
 		__CrmActivityEditorEndResponse(array('DATA' => array('ITEMS' => array_values($data))));
 	}
 }
@@ -3260,6 +3316,9 @@ elseif($action == 'GET_ACTIVITY_COMMUNICATIONS_PAGE')
 }
 elseif($action == 'GET_ACTIVITY_VIEW_DATA')
 {
+	\Bitrix\Main\Diag\Debug::writeToFile("hhh", "resss", "__miros.log");
+	\Bitrix\Main\Diag\Debug::writeToFile($_POST, "resss", "__miros.log");
+
 	$result = array();
 	$params = isset($_POST['PARAMS']) && is_array($_POST['PARAMS']) ? $_POST['PARAMS'] : array();
 

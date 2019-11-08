@@ -9,6 +9,8 @@ if (!CModule::IncludeModule('crm'))
 
 Bitrix\Main\UI\Extension::load("ui.tooltip");
 
+\Bitrix\Main\Diag\Debug::writeToFile("here333", "posttask222", "__miros.log");
+
 /** @global CMain $APPLICATION */
 global $APPLICATION, $USER;
 

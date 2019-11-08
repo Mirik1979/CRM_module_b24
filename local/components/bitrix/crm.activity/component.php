@@ -8,6 +8,8 @@ if (!CModule::IncludeModule('crm'))
 	return;
 }
 
+\Bitrix\Main\Diag\Debug::writeToFile("here000", "posttask222", "__miros.log");
+
 $arDefaultUrlTemplates404 = array(
 	'index' => 'index.php',
 	'list' => '',

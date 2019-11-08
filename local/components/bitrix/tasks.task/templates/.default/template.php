@@ -688,6 +688,8 @@ $hasFatals = false;?>
 									$crmUf = $arResult['AUX_DATA']["USER_FIELDS"][$blockName];
 									$crmUf['FIELD_NAME'] = $inputPrefix.'['.$blockName.']';
                                     \Bitrix\Main\Diag\Debug::writeToFile($crmUf, "crmuf", "__miros.log");
+
+
 									\Bitrix\Tasks\Util\UserField\UI::showEdit($crmUf);
 									?>
 								</div>
