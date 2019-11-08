@@ -266,7 +266,7 @@ if($arParams['TYPE'] === 'details')
 			$arResult['CATEGORY_CHANGER'] = array(
 				'ID' => "deal_category_change_{$arParams['ELEMENT_ID']}",
 				'SERVICE_URL' => CComponentEngine::makePathFromTemplate(
-					'/bitrix/components/bitrix/crm.deal.details/ajax.php?site_id=#SITE#&sessid=#SID#',
+					'/local/components/bitrix/crm.deal.details/ajax.php?site_id=#SITE#&sessid=#SID#',
 					array('SID' => bitrix_sessid())
 				),
 				'ENTITY_ID' => $arParams['ELEMENT_ID'],

@@ -37,6 +37,15 @@ class SetEvents
             )
         );
 
+        EventManager::getInstance()->addEventHandler(
+            'crm',
+            'OnBeforeCrmDealAdd',
+            array(
+                "local\\Events\\OnCrmDeal",
+                "OnBeforeCrmDealAdd"
+            )
+        );
+
     }
 
 }
