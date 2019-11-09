@@ -8,6 +8,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var CBitrixComponentTemplate $this */
 /** @var CCrmEntityPopupComponent $component */
 
+use Bitrix\Main\Loader;
+
+
 CJSCore::Init(array('clipboard'));
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/main/utils.js');
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/crm/interface_form.js');
@@ -15,6 +18,7 @@ CJSCore::Init(array('clipboard'));
 
 $guid = $arResult['GUID'];
 $entityTypeID = $arResult['ENTITY_TYPE_ID'];
+//print_r($entityTypeID);
 $entityTypeName = CCrmOwnerType::ResolveName($entityTypeID);
 $entityID = $arResult['ENTITY_ID'];
 $extras = $arResult['EXTRAS'];
@@ -125,22 +129,48 @@ $tabContainerId = "{$guid}_tabs";
 				);
 			?></div>
 			<div class="crm-entity-stream-container"><?
-				$APPLICATION->IncludeComponent(
-					"bitrix:crm.timeline",
-					'',
-					array_merge(
-						array(
-							'ENTITY_TYPE_ID' => $entityTypeID,
-							'ENTITY_ID' => $entityID,
-							'ENTITY_INFO' => $entityInfo,
-							'ACTIVITY_EDITOR_ID' => $arResult['ACTIVITY_EDITOR_ID'],
-							'READ_ONLY' => $readOnly
-						),
-						$arResult['TIMELINE']
-					),
-					$component,
-					array('HIDE_ICONS' => 'Y')
-				);
+                //print_r($entityTypeID);
+                //print_r($entityID);
+                //print_r($entityInfo);
+
+                if($entityInfo['ENTITY_TYPE_NAME']=='STORES') {
+                    $entityTypeID = 7;
+                    Loader::includeModule('wcomm.crmstores');
+                    $APPLICATION->IncludeComponent(
+                        "wcomm.crmstores:store.timeline",
+                        '',
+                        array_merge(
+                            array(
+                                'ENTITY_TYPE_ID' => $entityTypeID,
+                                'ENTITY_ID' => $entityID,
+                                'ENTITY_INFO' => $entityInfo,
+                                'ACTIVITY_EDITOR_ID' => $arResult['ACTIVITY_EDITOR_ID'],
+                                'READ_ONLY' => $readOnly
+                            ),
+                            $arResult['TIMELINE']
+                        ),
+                        $component,
+                        array('HIDE_ICONS' => 'Y')
+                    );
+                } else {
+                    $APPLICATION->IncludeComponent(
+                        "bitrix:crm.timeline",
+                        '',
+                        array_merge(
+                            array(
+                                'ENTITY_TYPE_ID' => $entityTypeID,
+                                'ENTITY_ID' => $entityID,
+                                'ENTITY_INFO' => $entityInfo,
+                                'ACTIVITY_EDITOR_ID' => $arResult['ACTIVITY_EDITOR_ID'],
+                                'READ_ONLY' => $readOnly
+                            ),
+                            $arResult['TIMELINE']
+                        ),
+                        $component,
+                        array('HIDE_ICONS' => 'Y')
+                    );
+                }
+
 
 			?></div>
 			<div style="clear: both;"></div>
