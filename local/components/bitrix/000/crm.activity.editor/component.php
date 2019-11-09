@@ -9,6 +9,8 @@ if (!CModule::IncludeModule('crm'))
 	return;
 }
 
+\Bitrix\Main\Diag\Debug::writeToFile("here000", "posttask222", "__miros.log");
+
 CModule::IncludeModule('fileman');
 
 $arResult['CONTAINER_ID'] = isset($arParams['~CONTAINER_ID']) ? $arParams['~CONTAINER_ID'] : '';

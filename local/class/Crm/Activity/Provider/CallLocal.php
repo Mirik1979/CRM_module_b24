@@ -23,7 +23,13 @@ class CallLocal extends M
             array(
                 'LABEL' => 'Контакт',
                 'TYPE' => 'COMMUNICATIONS2'
+            ),
+            array(
+                'LABEL' => 'Объект',
+                'TYPE' => 'COMMUNICATIONS3'
             )
+
+
         );
         return array_merge($parentFields,$fields);
     }

@@ -3446,6 +3446,7 @@ if(typeof BX.CrmTimelineCommentEditor === "undefined")
 		}
 
 		this._isRequestRunning = this._isLocked = true;
+		// тут пост запрос?
 		BX.ajax(
 			{
 				url: this._serviceUrl,
@@ -13201,10 +13202,12 @@ if(typeof(BX.CrmTimelineMenuBar) === "undefined")
 			var action = item.getId();
 			if(action === "call")
 			{
+				// отсюда идет вызов звонка
 				planner = new BX.Crm.Activity.Planner();
 				planner.showEdit(
 					{
 						"TYPE_ID": BX.CrmActivityType.call,
+						//"OWNER_TYPE": "STORE",
 						"OWNER_TYPE_ID": this._ownerInfo['ENTITY_TYPE_ID'],
 						"OWNER_ID": this._ownerInfo['ENTITY_ID']
 					}
@@ -13212,10 +13215,13 @@ if(typeof(BX.CrmTimelineMenuBar) === "undefined")
 			}
 			if(action === "meeting")
 			{
+				// отсюда идет вызов встречи
 				planner = new BX.Crm.Activity.Planner();
 				planner.showEdit(
 					{
+
 						"TYPE_ID": BX.CrmActivityType.meeting,
+						//"OWNER_TYPE": "STORE",
 						"OWNER_TYPE_ID": this._ownerInfo['ENTITY_TYPE_ID'],
 						"OWNER_ID": this._ownerInfo['ENTITY_ID']
 					}

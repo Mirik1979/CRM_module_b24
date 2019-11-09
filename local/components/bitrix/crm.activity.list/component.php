@@ -1,6 +1,9 @@
 <?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
+use Bitrix\Main\Loader;
+use Wcomm\CrmStores\Entity\StoreTable;
+
 if (!CModule::IncludeModule('crm'))
 {
 	ShowError(GetMessage('CRM_MODULE_NOT_INSTALLED'));
@@ -8,6 +11,8 @@ if (!CModule::IncludeModule('crm'))
 }
 
 Bitrix\Main\UI\Extension::load("ui.tooltip");
+
+//\Bitrix\Main\Diag\Debug::writeToFile("here333", "posttask222", "__miros.log");
 
 /** @global CMain $APPLICATION */
 global $APPLICATION, $USER;
@@ -209,6 +214,7 @@ $arResult['HEADERS'][] = array('id' => 'REFERENCE', 'type'=> 'text', 'name' => G
 
 $displayClient = $arResult['DISPLAY_CLIENT'] = isset($arParams['DISPLAY_CLIENT']) ? $arParams['DISPLAY_CLIENT'] : true;
 $arResult['HEADERS'][] = array('id' => 'CLIENT', 'type'=> 'text', 'name' => GetMessage('CRM_ACTIVITY_COLUMN_CLIENT'), 'default' => $displayClient, 'editable' => false);
+$arResult['HEADERS'][] = array('id' => 'STORE', 'type'=> 'text', 'name' => GetMessage('CRM_ACTIVITY_COLUMN_STORE'), 'default' => true, 'editable' => false);
 
 $arResult['HEADERS'][] = array('id' => 'DESCRIPTION', 'type'=> 'text', 'name' => GetMessage('CRM_ACTIVITY_COLUMN_DESCRIPTION'), 'default' => false, 'editable' => true);
 $arResult['HEADERS'][] = array('id' => 'RESPONSIBLE_FULL_NAME', 'type'=> 'text', 'name' => GetMessage('CRM_ACTIVITY_COLUMN_RESPONSIBLE'), 'sort' => 'RESPONSIBLE', 'default' => true, 'editable' => false, 'class' => 'username');
@@ -1162,6 +1168,12 @@ while($arRes = $dbRes->GetNext())
 	}
 
 	$items[$itemID] = $arRes;
+    global $USER_FIELD_MANAGER;
+    $value = $USER_FIELD_MANAGER->GetUserFieldValue('CRM_ACTIVITY', 'UF_STORE', $itemID);
+    Loader::includeModule('wcomm.crmstores');
+    $addid = Wcomm\CrmStores\Entity\StoreTable::getbyId($value);
+    $newadd = $addid->fetchAll();
+    $items[$itemID]['STORE'] = $newadd[0]['NAME'];
 }
 
 $arResult['OWNER_INFOS'] = array();

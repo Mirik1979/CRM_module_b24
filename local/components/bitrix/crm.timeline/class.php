@@ -1,21 +1,21 @@
 <?php
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
+use Bitrix\Crm;
+use Bitrix\Crm\Timeline\ActivityController;
+use Bitrix\Crm\Timeline\Entity\TimelineBindingTable;
+use Bitrix\Crm\Timeline\Entity\TimelineTable;
+use Bitrix\Crm\Timeline\TimelineEntry;
+use Bitrix\Crm\Timeline\TimelineType;
 use Bitrix\Main;
-use Bitrix\Main\Type\DateTime;
-use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\DB\SqlExpression;
+use Bitrix\Main\Entity;
 use Bitrix\Main\Entity\Base;
 use Bitrix\Main\Entity\Query;
 use Bitrix\Main\Entity\ReferenceField;
-use Bitrix\Crm;
-use Bitrix\Crm\Timeline\TimelineType;
-use Bitrix\Crm\Timeline\Entity\TimelineTable;
-use Bitrix\Crm\Timeline\Entity\TimelineBindingTable;
-use Bitrix\Crm\Timeline\ActivityController;
-use Bitrix\Crm\Timeline\TimelineEntry;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
 use local\Domain\Repository\CommCompanyRepository;
-use Bitrix\Main\Entity;
 
 Loc::loadMessages(__FILE__);
 
@@ -72,6 +72,9 @@ class CCrmTimelineComponent extends CBitrixComponent
 	{
 		global $APPLICATION;
 
+        \Bitrix\Main\Diag\Debug::writeToFile($this->arParams, "params", "__miros.log");
+
+
 		if(!Main\Loader::includeModule('crm'))
 		{
 			$this->errors[] = GetMessage('CRM_MODULE_NOT_INSTALLED');
@@ -96,22 +99,22 @@ class CCrmTimelineComponent extends CBitrixComponent
 		$this->entityTypeName = $entityTypeName;
 		$this->entityTypeID = $entityTypeID;
 
-		if(!\CCrmOwnerType::IsDefined($this->entityTypeID))
-		{
-			$this->errors[] = GetMessage('CRM_TIMELINE_ENTITY_TYPE_NOT_ASSIGNED');
-			return;
-		}
+		//if(!\CCrmOwnerType::IsDefined($this->entityTypeID))
+		//{
+		//	$this->errors[] = GetMessage('CRM_TIMELINE_ENTITY_TYPE_NOT_ASSIGNED');
+		//	return;
+		//}
 
 		$this->entityID = isset($this->arParams['ENTITY_ID']) ? (int)$this->arParams['ENTITY_ID'] : 0;
 
 		$this->entityInfo = isset($this->arParams['~ENTITY_INFO']) && is_array($this->arParams['~ENTITY_INFO'])
 			? $this->arParams['~ENTITY_INFO'] : array();
 
-		if($this->entityID > 0 && !\Bitrix\Crm\Security\EntityAuthorization::checkReadPermission($this->entityTypeID, $this->entityID))
-		{
-			$this->errors[] = GetMessage('CRM_PERMISSION_DENIED');
-			return;
-		}
+		//if($this->entityID > 0 && !\Bitrix\Crm\Security\EntityAuthorization::checkReadPermission($this->entityTypeID, $this->entityID))
+		//{
+		//	$this->errors[] = GetMessage('CRM_PERMISSION_DENIED');
+		//	return;
+		//}
 
 		$this->arResult['ACTIVITY_EDITOR_ID'] = isset($this->arParams['~ACTIVITY_EDITOR_ID']) ? $this->arParams['~ACTIVITY_EDITOR_ID'] : '';
 		$this->arResult['ENABLE_WAIT'] = isset($this->arParams['~ENABLE_WAIT']) ? (bool)$this->arParams['~ENABLE_WAIT'] : false;
@@ -224,6 +227,16 @@ class CCrmTimelineComponent extends CBitrixComponent
 		{
 			$this->prepareChatData();
 		}
+        // под объекты
+		if($this->arParams['ENTITY_INFO']['ENTITY_TYPE_NAME']=='STORES') {
+            $this->arResult['ENABLE_CALL'] = 'Y';
+            $this->arResult['ENABLE_MEETING'] = 'Y';
+            $this->arResult['ENABLE_TASK'] = 'Y';
+            $this->arResult['ENABLE_VISIT'] = false;
+            $this->arResult['ENABLE_REST'] = false;
+            $this->arResult['ADDITIONAL_TABS'][] = array();
+        }
+
 
 		if(Bitrix\Main\Loader::includeModule('pull'))
 		{

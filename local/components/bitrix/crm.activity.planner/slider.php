@@ -17,6 +17,9 @@ if ($siteId)
 	define('SITE_ID', $siteId);
 }
 
+\Bitrix\Main\Diag\Debug::writeToFile("planner", "posttask222", "__miros.log");
+\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "posttask222", "__miros.log");
+
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/header.php');
 
 $action = isset($_REQUEST['ajax_action']) && $_REQUEST['ajax_action'] == 'ACTIVITY_VIEW' ? 'VIEW' : 'EDIT';

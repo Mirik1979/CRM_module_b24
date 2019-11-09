@@ -4,14 +4,20 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Crm\Integration;
 use Bitrix\Crm\Activity;
+use Wcomm\CrmStores\Entity\StoreTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 
 Loc::loadMessages(__FILE__);
 
+//\Bitrix\Main\Diag\Debug::writeToFile("clssss", "posttask223332", "__miros.log");
+
+
 class CrmActivityPlannerComponent extends \CBitrixComponent
 {
-	protected function getActivityId()
+
+
+    protected function getActivityId()
 	{
 		return isset($this->arParams['ELEMENT_ID']) ? (int) $this->arParams['ELEMENT_ID'] : 0;
 	}
@@ -23,7 +29,9 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 	protected function getOwnerTypeId()
 	{
-		if (!empty($this->arParams['OWNER_TYPE_ID']))
+        \Bitrix\Main\Diag\Debug::writeToFile($this->arParams['OWNER_TYPE'], "owner", "__miros.log");
+
+	    if (!empty($this->arParams['OWNER_TYPE_ID']))
 			return (int) $this->arParams['OWNER_TYPE_ID'];
 		if (isset($this->arParams['OWNER_TYPE']))
 			return CCrmOwnerType::ResolveID($this->arParams['OWNER_TYPE']);
@@ -89,17 +97,30 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 		$commType = $provider ? $provider::getCommunicationType(isset($activity['PROVIDER_TYPE_ID']) ? $activity['PROVIDER_TYPE_ID'] : null) : '';
 		$activity['__communications'] = array();
+		// сюда не попадаем
+        \Bitrix\Main\Diag\Debug::writeToFile("clssss", "posttask223332", "__miros.log");
+
 		if ($activity['OWNER_TYPE_ID'] > 0 && $activity['OWNER_ID'] > 0)
 		{
 			$activity['__communications'] = $this->getCrmEntityCommunications(
 				$activity['OWNER_TYPE_ID'], $activity['OWNER_ID'], $commType
 			);
 		}
+		// если это объект
+		elseif ($activity['OWNER_TYPE_ID'] == 0 && $activity['OWNER_ID'] > 0) {
+            $activity['__communications'][] = array(
+                  'ENTITY_ID' => $this->arParams['OWNER_ID'],
+                  'ENTITY_TYPE_ID' => 0,
+                  'ENTITY_TYPE' => $this->arParams['OWNER_TYPE'],
+                  'TYPE' => ''
+            );
+        }
 
 		//communications
 		if (empty($activity['COMMUNICATIONS']))
 		{
-			$activity['COMMUNICATIONS'] = $activityId ? CCrmActivity::getCommunications($activityId) : array();
+			// тянем готовые
+		    $activity['COMMUNICATIONS'] = $activityId ? CCrmActivity::getCommunications($activityId) : array();
 
 			/** @var Activity\Provider\Base $provider */
 			if (!$activityId && $provider)
@@ -108,7 +129,9 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 		if (count($activity['__communications']) < 10 && !empty($commType))
 		{
-			$known = array();
+            \Bitrix\Main\Diag\Debug::writeToFile("идем сюда", "posttask223332", "__miros.log");
+
+		    $known = array();
 			foreach ($activity['__communications'] as $item)
 			{
 				$known[] = sprintf(
@@ -251,21 +274,30 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 	protected function executeEditAction()
 	{
-		$activityId = $this->getActivityId();
+        // прошли
+	    \Bitrix\Main\Diag\Debug::writeToFile("edit", "owner", "__miros.log");
+
+        // пусто
+	    $activityId = $this->getActivityId();
+        //\Bitrix\Main\Diag\Debug::writeToFile("edit", "owner", "__miros.log");
+        // пусто
 		$calendarEventId = $this->getCalendarEventId();
 		$isNew = false;
 		$activity = $error = null;
 
 		if ($activityId > 0)
+		    // ищем готовую активность - потом возвращаемся, чтобы посмотреть отображение объекта
 			$activity = CCrmActivity::GetByID($activityId, false);
 		elseif ($calendarEventId > 0)
 			$activity = CCrmActivity::GetByCalendarEventId($calendarEventId, false);
 		else
 		{
-			$isNew = true;
+			// упаковываем новю активность
+		    $isNew = true;
 			$activity = array(
 				'OWNER_ID' => $this->getOwnerId(),
-				'OWNER_TYPE_ID' => $this->getOwnerTypeId(),
+				// идет как ноль - потом смотрим будет ли проблема
+                'OWNER_TYPE_ID' => $this->getOwnerTypeId(),
 				'RESPONSIBLE_ID' => CCrmSecurityHelper::GetCurrentUserID(),
 				'TYPE_ID' => $this->getActivityType(),
 				'PROVIDER_ID' => $this->getProviderId(),
@@ -273,14 +305,15 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 				'STORAGE_TYPE_ID' => $this->getStorageTypeId(),
 				'STORAGE_ELEMENT_IDS' => $this->getStorageElementIds(),
 			);
-
+            // все норм заполняется
 			if($this->getAssociatedEntityId() > 0)
-				$activity['ASSOCIATED_ENTITY_ID'] = $this->getAssociatedEntityId();
+				$activity['ASSOCIATED_ENTITY_ID'] = getCalendarEventId();
 		}
 
 		if (empty($activity))
 			$error = Loc::getMessage('CRM_ACTIVITY_PLANNER_NO_ACTIVITY');
 
+		// встает
 		$provider = $activity ? CCrmActivity::GetActivityProvider($activity) : null;
 
 		if (!$error && !$provider)
@@ -300,9 +333,13 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 		$activity['PROVIDER_ID'] = $provider::getId();
 		$activity['PROVIDER_TYPE_ID'] = $provider::getTypeId($activity);
 
+		// cюда при создании не идем!
 		if ($isNew && !empty($this->arParams['COMMUNICATIONS']))
 		{
-			$communicationType = $provider::getCommunicationType($activity['PROVIDER_TYPE_ID']);
+            \Bitrix\Main\Diag\Debug::writeToFile("comm", "communications", "__miros.log");
+		    \Bitrix\Main\Diag\Debug::writeToFile($this->arParams['COMMUNICATIONS'], "communications", "__miros.log");
+
+		    $communicationType = $provider::getCommunicationType($activity['PROVIDER_TYPE_ID']);
 
 			$activity['COMMUNICATIONS'] = array();
 			foreach ((array) $this->arParams['COMMUNICATIONS'] as $item)
@@ -372,7 +409,10 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 		if ($isNew)
 		{
-			$provider::fillDefaultActivityFields($activity);
+            // копаем тут
+		    \Bitrix\Main\Diag\Debug::writeToFile("goggoogog", "isnew", "__miros.log");
+
+		    $provider::fillDefaultActivityFields($activity);
 
 			$defaults = \CUserOptions::GetOption('crm.activity.planner', 'defaults', array());
 			if (isset($defaults['notify']) && isset($defaults['notify'][$provider::getId()]))
@@ -392,11 +432,13 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 			if (!empty($this->arParams['OWNER_PSID']))
 				$activity['__owner_psid'] = $this->arParams['OWNER_PSID'];
-
+            // тут типа создание на основе
 			$fromId = $this->getFromActivityId();
 			if ($fromId > 0)
 			{
-				$fromActivity = CCrmActivity::GetByID($fromId);
+                \Bitrix\Main\Diag\Debug::writeToFile("from", "isnew", "__miros.log");
+
+			    $fromActivity = CCrmActivity::GetByID($fromId);
 				if ($fromActivity)
 				{
 					$fromActivity['COMMUNICATIONS'] = \CCrmActivity::getCommunications($fromId);
@@ -432,11 +474,14 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 				}
 			}
 		}
+		// передается ноль
 		$this->getActivityAdditionalData($activityId, $activity, $provider);
 
 		$this->arResult['ACTIVITY'] = $activity;
 		$this->arResult['PROVIDER'] = $provider;
 		$this->arResult['DESTINATION_ENTITIES'] = $this->getDestinationEntities($activity);
+		// коммуникации туту
+        \Bitrix\Main\Diag\Debug::writeToFile($activity, "activity", "__miros.log");
 		$this->arResult['COMMUNICATIONS_DATA'] = $this->getCommunicationsData($activity['COMMUNICATIONS']);
 		$this->arResult['PLANNER_ID'] = $this->getPlannerId();
 
@@ -1083,38 +1128,76 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 	private function getCommunicationsData(array $communications)
 	{
 		$result = array();
+        // сюдд
+        if($communications[0]['ENTITY_TYPE']!='STORE') {
+            foreach($communications as $arComm)
+            {
+                CCrmActivity::PrepareCommunicationInfo($arComm);
+                $result[] = array(
+                    'id' => $arComm['ID'],
+                    'type' => $arComm['TYPE'],
+                    'value' => $arComm['VALUE'],
+                    'entityId' => $arComm['ENTITY_ID'],
+                    'entityType' => CCrmOwnerType::ResolveName($arComm['ENTITY_TYPE_ID']),
+                    'entityTitle' => $arComm['TITLE'],
+                    'entityUrl' => CCrmOwnerType::GetEntityShowPath($arComm['ENTITY_TYPE_ID'], $arComm['ENTITY_ID'])
+                );
+            }
+        } else {
+            // ищем имя объекта
+            if (!Main\Loader::includeModule('wcomm.crmstores')) {
+                ShowError(Loc::getMessage('CRMSTORES_NO_MODULE'));
+                return;
+            }
+            $addid = StoreTable::GetbyID($communications[0]['ENTITY_ID']);
+            $newadd = $addid->fetchAll();
 
-		foreach($communications as $arComm)
-		{
-			CCrmActivity::PrepareCommunicationInfo($arComm);
-			$result[] = array(
-				'id' => $arComm['ID'],
-				'type' => $arComm['TYPE'],
-				'value' => $arComm['VALUE'],
-				'entityId' => $arComm['ENTITY_ID'],
-				'entityType' => CCrmOwnerType::ResolveName($arComm['ENTITY_TYPE_ID']),
-				'entityTitle' => $arComm['TITLE'],
-				'entityUrl' => CCrmOwnerType::GetEntityShowPath($arComm['ENTITY_TYPE_ID'], $arComm['ENTITY_ID'])
-			);
-		}
+            $result[] = array(
+                'id' => "",
+                'type' => "",
+                'value' => "",
+                'entityId' => $communications[0]['ENTITY_ID'],
+                'entityType' => $communications[0]['ENTITY_TYPE'],
+                'entityTitle' => $newadd[0]['NAME'],
+                'entityUrl' => "/crm/stores/details/".$communications[0]['ENTITY_ID']."/"
+            );
+        }
+
+
+
 
 		return $result;
 	}
 
 	public static function saveActivity($data, $userID, $siteID)
 	{
-		$communicationsData = isset($data['communications']) ? $data['communications'] : array();
+        \Bitrix\Main\Diag\Debug::writeToFile($data, "savedata", "__miros.log");
+        global $USER_FIELD_MANAGER;
 
-		if (!empty($data['dealId']))
-		{
-			$data['ownerType'] = 'DEAL';
-			$data['ownerId'] = $data['dealId'];
-		}
+        $communicationsData = isset($data['communications']) ? $data['communications'] : array();
+
+        //if (empty($data['ownerType'])) {
+        //    $data['ownerType'] = 'STORE';
+            //$data['ownerId'] = 55;
+        //}
+
+
+        if (!empty($data['dealId']))
+        {
+            $data['ownerType'] = 'DEAL';
+            $data['ownerId'] = $data['dealId'];
+        }
 		elseif (!empty($data['orderId']))
 		{
 			$data['ownerType'] = \CCrmOwnerType::OrderName;
 			$data['ownerId'] = $data['orderId'];
 		}
+
+        if (empty($data['ownerType'])) {
+             $data['ownerType'] = 'STORE';
+            //$data['ownerId'] = 55;
+        }
+
 
 		if (empty($data['ownerType']) && empty($data['ownerId']) && !empty($communicationsData[0]))
 		{
@@ -1166,11 +1249,11 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 		}
 
 		$ownerTypeID = CCrmOwnerType::ResolveID($ownerTypeName);
-		if($provider::checkOwner() && !CCrmOwnerType::IsDefined($ownerTypeID))
-		{
-			$result->addError(new Main\Error('OWNER TYPE IS NOT SUPPORTED!'));
-			return $result;
-		}
+		//if($provider::checkOwner() && !CCrmOwnerType::IsDefined($ownerTypeID))
+		//{
+		//	$result->addError(new Main\Error('OWNER TYPE IS NOT SUPPORTED!'));
+		//	return $result;
+		//}
 
 		$ownerId = isset($data['ownerId']) ? intval($data['ownerId']) : 0;
 		if($provider::checkOwner() && $ownerId <= 0)
@@ -1356,8 +1439,19 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 		if($isNew)
 		{
-			$arFields['OWNER_ID'] = $ownerId;
-			$arFields['OWNER_TYPE_ID'] = $ownerTypeID;
+			//if($data['communications3']) {
+            //    $arFields['OWNER_ID'] = $data['communications3'][0]['entityId'];
+            //    $arFields['OWNER_TYPE_ID'] = 7;
+            //} else {
+                $arFields['OWNER_ID'] = $ownerId;
+                $arFields['OWNER_TYPE_ID'] = $ownerTypeID;
+            //}
+
+            if($data['communications3']) {
+                $arFields['URN'] = 'STORE';
+            }
+
+
 
 			$arFields['RESPONSIBLE_ID'] = $responsibleID > 0 ? $responsibleID : $userID;
 
@@ -1378,6 +1472,10 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 				return $result;
 			}
 			$provider::saveAdditionalData($ID, $arFields);
+			if ($data['communications3'][0]['entityId']) {
+                $arFields['UF_STORE'] = $data['communications3'][0]['entityId'];
+                $res = $USER_FIELD_MANAGER->Update('CRM_ACTIVITY', $ID, $arFields);
+            }
 
 			//Region automation trigger
 			if (
@@ -1462,13 +1560,21 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 				$result->addErrors($providerResult->getErrors());
 				return $result;
 			}
-			if(!CCrmActivity::Update($ID, $arFields, false, true, array('REGISTER_SONET_EVENT' => true)))
+            if($data['communications3']) {
+                $arFields['URN'] = 'STORE';
+            }
+
+            if(!CCrmActivity::Update($ID, $arFields, false, true, array('REGISTER_SONET_EVENT' => true)))
 			{
 				$result->addError(new Main\Error(CCrmActivity::GetLastErrorMessage()));
 				return $result;
 			}
 
 			$provider::saveAdditionalData($ID, $arFields);
+            if ($data['communications3'][0]['entityId']) {
+                $arFields['UF_STORE'] = $data['communications3'][0]['entityId'];
+                $res = $USER_FIELD_MANAGER->Update('CRM_ACTIVITY', $ID, $arFields);
+            }
 		}
 
 		if($isNew)

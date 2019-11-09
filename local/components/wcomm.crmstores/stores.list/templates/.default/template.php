@@ -25,6 +25,8 @@ if (CModule::IncludeModule('bitrix24') && !\Bitrix\Crm\CallList\CallList::isAvai
 //$request = $context->getRequest();
 //print_r($request);
 
+\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "rqsttemp", "__miros.log");
+
 $asset = Asset::getInstance();
 $asset->addJs('/bitrix/js/crm/interface_grid.js');
 $asset->addJs('/bitrix/js/crm/activity.js');
@@ -360,7 +362,10 @@ $APPLICATION->IncludeComponent(
                 'activityEditorId' => $activityEditorID,
                 'activityServiceUrl' => '/bitrix/components/bitrix/crm.activity.editor/ajax.php?siteID=' . SITE_ID . '&' . bitrix_sessid_get(),
                 // надо будет исправить
-                'taskCreateUrl' => '/company/personal/user/5/tasks/task/edit/0/?UF_CRM_TASK=#ENTITY_KEYS#&TITLE=CRM%3A+&TAGS=crm&back_url=%2Fcrm%2Fcompany%2Flist%2F'
+                'taskCreateUrl' => $arResult['TASK_CREATE_URL'],
+
+
+                //'taskCreateUrl' => '/company/personal/user/5/tasks/task/edit/0/?UF_CRM_TASK=#ENTITY_KEYS#&TITLE=CRM%3A+&TAGS=crm&back_url=%2Fcrm%2Fcompany%2Flist%2F'
             ),
             'MESSAGES' => array(
                 'deletionDialogTitle' => Loc::getMessage('CRMSTORES_DELETE_DIALOG_TITLE'),

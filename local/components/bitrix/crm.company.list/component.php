@@ -972,7 +972,8 @@ if($actionData['ACTIVE'])
 		}
 		elseif ($actionData['NAME'] == 'tasks')
 		{
-			if (isset($actionData['ID']) && is_array($actionData['ID']))
+            \Bitrix\Main\Diag\Debug::writeToFile("taskhere", "taskhere", "__miros.log");
+		    if (isset($actionData['ID']) && is_array($actionData['ID']))
 			{
 				$arTaskID = array();
 				foreach($actionData['ID'] as $ID)

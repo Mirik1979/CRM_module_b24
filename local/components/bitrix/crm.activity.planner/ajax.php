@@ -39,6 +39,9 @@ CUtil::JSPostUnescape();
 
 $action = !empty($_REQUEST['ajax_action']) ? $_REQUEST['ajax_action'] : null;
 
+\Bitrix\Main\Diag\Debug::writeToFile("match", "requestactsave", "__miros.log");
+\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "requestactsave", "__miros.log");
+
 if (empty($action))
 	die('Unknown action!');
 
@@ -109,7 +112,9 @@ switch ($action)
 		require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php');
 		break;
 	case 'ACTIVITY_SAVE':
-		CBitrixComponent::includeComponentClass('bitrix:crm.activity.planner');
+
+
+	    CBitrixComponent::includeComponentClass('bitrix:crm.activity.planner');
 
         if(!isset($_POST['data']['communications'])){
             $sendError("Укажите компанию");
