@@ -1176,20 +1176,28 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
         $communicationsData = isset($data['communications']) ? $data['communications'] : array();
 
-		if (!empty($data['dealId']))
-		{
-			$data['ownerType'] = 'DEAL';
-			$data['ownerId'] = $data['dealId'];
-		}
+        //if (empty($data['ownerType'])) {
+        //    $data['ownerType'] = 'STORE';
+            //$data['ownerId'] = 55;
+        //}
+
+
+        if (!empty($data['dealId']))
+        {
+            $data['ownerType'] = 'DEAL';
+            $data['ownerId'] = $data['dealId'];
+        }
 		elseif (!empty($data['orderId']))
 		{
 			$data['ownerType'] = \CCrmOwnerType::OrderName;
 			$data['ownerId'] = $data['orderId'];
 		}
-		if (empty($data['ownerType'])) {
-            $data['ownerType'] = 'STORE';
+
+        if (empty($data['ownerType'])) {
+             $data['ownerType'] = 'STORE';
             //$data['ownerId'] = 55;
         }
+
 
 		if (empty($data['ownerType']) && empty($data['ownerId']) && !empty($communicationsData[0]))
 		{
@@ -1431,8 +1439,19 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 		if($isNew)
 		{
-			$arFields['OWNER_ID'] = $ownerId;
-			$arFields['OWNER_TYPE_ID'] = $ownerTypeID;
+			//if($data['communications3']) {
+            //    $arFields['OWNER_ID'] = $data['communications3'][0]['entityId'];
+            //    $arFields['OWNER_TYPE_ID'] = 7;
+            //} else {
+                $arFields['OWNER_ID'] = $ownerId;
+                $arFields['OWNER_TYPE_ID'] = $ownerTypeID;
+            //}
+
+            if($data['communications3']) {
+                $arFields['URN'] = 'STORE';
+            }
+
+
 
 			$arFields['RESPONSIBLE_ID'] = $responsibleID > 0 ? $responsibleID : $userID;
 
@@ -1541,7 +1560,11 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 				$result->addErrors($providerResult->getErrors());
 				return $result;
 			}
-			if(!CCrmActivity::Update($ID, $arFields, false, true, array('REGISTER_SONET_EVENT' => true)))
+            if($data['communications3']) {
+                $arFields['URN'] = 'STORE';
+            }
+
+            if(!CCrmActivity::Update($ID, $arFields, false, true, array('REGISTER_SONET_EVENT' => true)))
 			{
 				$result->addError(new Main\Error(CCrmActivity::GetLastErrorMessage()));
 				return $result;
