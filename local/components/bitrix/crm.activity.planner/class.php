@@ -1186,6 +1186,10 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 			$data['ownerType'] = \CCrmOwnerType::OrderName;
 			$data['ownerId'] = $data['orderId'];
 		}
+		if (empty($data['ownerType'])) {
+            $data['ownerType'] = 'STORE';
+            //$data['ownerId'] = 55;
+        }
 
 		if (empty($data['ownerType']) && empty($data['ownerId']) && !empty($communicationsData[0]))
 		{
@@ -1237,11 +1241,11 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 		}
 
 		$ownerTypeID = CCrmOwnerType::ResolveID($ownerTypeName);
-		if($provider::checkOwner() && !CCrmOwnerType::IsDefined($ownerTypeID))
-		{
-			$result->addError(new Main\Error('OWNER TYPE IS NOT SUPPORTED!'));
-			return $result;
-		}
+		//if($provider::checkOwner() && !CCrmOwnerType::IsDefined($ownerTypeID))
+		//{
+		//	$result->addError(new Main\Error('OWNER TYPE IS NOT SUPPORTED!'));
+		//	return $result;
+		//}
 
 		$ownerId = isset($data['ownerId']) ? intval($data['ownerId']) : 0;
 		if($provider::checkOwner() && $ownerId <= 0)
