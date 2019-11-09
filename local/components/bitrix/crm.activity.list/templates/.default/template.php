@@ -20,6 +20,8 @@ $editorCfg = array(
 	'ENABLE_EMAIL_ADD' => $arResult['ENABLE_EMAIL_ADD']
 );
 
+
+
 if(!function_exists('__CrmActivityListRenderItems'))
 {
 	function __CrmActivityListRenderItems($items, $showMode, $showTop, &$editorCfg)

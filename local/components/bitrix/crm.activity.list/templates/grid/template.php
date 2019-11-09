@@ -36,6 +36,10 @@ use Bitrix\Crm\Activity\Provider\ProviderManager;
 $isInternal = $arResult['IS_INTERNAL'];
 $currentUserID = $arResult['CURRENT_USER_ID'] ;
 
+//echo "<pre>";
+//print_r($arResult);
+//echo "</pre>";
+
 if($arResult['ENABLE_CONTROL_PANEL'])
 {
 	$APPLICATION->IncludeComponent(
