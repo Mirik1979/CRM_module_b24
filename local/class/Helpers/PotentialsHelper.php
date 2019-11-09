@@ -21,9 +21,55 @@ class PotentialsHelper
 {
 
     const codePotential='UF_CRM_1570712675';
+    const idPotential='208';
     const codeType='UF_CRM_1572591277';
 
-    public static function getPotentials($DealId){
+    public static function getPotentials($StoreId,$IdPotential){
+
+        Loader::includeModule('crm');
+        Loader::includeModule('iblock');
+        Loader::includeModule("highloadblock");
+        Loader::includeModule("wcomm.crmstores");
+        Loader::includeModule("intranet");
+
+        $Potential=[];
+
+        $Potential['store'] = $StoreId;
+        $Potential['IdPotential']=$IdPotential;
+
+        if($Potential['IdPotential']>0 && $Potential['store']){
+            $Potential['NamePotential']=self::getNamePotential($Potential['IdPotential']);
+
+            $Potential['store_array']=StoreTable::getListEx(['filter'=>['ID'=>$Potential['store']]]);
+            if(count($Potential['store_array'])>0)
+                $Potential['store_array']=$Potential['store_array'][0];
+
+            $Potential['v']=self::getV($Potential['IdPotential'],$Potential['store_array']);
+            $Potential['k']=self::getK($Potential['IdPotential'],$Potential['store_array']);
+            $Potential['p']=$Potential['v']*$Potential['k'];
+        }
+
+        return $Potential;
+
+    }
+
+    public static function getListPotential(){
+        Loader::includeModule('crm');
+        Loader::includeModule('iblock');
+        Loader::includeModule("highloadblock");
+        Loader::includeModule("wcomm.crmstores");
+        Loader::includeModule("intranet");
+        $res=[];
+        $CUserFieldEnum=new CUserFieldEnum();
+        $rsGender = $CUserFieldEnum->GetList(array(), array(
+            "USER_FIELD_ID" => self::idPotential,
+        ));
+        while($arGender = $rsGender->GetNext())
+            $res[]=$arGender;
+        return $res;
+    }
+
+    public static function getPotentialsDeal($DealId){
 
         Loader::includeModule('crm');
         Loader::includeModule('iblock');
@@ -39,24 +85,9 @@ class PotentialsHelper
         ],[],1);
 
         if($arr=$res->GetNext()){
-
-            $Potential['opportunity'] = $arr['OPPORTUNITY'];
             $Potential['store'] = $arr['UF_STORE'];
-
+            $Potential['opportunity'] = $arr['OPPORTUNITY'];
             $Potential['IdPotential']=(int)$arr[self::codePotential];
-
-            if($Potential['IdPotential']>0 && $Potential['store']){
-                $Potential['NamePotential']=self::getNamePotential($Potential['IdPotential']);
-
-                $Potential['store_array']=StoreTable::getListEx(['filter'=>['ID'=>$Potential['store']]]);
-                if(count($Potential['store_array'])>0)
-                    $Potential['store_array']=$Potential['store_array'][0];
-
-                $Potential['v']=self::getV($Potential['IdPotential'],$Potential['store_array']);
-                $Potential['k']=self::getK($Potential['IdPotential'],$Potential['store_array']);
-                $Potential['p']=$Potential['v']*$Potential['k'];
-            }
-
         }
 
         return $Potential;
