@@ -292,6 +292,7 @@ BX.ready(function(){
 
         activityData['communications'] = me.communications ? me.communications.items : [];
         activityData['communications2'] = me.communications2 ? me.communications2.items : [];
+        activityData['communications3'] = me.communications3 ? me.communications3.items : [];
 
         var hasOwner = activityData['dealId'] || activityData['ownerId'] && activityData['ownerType'];
         if (!hasOwner)

@@ -1171,7 +1171,10 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 	public static function saveActivity($data, $userID, $siteID)
 	{
-		$communicationsData = isset($data['communications']) ? $data['communications'] : array();
+        \Bitrix\Main\Diag\Debug::writeToFile($data, "savedata", "__miros.log");
+        global $USER_FIELD_MANAGER;
+
+        $communicationsData = isset($data['communications']) ? $data['communications'] : array();
 
 		if (!empty($data['dealId']))
 		{
@@ -1446,6 +1449,10 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 				return $result;
 			}
 			$provider::saveAdditionalData($ID, $arFields);
+			if ($data['communications3'][0]['entityId']) {
+                $arFields['UF_STORE'] = $data['communications3'][0]['entityId'];
+                $res = $USER_FIELD_MANAGER->Update('CRM_ACTIVITY', $ID, $arFields);
+            }
 
 			//Region automation trigger
 			if (
@@ -1537,6 +1544,10 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 			}
 
 			$provider::saveAdditionalData($ID, $arFields);
+            if ($data['communications3'][0]['entityId']) {
+                $arFields['UF_STORE'] = $data['communications3'][0]['entityId'];
+                $res = $USER_FIELD_MANAGER->Update('CRM_ACTIVITY', $ID, $arFields);
+            }
 		}
 
 		if($isNew)
