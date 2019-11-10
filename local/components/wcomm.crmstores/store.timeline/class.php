@@ -260,7 +260,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 			return ($this->arResult['SCHEDULE_ITEMS'] = array());
 		}
 
-		$filter = array('STATUS' => CCrmActivityStatus::Waiting);
+		/*$filter = array('STATUS' => CCrmActivityStatus::Waiting);
 		$filter['BINDINGS'] = array(
 			array('OWNER_TYPE_ID' => $this->entityTypeID, 'OWNER_ID' => $this->entityID)
 		);
@@ -277,7 +277,14 @@ class CCrmTimelineComponent extends CBitrixComponent
 				'DEADLINE', 'RESPONSIBLE_ID'
 			),
 			array('QUERY_OPTIONS' => array('LIMIT' => 100, 'OFFSET' => 0))
-		);
+		); */
+
+        $dbResult = CCrmActivity::GetList(array("DEADLINE" => ASC), array("URN" => $this->entityID, "COMPLETED" => 'N'), false, false,
+            array('ID', 'OWNER_ID', 'OWNER_TYPE_ID', 'URN',
+                'TYPE_ID', 'PROVIDER_ID', 'PROVIDER_TYPE_ID', 'ASSOCIATED_ENTITY_ID', 'DIRECTION',
+                'SUBJECT', 'STATUS', 'DESCRIPTION', 'DESCRIPTION_TYPE',
+                'DEADLINE', 'RESPONSIBLE_ID'), array('QUERY_OPTIONS' => array('LIMIT' => 100, 'OFFSET' => 0)));
+
 
 		$items = array();
 		while($fields = $dbResult->Fetch())

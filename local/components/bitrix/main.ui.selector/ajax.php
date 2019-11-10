@@ -48,7 +48,7 @@ class CMainUISelectorComponentAjaxController extends \Bitrix\Main\Engine\Control
         //\Bitrix\Main\Diag\Debug::writeToFile($selectedItems, "enttypes222", "__miros.log");
         $arrret = \Bitrix\Main\UI\Selector\Entities::getData($options, $entityTypes, $selectedItems);
 
-        if($arrret['ENTITIES']['COMPANIES']) {
+        if($arrret['ENTITIES']['COMPANIES'] && $arrret['ENTITIES']['CONTACTS']) {
             if (!Loader::includeModule('wcomm.crmstores')) {
                 ShowError(Loc::getMessage('CRMSTORES_NO_MODULE'));
                 return;

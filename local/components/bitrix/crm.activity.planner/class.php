@@ -482,7 +482,7 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 		$this->arResult['DESTINATION_ENTITIES'] = $this->getDestinationEntities($activity);
 		// коммуникации туту
         \Bitrix\Main\Diag\Debug::writeToFile($activity, "activity", "__miros.log");
-		$this->arResult['COMMUNICATIONS_DATA'] = $this->getCommunicationsData($activity['COMMUNICATIONS']);
+		$this->arResult['COMMUNICATIONS_DATA'] = $this->getCommunicationsData($activity['COMMUNICATIONS'], $activityId);
 		$this->arResult['PLANNER_ID'] = $this->getPlannerId();
 
 		$options = \CUserOptions::GetOption('crm.activity.planner', 'edit', array());
@@ -1125,10 +1125,17 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 		return $result;
 	}
 
-	private function getCommunicationsData(array $communications)
+	private function getCommunicationsData(array $communications, $activityID = "")
 	{
-		$result = array();
+        \Bitrix\Main\Diag\Debug::writeToFile($communications, "inicomm", "__miros.log");
+        global $USER_FIELD_MANAGER;
+	    $result = array();
         // сюдд
+        if (!Main\Loader::includeModule('wcomm.crmstores')) {
+            ShowError(Loc::getMessage('CRMSTORES_NO_MODULE'));
+            return;
+        }
+
         if($communications[0]['ENTITY_TYPE']!='STORE') {
             foreach($communications as $arComm)
             {
@@ -1143,15 +1150,27 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
                     'entityUrl' => CCrmOwnerType::GetEntityShowPath($arComm['ENTITY_TYPE_ID'], $arComm['ENTITY_ID'])
                 );
             }
+            // убираем болванку
+            $store = $USER_FIELD_MANAGER->GetUserFieldValue('CRM_ACTIVITY', 'UF_STORE', $activityID);
+            if ($store) {
+                $addid = StoreTable::GetbyID($store);
+                $newadd = $addid->fetchAll();
+                $result[3] = array(
+                    'id' => "",
+                    'type' => "",
+                    'value' => "",
+                    'entityId' => $store,
+                    'entityType' => 'STORE',
+                    'entityTitle' => $newadd[0]['NAME'],
+                    'entityUrl' => "/crm/stores/details/".$store."/"
+                );
+            }
+
         } else {
             // ищем имя объекта
-            if (!Main\Loader::includeModule('wcomm.crmstores')) {
-                ShowError(Loc::getMessage('CRMSTORES_NO_MODULE'));
-                return;
-            }
+
             $addid = StoreTable::GetbyID($communications[0]['ENTITY_ID']);
             $newadd = $addid->fetchAll();
-
             $result[] = array(
                 'id' => "",
                 'type' => "",
@@ -1163,7 +1182,7 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
             );
         }
 
-
+        \Bitrix\Main\Diag\Debug::writeToFile($result, "result", "__miros.log");
 
 
 		return $result;
@@ -1448,7 +1467,8 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
             //}
 
             if($data['communications3']) {
-                $arFields['URN'] = 'STORE';
+                $arFields['URN'] = $data['communications3'][0]['entityId'];
+                //$arFields['ASSOCIATED_ENTITY_ID'] = $data['communications3'][0]['entityId'];
             }
 
 
@@ -1561,7 +1581,8 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 				return $result;
 			}
             if($data['communications3']) {
-                $arFields['URN'] = 'STORE';
+                $arFields['URN'] = $data['communications3'][0]['entityId'];
+                //$arFields['ASSOCIATED_ENTITY_ID'] = $data['communications3'][0]['entityId'];
             }
 
             if(!CCrmActivity::Update($ID, $arFields, false, true, array('REGISTER_SONET_EVENT' => true)))

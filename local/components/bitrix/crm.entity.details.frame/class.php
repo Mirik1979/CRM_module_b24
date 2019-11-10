@@ -14,9 +14,9 @@ class CCrmEntityDetailsFrameComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-	    echo "<pre>";
-        print_r($this->request);
-        echo "</pre>";
+	    //echo "<pre>";
+        //print_r($this->request);
+        //echo "</pre>";
         //$arr = $this->request;$arr
 
         \Bitrix\Main\Diag\Debug::writeToFile($this->arParams, "", "__miros.log");

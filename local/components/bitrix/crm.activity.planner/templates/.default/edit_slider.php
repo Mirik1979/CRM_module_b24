@@ -117,9 +117,20 @@ switch ($activity['STORAGE_TYPE_ID'])
 $storageValues = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($storageValues));
 $storageProps = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($storageProps));
 $destinationEntities = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['DESTINATION_ENTITIES']));
+if ($arResult['COMMUNICATIONS_DATA'][3]) {
+    $storedata[0] = $arResult['COMMUNICATIONS_DATA'][3];
+    $communicationsType3 ='STORE';
+    unset($arResult['COMMUNICATIONS_DATA'][3]);
+}
+
+
 $communicationsData = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['COMMUNICATIONS_DATA']));
+//print_r($communicationsData);
 //$communicationsType = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($arResult['COMMUNICATIONS_DATA'][0]['entityType']));
 $communicationsType = $arResult['COMMUNICATIONS_DATA'][0]['entityType'];
+//$communicationsType3 = $storedata[0]['entityType'];
+$communicationsData3 = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($storedata));
+
 
 if($arResult['COMMUNICATIONS_DATA'][0]['entityType']=="CONTACT"){
     $communicationsData = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode([]));
@@ -255,7 +266,9 @@ $pageAsset->addCss('/bitrix/js/calendar/planner-style.css');
                     <input type="hidden" value="<?=$destinationEntities?>" data-role="destination-entities">
                     <input type="hidden" value="<?=$communicationsData?>" data-role="communications-data">
                     <input type="hidden" value="<?=$communicationsType?>" data-role="communications-type">
+                    <input type="hidden" value="<?=$communicationsType3?>" data-role="communications-type3">
                     <input type="hidden" value="<?=$communicationsData2?>" data-role="communications-data2">
+                    <input type="hidden" value="<?=$communicationsData3?>" data-role="communications-data3">
                     <div class="crm-activity-slider-container" data-role="main-container">
                         <div class="crm-activity-popup-recall-container">
                             <div class="crm-activity-popup-recall-select-container" data-role="day-switcher">
@@ -328,7 +341,11 @@ $pageAsset->addCss('/bitrix/js/calendar/planner-style.css');
                             </div><!--crm-activity-popup-timeline-detail-->
                         </div><!--crm-activity-popup-timeline-container-->
                         <div class="crm-activity-popup-info">
-                            <? foreach ($provider::getFieldsForEdit($activity) as $field):
+                            <?
+                            print_r($communicationsType3);
+                            //print_r($storedata[0]);
+                            //print_r($communicationsData3);
+                            foreach ($provider::getFieldsForEdit($activity) as $field):
                                 $name = isset($field['NAME']) ? $field['NAME'] : '';
                                 if($name === '')
                                 {
@@ -339,6 +356,10 @@ $pageAsset->addCss('/bitrix/js/calendar/planner-style.css');
                                     case 'SUBJECT':
                                     case 'LOCATION':
                                     case 'TEXT':
+
+                                    //print_r($communicationsData);
+                                    //print_r($communicationsType3);
+
                                     //echo "<pre>";
                                     //print_r($arResult);
                                     //print_r($communicationsType);

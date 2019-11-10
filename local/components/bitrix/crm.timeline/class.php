@@ -282,7 +282,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 		$items = array();
 		while($fields = $dbResult->Fetch())
 		{
-			
+            \Bitrix\Main\Diag\Debug::writeToFile($fields, "schedule-0", "__miros.log");
 			//wcomm {
 				
 			$tmpData = ActivityController::prepareScheduleDataModel($fields);
@@ -294,13 +294,13 @@ class CCrmTimelineComponent extends CBitrixComponent
 			{
 				$tmpData["ASSOCIATED_ENTITY"]["PERMISSIONS"]["IS_CALL"] = true;
 			}
-			
+            //$tmpData['OWNER_TYPE_ID']=8;
 			$items[$fields['ID']] = $tmpData;
 			
 			// } wcomm
 			
 		}
-
+        \Bitrix\Main\Diag\Debug::writeToFile($items, "schedule0", "__miros.log");
 		\Bitrix\Crm\Timeline\EntityController::prepareAuthorInfoBulk($items);
 
 		$communications = \CCrmActivity::PrepareCommunicationInfos(array_keys($items));
@@ -311,6 +311,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 
 		\Bitrix\Crm\Timeline\EntityController::prepareMultiFieldInfoBulk($items);
 
+
 		$fields = \Bitrix\Crm\Pseudoactivity\WaitEntry::getRecentByOwner($this->entityTypeID, $this->entityID);
 		if(is_array($fields))
 		{
@@ -319,7 +320,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 				array('ENABLE_USER_INFO' => true)
 			);
 		}
-
+        \Bitrix\Main\Diag\Debug::writeToFile($items, "schedule", "__miros.log");
 		return ($this->arResult['SCHEDULE_ITEMS'] = array_values($items));
 	}
 	public function prepareHistoryItems($offsetTime = null, $offsetID = 0)

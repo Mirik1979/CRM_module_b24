@@ -143,6 +143,7 @@ BX.ready(function(){
         if (communicationsNode)
         {
             var commtype;
+            var commtype3;
             var commvalue;
 
             commtype = me.getNode('communications-type').value;
@@ -208,10 +209,15 @@ BX.ready(function(){
         if (communicationsNode3)
         {
             commtype = me.getNode('communications-type').value;
+            commtype3 = me.getNode('communications-type3').value;
             if (commtype =='STORE')
             {
                 commvalue = JSON.parse(me.getNode('communications-data').value);
-            } else {
+            } else if (commtype3 =='STORE') {
+                console.log("here");
+                commvalue = JSON.parse(me.getNode('communications-data3').value);
+            }
+            else {
                 commvalue ='';
             }
 

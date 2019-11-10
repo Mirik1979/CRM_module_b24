@@ -1863,7 +1863,8 @@ if(typeof(BX.CrmHistory) === "undefined")
 				action: "GET_HISTORY_ITEMS",
 				params:
 					{
-						"OWNER_TYPE_ID" : this._manager.getOwnerTypeId(),
+						//"OWNER_TYPE_ID" : this._manager.getOwnerTypeId(),
+						"OWNER_TYPE": "STORE",
 						"OWNER_ID": this._manager.getOwnerId(),
 						"NAVIGATION" : this._navigation
 					}
@@ -1982,7 +1983,8 @@ if(typeof(BX.CrmFixedHistory) === "undefined")
 				action: "GET_FIXED_HISTORY_ITEMS",
 				params:
 					{
-						"OWNER_TYPE_ID" : this._manager.getOwnerTypeId(),
+						"OWNER_TYPE": "STORE",
+						//"OWNER_TYPE_ID" : this._manager.getOwnerTypeId(),
 						"OWNER_ID": this._manager.getOwnerId(),
 						"LAST_ITEM_TIME": this._lastLoadedItemTimestamp
 					}
@@ -6320,7 +6322,9 @@ if(typeof(BX.CrmHistoryItem) === "undefined")
 					{
 						"ACTION": "CHANGE_FASTEN_ITEM",
 						"VALUE": 'Y',
+						// замена
 						"OWNER_TYPE_ID":  this.getOwnerTypeId(),
+						//"OWNER_TYPE": 'STORE',
 						"OWNER_ID": this.getOwnerId(),
 						"ID": this._id
 					},
@@ -6371,6 +6375,7 @@ if(typeof(BX.CrmHistoryItem) === "undefined")
 						"ACTION": "CHANGE_FASTEN_ITEM",
 						"VALUE": 'N',
 						"OWNER_TYPE_ID": this.getOwnerTypeId(),
+						//"OWNER_TYPE": 'STORE',
 						"OWNER_ID": this.getOwnerId(),
 						"ID": this._id
 					},
