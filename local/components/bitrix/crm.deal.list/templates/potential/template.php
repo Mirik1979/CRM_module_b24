@@ -13,7 +13,32 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Crm\Tracking;
 
+?>
 
+<style>
+
+    [data-id="hide"] .main-grid-cell{
+        background: #f7f9fa;
+        background: -webkit-linear-gradient(top,#eaf1f3,#fff);
+        background: -moz-linear-gradient(top,#eaf1f3,#fff);
+        background: -o-linear-gradient(top,#eaf1f3,#fff);
+        background: -ms-linear-gradient(top,#eaf1f3,#fff);
+        background: linear-gradient(to bottom,#eaf1f3,#fff);
+        -webkit-box-shadow: inset 0 1px 0 #fff;
+        box-shadow: inset 0 1px 0 #fff;
+    }
+
+    [data-id="hide"] .main-grid-cell-content{
+        margin-top: 8px;
+        margin-bottom: 8px;
+    }
+
+    [data-id="hide"] .main-grid-cell.main-grid-cell-checkbox span{
+        display:none;
+    }
+</style>
+
+<?
 
 $APPLICATION->SetAdditionalCSS("/bitrix/themes/.default/crm-entity-show.css");
 if(SITE_TEMPLATE_ID === 'bitrix24')
@@ -529,7 +554,7 @@ foreach($arResult['DEAL'] as $sKey =>  $arDeal)
 }
 
 foreach ($arResult['GRID_DATA'] as &$item){
-    $item["potential"]=\local\Helpers\PotentialsHelper::getPotentials($item["id"]);
+    $item["potential"]=\local\Helpers\PotentialsHelper::getPotentialsDeal($item["id"]);
 }unset($item);
 
 $arResult['GRID_DATA_ALT']=[
@@ -540,6 +565,21 @@ $arResult['GRID_DATA_ALT']=[
         'item' => [],
     ],
 ];
+
+foreach (\local\Helpers\PotentialsHelper::getListPotential() as $val){
+
+    $p=\local\Helpers\PotentialsHelper::getPotentials($arParams['INTERNAL_CONTEXT']['STORE_ID'],$val["ID"]);
+
+    //echo "<pre>";print_r($p);echo "</pre>";
+
+    $arResult['GRID_DATA_ALT'][$val["ID"]]=[
+        'opportunity' => 0.0,
+        'potential' => $p["p"],
+        'name' => $val["VALUE"],
+        'item' => [],
+    ];
+
+}
 
 foreach ($arResult['GRID_DATA'] as $val){
     if($val["potential"]["IdPotential"]>0)
@@ -555,19 +595,25 @@ foreach ($arResult['GRID_DATA'] as $val){
         ];
     }
     $arResult['GRID_DATA_ALT'][$idPotential]['opportunity']+=$val["potential"]["opportunity"];
-    $arResult['GRID_DATA_ALT'][$idPotential]['potential']+=$val["potential"]["p"];
+    //$arResult['GRID_DATA_ALT'][$idPotential]['potential']+=$val["potential"]["p"];
     $arResult['GRID_DATA_ALT'][$idPotential]['item'][]=$val;
 }
 
 //echo "<pre>";print_r($arResult['GRID_DATA_ALT']);echo "</pre>";
 $arResult['GRID_DATA_NEW']=[];
 foreach ($arResult['GRID_DATA_ALT'] as $key=>$item){
-    if(count($item['item'])>0){
+    if($key!="NOT"){
         $arResult['GRID_DATA_NEW'][]=[
-            'id' => 'row_'.$key,
+            //'id' => 'row_'.$key,
+            'id' => 'hide',
             'actions' => [],
-            'data' => [],
-            'editable' => false,
+            /*'data' => [
+                "TITLE"=>$item["name"],
+                "DEAL_SUMMARY"=>$item["name"],
+                "STAGE_ID"=>"Потенциал: ".number_format($item["potential"],0,'.',' ').' руб.',
+                "SUM"=>"Сумма сделок/валюта: ".number_format($item["opportunity"],0,'.',' ').' руб.',
+            ],*/
+            //'editable' => false,
             'class'=>'classHide',
             'columns' => [
                 "TITLE"=>$item["name"],
