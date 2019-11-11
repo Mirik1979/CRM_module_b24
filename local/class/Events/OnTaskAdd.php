@@ -20,6 +20,8 @@ class OnTaskAdd
      * @throws \Bitrix\Main\SystemException
      */
     public static function OnTaskAdd(&$arEventFields){
+
+        global $USER_FIELD_MANAGER;
         \Bitrix\Main\Diag\Debug::writeToFile("taskmatch", "taskarray", "__miros.log");
         \Bitrix\Main\Diag\Debug::writeToFile($arEventFields, "taskarray", "__miros.log");
         $task = new \Bitrix\Tasks\Item\Task($arEventFields);
@@ -90,7 +92,10 @@ class OnTaskAdd
                 'AUTHOR_ID' => $data['CHANGED_BY']
             );
             $id = \CCrmActivity::Add($activity);
-            \Bitrix\Main\Diag\Debug::writeToFile($id, "iddd", "__miros.log");
+            //\Bitrix\Main\Diag\Debug::writeToFile($id, "iddd", "__miros.log");
+
+            $arFields['UF_STORE'] = $rest;
+            $res = $USER_FIELD_MANAGER->Update('CRM_ACTIVITY', $id, $arFields);
         }
 
 
