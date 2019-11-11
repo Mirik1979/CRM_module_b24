@@ -81,6 +81,11 @@ $activityEditorID = "{$prefix}_editor";
 $scheduleItems = $arResult['SCHEDULE_ITEMS'];
 $historyItems = $arResult['HISTORY_ITEMS'];
 $fixedItems = $arResult['FIXED_ITEMS'];
+//echo "<pre>";
+//print_r($arResult);
+//echo "</pre>";
+
+
 //echo "<pre>";print_r($arResult['SCHEDULE_ITEMS']);echo "</pre>";
 if(!empty($arResult['ERRORS']))
 {

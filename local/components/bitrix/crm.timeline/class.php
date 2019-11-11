@@ -382,6 +382,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 		}
 
 		//Permissions are already checked
+        //\Bitrix\Main\Diag\Debug::writeToFile(TimelineTable::getEntity(), "timeline", "__miros.log");
 		$query = new Query(TimelineTable::getEntity());
 		$query->addSelect('*');
 		$query->addFilter('!=ASSOCIATED_ENTITY_TYPE_ID', CCrmOwnerType::SuspendedActivity);
@@ -518,6 +519,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 		}
 
 		$itemsMap = array_combine($itemIDs, $items);
+        \Bitrix\Main\Diag\Debug::writeToFile($itemsMap, "params", "__miros.log");
 		\Bitrix\Crm\Timeline\TimelineManager::prepareDisplayData($itemsMap, $this->userID, $this->userPermissions);
 		return array_values($itemsMap);
 	}

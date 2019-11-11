@@ -92,7 +92,7 @@ class OnTaskAdd
                 'AUTHOR_ID' => $data['CHANGED_BY']
             );
             $id = \CCrmActivity::Add($activity);
-            //\Bitrix\Main\Diag\Debug::writeToFile($id, "iddd", "__miros.log");
+            \Bitrix\Main\Diag\Debug::writeToFile($id, "iddd", "__miros.log");
 
             $arFields['UF_STORE'] = $rest;
             $res = $USER_FIELD_MANAGER->Update('CRM_ACTIVITY', $id, $arFields);

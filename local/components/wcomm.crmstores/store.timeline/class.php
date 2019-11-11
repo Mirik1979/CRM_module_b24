@@ -17,6 +17,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\DateTime;
 use local\Domain\Repository\CommCompanyRepository;
 
+
 Loc::loadMessages(__FILE__);
 
 class CCrmTimelineComponent extends CBitrixComponent
@@ -336,7 +337,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 		$nextOffsetTime = null;
 		$nextOffsetID = 0;
 
-		do
+		/*do
 		{
 			if($nextOffsetTime !== null)
 			{
@@ -358,7 +359,16 @@ class CCrmTimelineComponent extends CBitrixComponent
 					10
 				)
 			);
-		} while(count($this->arResult['HISTORY_ITEMS']) < 10 && $nextOffsetTime !== null);
+		} while(count($this->arResult['HISTORY_ITEMS']) < 10 && $nextOffsetTime !== null); */
+
+        $this->arResult['HISTORY_ITEMS'] = $this->loadHistoryItems(
+            $offsetTime,
+            $nextOffsetTime,
+            $offsetID,
+            $nextOffsetID,
+            10
+        );
+
 
 		$this->arResult['HISTORY_NAVIGATION'] = array(
 			'OFFSET_TIMESTAMP' => $this->getHistoryTimestamp($nextOffsetTime),
@@ -369,7 +379,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 	}
 	public function prepareHistoryFixedItems()
 	{
-		return(
+		/*return(
 			$this->arResult['FIXED_ITEMS'] = $this->loadHistoryItems(
 				null,
 				$offsetTime,
@@ -378,7 +388,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 				3,
 				true
 			)
-		);
+		); */
 	}
 	public function loadHistoryItems($offsetTime, &$nextOffsetTime, $offsetID, &$nextOffsetID, $limit, $onlyFixed = false)
 	{
@@ -494,18 +504,104 @@ class CCrmTimelineComponent extends CBitrixComponent
 		$itemIDs = array();
 		$offsetIndex = -1;
 		$dbResult = $query->exec();
+        \Bitrix\Main\Diag\Debug::writeToFile("begin", "fffff", "__miros.log");
 
 		while($fields = $dbResult->fetch())
 		{
-			$itemID = (int)$fields['ID'];
+            \Bitrix\Main\Diag\Debug::writeToFile($fields, "fffff", "__miros.log");
+		    $itemID = (int)$fields['ID'];
 			$items[] = $fields;
 			$itemIDs[] = $itemID;
+
+            \Bitrix\Main\Diag\Debug::writeToFile($items, "itemsfordisplay-1", "__miros.log");
+			\Bitrix\Main\Diag\Debug::writeToFile($itemIDs, "itemsfordisplay-1", "__miros.log");
 
 			if($offsetID > 0 && $itemID === $offsetID)
 			{
 				$offsetIndex = count($itemIDs) - 1;
 			}
 		}
+
+		$lastnum = $itemIDs[0];
+        $dbResultadd = CCrmActivity::GetList(array("CREATED" => ASC), array("URN" => $this->entityID, "COMPLETED" => 'Y'), false, false,
+            array('ID', 'OWNER_ID', 'OWNER_TYPE_ID', 'URN',
+                'TYPE_ID', 'PROVIDER_ID', 'PROVIDER_TYPE_ID', 'ASSOCIATED_ENTITY_ID', 'DIRECTION', 'END_TIME', 'CREATED',
+                'SUBJECT', 'STATUS', 'DESCRIPTION', 'DESCRIPTION_TYPE',
+                'DEADLINE', 'RESPONSIBLE_ID'), array('QUERY_OPTIONS' => array('LIMIT' => 100, 'OFFSET' => 0)));
+
+
+        while($fieldsadd = $dbResultadd->Fetch())
+        {
+            \Bitrix\Main\Diag\Debug::writeToFile($fieldsadd, "activities", "__miros.log");
+
+            if ($fieldsadd['PROVIDER_ID']=='VOXIMPLANT_CALL') {
+                $lastnum++;
+                //array_push($itemIDs; $lastnum);
+                array_unshift($itemIDs, $lastnum);
+                $time = new DateTime($fieldsadd['CREATED']);
+                //$time = DateTime($fieldsadd['CREATED']);
+                $newevent = array(
+                    'ID' => $lastnum,
+                    'TYPE_ID' => 1,
+                    'TYPE_CATEGORY_ID' => 2,
+                    'CREATED' => $time,
+                    'AUTHOR_ID' => $fieldsadd['RESPONSIBLE_ID'],
+                    'ASSOCIATED_ENTITY_ID' => $fieldsadd['ID'],
+                    'ASSOCIATED_ENTITY_TYPE_ID' => 6,
+                    'ASSOCIATED_ENTITY_CLASS_NAME' => 'VOXIMPLANT_CALL',
+                    'COMMENT' => '',
+                    'SETTINGS' => '',
+                    'IS_FIXED' => ''
+                );
+                array_unshift($items, $newevent);
+                //array_push($items; $newevent);
+            } elseif($fieldsadd['PROVIDER_ID']=='CRM_MEETING') {
+                $lastnum++;
+                //array_push($itemIDs; $lastnum);
+                array_unshift($itemIDs, $lastnum);
+                $time = new DateTime($fieldsadd['END_TIME']);
+                //$time = DateTime($fieldsadd['CREATED']);
+                $newevent = array(
+                    'ID' => $lastnum,
+                    'TYPE_ID' => 1,
+                    'TYPE_CATEGORY_ID' => 1,
+                    'CREATED' => $time,
+                    'AUTHOR_ID' => $fieldsadd['RESPONSIBLE_ID'],
+                    'ASSOCIATED_ENTITY_ID' => $fieldsadd['ID'],
+                    'ASSOCIATED_ENTITY_TYPE_ID' => 6,
+                    'ASSOCIATED_ENTITY_CLASS_NAME' => 'CRM_MEETING',
+                    'COMMENT' => '',
+                    'SETTINGS' => '',
+                    'IS_FIXED' => ''
+                );
+                array_unshift($items, $newevent);
+            } else {
+                $lastnum++;
+                //array_push($itemIDs; $lastnum);
+                array_unshift($itemIDs, $lastnum);
+                \Bitrix\Main\Diag\Debug::writeToFile($fieldsadd['CREATED'], "timerevealed1", "__miros.log");
+                $time = new DateTime($fieldsadd['CREATED']);
+                \Bitrix\Main\Diag\Debug::writeToFile($time, "timerevealed2", "__miros.log");
+                //$time = DateTime($fieldsadd['CREATED']);
+                $newevent = array(
+                    'ID' => $lastnum,
+                    'TYPE_ID' => 6,
+                    'TYPE_CATEGORY_ID' => 2,
+                    'CREATED' => $time,
+                    'AUTHOR_ID' => $fieldsadd['RESPONSIBLE_ID'],
+                    'ASSOCIATED_ENTITY_ID' => $fieldsadd['ID'],
+                    'ASSOCIATED_ENTITY_TYPE_ID' => 6,
+                    'ASSOCIATED_ENTITY_CLASS_NAME' => 'TASKS',
+                    'COMMENT' => '',
+                    'SETTINGS' => '',
+                    'IS_FIXED' => ''
+                );
+                array_unshift($items, $newevent);
+            }
+        }
+
+        //$items = array();
+		\Bitrix\Main\Diag\Debug::writeToFile($items, "itemsfordisplay0", "__miros.log");
 		if($offsetIndex >= 0)
 		{
 			$itemIDs = array_slice($itemIDs, $offsetIndex + 1);
@@ -513,6 +609,7 @@ class CCrmTimelineComponent extends CBitrixComponent
 		}
 
 		$nextOffsetTime = null;
+        \Bitrix\Main\Diag\Debug::writeToFile($items, "itemsfordisplay1", "__miros.log");
 		if(!empty($items))
 		{
 			$item = $items[count($items) - 1];
@@ -522,8 +619,12 @@ class CCrmTimelineComponent extends CBitrixComponent
 				$nextOffsetID = (int)$item['ID'];
 			}
 		}
+        \Bitrix\Main\Diag\Debug::writeToFile($itemIDs, "itemsfordisplay3", "__miros.log");
+        \Bitrix\Main\Diag\Debug::writeToFile($items, "itemsfordisplay4", "__miros.log");
+
 
 		$itemsMap = array_combine($itemIDs, $items);
+        \Bitrix\Main\Diag\Debug::writeToFile($itemsMap, "itemsfordisplay5", "__miros.log");
 		\Bitrix\Crm\Timeline\TimelineManager::prepareDisplayData($itemsMap, $this->userID, $this->userPermissions);
 		return array_values($itemsMap);
 	}

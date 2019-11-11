@@ -1170,9 +1170,9 @@ while($arRes = $dbRes->GetNext())
 	$items[$itemID] = $arRes;
     global $USER_FIELD_MANAGER;
     $value = $USER_FIELD_MANAGER->GetUserFieldValue('CRM_ACTIVITY', 'UF_STORE', $itemID);
-    if (!$value) {
-        $value = $arRes['URN'];
-    }
+    //if (!$value) {
+    //    $value = $arRes['URN'];
+    //}
     if($value) {
         Loader::includeModule('wcomm.crmstores');
         $addid = Wcomm\CrmStores\Entity\StoreTable::getbyId($value);
