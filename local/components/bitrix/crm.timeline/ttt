@@ -1,0 +1,33 @@
+posttask223332:
+Array
+(
+    [site_id] => s1
+    [TYPE_ID] => 2
+    [OWNER_TYPE] => STORE
+    [OWNER_ID] => 33
+    [PLANNER_ID] => crm-act-planner-56445
+    [ajax_action] => ACTIVITY_EDIT
+    [activity_id] => 0
+    [IFRAME] => Y
+    [IFRAME_TYPE] => SIDE_SLIDER
+)
+
+
+
+posttask223332:
+planner
+
+posttask223332:
+Array
+(
+    [site_id] => s1
+    [TYPE_ID] => 2
+    [OWNER_TYPE_ID] => 4
+    [OWNER_ID] => 33
+    [PLANNER_ID] => crm-act-planner-32065
+    [ajax_action] => ACTIVITY_EDIT
+    [activity_id] => 0
+    [IFRAME] => Y
+    [IFRAME_TYPE] => SIDE_SLIDER
+)
+

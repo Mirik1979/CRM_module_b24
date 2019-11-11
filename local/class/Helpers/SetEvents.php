@@ -46,6 +46,15 @@ class SetEvents
             )
         );
 
+        EventManager::getInstance()->addEventHandler(
+            'tasks',
+            'OnTaskAdd',
+            array(
+                "local\\Events\\OnTaskAdd",
+                "OnTaskAdd"
+            )
+        );
+
     }
 
 }
