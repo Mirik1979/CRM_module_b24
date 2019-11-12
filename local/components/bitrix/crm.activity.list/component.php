@@ -1174,10 +1174,12 @@ while($arRes = $dbRes->GetNext())
     //    $value = $arRes['URN'];
     //}
     if($value) {
+        $viewstore = '/crm/stores/details/'.$value.'/';
         Loader::includeModule('wcomm.crmstores');
         $addid = Wcomm\CrmStores\Entity\StoreTable::getbyId($value);
         $newadd = $addid->fetchAll();
-        $items[$itemID]['STORE'] = $newadd[0]['NAME'];
+        //$items[$itemID]['STORE'] = $newadd[0]['NAME'];
+        $items[$itemID]['STORE']  = '<a href="' . $viewstore . '" target="_self">' . $newadd[0]['NAME'] . '</a>';
     }
 
 
