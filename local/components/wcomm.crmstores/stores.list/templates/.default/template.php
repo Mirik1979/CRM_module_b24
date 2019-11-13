@@ -255,15 +255,16 @@ foreach ($arResult['STORES'] as $store) {
     if ($store['ACTIVITY']) {
         $store['ACTIVITY'] = CCrmViewHelper::RenderNearestActivity(
             array(
-                'ENTITY_TYPE_NAME' => CCrmOwnerType::ResolveName(CCrmOwnerType::Company),
+                //'ENTITY_TYPE_NAME' => CCrmOwnerType::ResolveName(CCrmOwnerType::Company),
+                'ENTITY_TYPE_NAME' => 'STORE',
                 'ENTITY_ID' => $store['ID'],
                 'ENTITY_RESPONSIBLE_ID' => $store['ASSIGNED_BY'],
-                'GRID_MANAGER_ID' => $gridManagerID,
+                'GRID_MANAGER_ID' => $gridManagerId,
                 'ACTIVITY_ID' => $store['ACTIVITY'],
-                'ACTIVITY_SUBJECT' => 'текст',
-                'ACTIVITY_TIME' => '',
-                'ACTIVITY_EXPIRED' => '',
-                'ALLOW_EDIT' => $arDeal['EDIT'],
+                'ACTIVITY_SUBJECT' => $store['SUBJECT'],
+                'ACTIVITY_TIME' => $store['DEADLINE'],
+                'ACTIVITY_EXPIRED' => $store['DEADLINE'],
+                'ALLOW_EDIT' => true,
                 'MENU_ITEMS' => $arActivityMenuItems,
                 'USE_GRID_EXTENSION' => true
             )
@@ -273,16 +274,30 @@ foreach ($arResult['STORES'] as $store) {
             'CURRENT_USER_ID' =>  $store['ASSIGNED_BY'],
             'ENTITY' => $store['ID'],
             'ACTIVITY' => array(
-                'RESPONSIBLE_ID' => $currentUserID,
-                'TIME' => '',
+                'RESPONSIBLE_ID' => $store['ASSIGNED_BY'],
+                'TIME' => $store['DEADLINE'],
                 'IS_CURRENT_DAY' => true
             )
         );
-
         //if(CCrmUserCounter::IsReckoned(CCrmUserCounter::CurrentDealActivies, $counterData))
        // {
-            $store['columnClasses'] = array('ACTIVITY' => 'crm-list-deal-today');
+        $store['GRID_DATA']['columnClasses'] = array('ACTIVITY' => 'crm-list-deal-today');
         //}
+    } else {
+        //print_r($store['ID']);
+        $store['ACTIVITY'] = CCrmViewHelper::RenderNearestActivity(
+            array(
+                'ENTITY_TYPE_NAME' => CCrmOwnerType::ResolveName(CCrmOwnerType::Company),
+                'ENTITY_ID' => $store['ID'],
+                'ENTITY_RESPONSIBLE_ID' => $store['ASSIGNED_BY'],
+                'GRID_MANAGER_ID' => $gridManagerId,
+                'ALLOW_EDIT' => true,
+                'MENU_ITEMS' => $arActivityMenuItems,
+                'USE_GRID_EXTENSION' => true
+            )
+        );
+
+        //$store['ACTIVITY'] = 'Дела отсутствуют';
     }
 
     $rows[] = array(
@@ -347,8 +362,9 @@ foreach ($arResult['STORES'] as $store) {
                     'USER_PROFILE_URL' => Option::get('intranet', 'path_user', '', SITE_ID) . '/'
                 )
             ),
-            'ADDRESS' => $store['ADDRESS'],
-        )
+            'columnClasses' => array('ACTIVITY' => 'crm-list-deal-today')
+        ),
+
     );
     $arEntitySubMenuItems = array();
     $arActivityMenuItems = array();

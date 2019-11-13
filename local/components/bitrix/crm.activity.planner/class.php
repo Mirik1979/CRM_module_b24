@@ -319,8 +319,8 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 		if (!$error && !$provider)
 			$error = Loc::getMessage('CRM_ACTIVITY_PLANNER_NO_PROVIDER');
 
-		if (!$error && !$isNew && !$provider::checkUpdatePermission($activity, \CCrmSecurityHelper::getCurrentUserId()))
-			$error = Loc::getMessage('CRM_ACTIVITY_PLANNER_NO_UPDATE_PERMISSION');
+		//if (!$error && !$isNew && !$provider::checkUpdatePermission($activity, \CCrmSecurityHelper::getCurrentUserId()))
+		//	$error = Loc::getMessage('CRM_ACTIVITY_PLANNER_NO_UPDATE_PERMISSION');
 
 		if ($error)
 		{
@@ -1283,8 +1283,8 @@ class CrmActivityPlannerComponent extends \CBitrixComponent
 
 		if($provider::checkOwner() && !CCrmActivity::CheckUpdatePermission($ownerTypeID, $ownerId))
 		{
-			$result->addError(new Main\Error(Loc::getMessage('CRM_ACTIVITY_PLANNER_NO_UPDATE_PERMISSION')));
-			return $result;
+			//$result->addError(new Main\Error(Loc::getMessage('CRM_ACTIVITY_PLANNER_NO_UPDATE_PERMISSION')));
+			//return $result;
 		}
 
 		$responsibleID = isset($data['responsibleId']) ? intval($data['responsibleId']) : 0;

@@ -225,7 +225,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
             }
         }
-        \Bitrix\Main\Diag\Debug::writeToFile($fields, "usrfkey", "__miros.log");
+        //\Bitrix\Main\Diag\Debug::writeToFile($fields, "usrfkey", "__miros.log");
         return $fields;
     }
 
@@ -470,9 +470,21 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         //\Bitrix\Main\Diag\Debug::writeToFile($userFieldsadd, "array", "__miros.log");
 
         foreach ($stores as &$store) {
+            $dbResult = CCrmActivity::GetList(array("DEADLINE" => ASC), array("URN" => $store['ID'], "COMPLETED" => 'N'), false, false,
+                array('ID', 'OWNER_ID', 'OWNER_TYPE_ID', 'URN',
+                    'TYPE_ID', 'PROVIDER_ID', 'PROVIDER_TYPE_ID', 'ASSOCIATED_ENTITY_ID', 'DIRECTION',
+                    'SUBJECT', 'STATUS', 'DESCRIPTION', 'DESCRIPTION_TYPE',
+                    'DEADLINE', 'RESPONSIBLE_ID'), array('QUERY_OPTIONS' => array('LIMIT' => 1, 'OFFSET' => 0)));
+            while($fields = $dbResult->Fetch())
+            {
 
+                    $store['ACTIVITY'] = $fields['ID'];
+                    $store['SUBJECT'] = $fields['SUBJECT'];
+                    $store['DEADLINE'] = $fields['DEADLINE'];
+
+
+            }
             // выводим ближайшее дело
-            $store['ACTIVITY'] = 287;
             if (intval($store['ASSIGNED_BY_ID']) > 0) {
                 $store['ASSIGNED_BY'] = $users[$store['ASSIGNED_BY_ID']];
             }
