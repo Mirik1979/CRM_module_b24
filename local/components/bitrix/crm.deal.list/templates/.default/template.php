@@ -471,10 +471,10 @@ foreach($arResult['DEAL'] as $sKey =>  $arDeal)
 			)
 		);
 
-		if(CCrmUserCounter::IsReckoned(CCrmUserCounter::CurrentDealActivies, $counterData))
-		{
-			$resultItem['columnClasses'] = array('ACTIVITY_ID' => 'crm-list-deal-today');
-		}
+        if(CCrmUserCounter::IsReckoned(CCrmUserCounter::CurrentDealActivies, $counterData))
+        {
+            $resultItem['columnClasses'] = array('ACTIVITY_ID' => 'crm-list-deal-today');
+        }
 	}
 	elseif($commonActivityID > 0)
 	{

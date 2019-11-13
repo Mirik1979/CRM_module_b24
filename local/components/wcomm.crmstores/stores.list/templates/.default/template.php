@@ -100,7 +100,9 @@ $snippet->setButtonActions(
     )
 );
 
-$actionList[] = array(
+$actionList = array(array('NAME' => GetMessage('CRM_DEAL_LIST_CHOOSE_ACTION'), 'VALUE' => 'none'));
+
+/*$actionList[] = array(
     'NAME' => GetMessage('CRMSTORES_ADDTASK'),
     'VALUE' => 'tasks',
     'ONCHANGE' => array(
@@ -113,7 +115,7 @@ $actionList[] = array(
             'DATA' => array(array('JS' => "BX.CrmUIGridExtension.processActionChange('{$gridManagerId}', 'tasks')"))
         )
     )
-);
+); */
 
 $APPLICATION->IncludeComponent(
         'bitrix:intranet.user.selector.new',
@@ -197,7 +199,7 @@ foreach ($arResult['STORES'] as $store) {
         array('STORE_ID' => $store['ID'])
     );
     //$viewUrl = $viewUrl."?IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER";
-
+    //print_r($viewUrl);
     $editUrl = CComponentEngine::makePathFromTemplate(
         $arParams['URL_TEMPLATES']['DETAIL'],
         array('STORE_ID' => $store['ID'])
@@ -250,7 +252,38 @@ foreach ($arResult['STORES'] as $store) {
                         )"
         );
     }
+    if ($store['ACTIVITY']) {
+        $store['ACTIVITY'] = CCrmViewHelper::RenderNearestActivity(
+            array(
+                'ENTITY_TYPE_NAME' => CCrmOwnerType::ResolveName(CCrmOwnerType::Company),
+                'ENTITY_ID' => $store['ID'],
+                'ENTITY_RESPONSIBLE_ID' => $store['ASSIGNED_BY'],
+                'GRID_MANAGER_ID' => $gridManagerID,
+                'ACTIVITY_ID' => $store['ACTIVITY'],
+                'ACTIVITY_SUBJECT' => 'текст',
+                'ACTIVITY_TIME' => '',
+                'ACTIVITY_EXPIRED' => '',
+                'ALLOW_EDIT' => $arDeal['EDIT'],
+                'MENU_ITEMS' => $arActivityMenuItems,
+                'USE_GRID_EXTENSION' => true
+            )
+        );
 
+        $counterData = array(
+            'CURRENT_USER_ID' =>  $store['ASSIGNED_BY'],
+            'ENTITY' => $store['ID'],
+            'ACTIVITY' => array(
+                'RESPONSIBLE_ID' => $currentUserID,
+                'TIME' => '',
+                'IS_CURRENT_DAY' => true
+            )
+        );
+
+        //if(CCrmUserCounter::IsReckoned(CCrmUserCounter::CurrentDealActivies, $counterData))
+       // {
+            $store['columnClasses'] = array('ACTIVITY' => 'crm-list-deal-today');
+        //}
+    }
 
     $rows[] = array(
         'id' => $store['ID'],
@@ -286,6 +319,7 @@ foreach ($arResult['STORES'] as $store) {
         'data' => $store,
         'columns' => array(
             'ID' => $store['ID'],
+
             'NAME' => '<a href="' . $viewUrl . '" target="_self">' . $store['NAME'] . '</a><p style="font-size: 12px; margin-top: -2px">'.$store['UF_CRM_1572591277'].'</p>',
             //'NAME' => CCrmViewHelper::RenderClientSummary(
             //    $viewUrl,

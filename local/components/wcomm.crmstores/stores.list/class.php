@@ -161,7 +161,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                 ),
                 array(
                     //'UF_CRM_TASK' => '#ENTITY_KEYS#',
-                    'UF_CRM_TASK' => '_1',
+                    'UF_CRM_TASK' => '_1;_33',
                     'TITLE' => urlencode('CRM'),
                     'TAGS' => urlencode('CRM'),
                     'back_url' => urlencode()
@@ -252,13 +252,13 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                 'name' => Loc::getMessage('CRMSTORES_HEADER_ASSIGNED_BY'),
                 'sort' => 'ASSIGNED_BY_ID',
                 'default' => true,
-            ) /*,
+            ),
             array(
-                'id' => 'ADDRESS',
+                'id' => 'ACTIVITY',
                 'name' => Loc::getMessage('CRMSTORES_HEADER_ADDRESS'),
-                'sort' => 'ADDRESS',
+                'sort' => 'ACTIVITY',
                 'default' => true,
-            ) */
+            )
         );
         if (Bitrix\Main\Loader::includeModule('crm')) {
             $CCrmFields = new CCrmFields($USER_FIELD_MANAGER, StoreTable::getUfId());
@@ -446,6 +446,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         global $USER_FIELD_MANAGER;
         //\Bitrix\Main\Diag\Debug::writeToFile($params, "searchparams", "__miros.log");
         $stores = StoreTable::getListEx($params);
+
         
         $userIds = array_column($stores, 'ASSIGNED_BY_ID');
         $userIds = array_unique($userIds);
@@ -469,6 +470,9 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         //\Bitrix\Main\Diag\Debug::writeToFile($userFieldsadd, "array", "__miros.log");
 
         foreach ($stores as &$store) {
+
+            // выводим ближайшее дело
+            $store['ACTIVITY'] = 287;
             if (intval($store['ASSIGNED_BY_ID']) > 0) {
                 $store['ASSIGNED_BY'] = $users[$store['ASSIGNED_BY_ID']];
             }

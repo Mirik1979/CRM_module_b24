@@ -12,8 +12,6 @@ if(isset($_POST['SITE_ID']) && (string) $_POST['SITE_ID'] != '')
 	}
 }
 
-\Bitrix\Main\Diag\Debug::writeToFile($_POST, "posttask222", "__miros.log");
-
 require_once($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/main/include/prolog_before.php');
 require_once(dirname(__FILE__).'/class.php');
 
