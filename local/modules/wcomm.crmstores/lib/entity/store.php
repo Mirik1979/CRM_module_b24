@@ -40,6 +40,7 @@ class StoreTable extends DataManager
             new StringField('NAME'),
             new StringField('ADDRESS'),
             new IntegerField('ASSIGNED_BY_ID'),
+            //new StringField('ACTIVITY'),
             new ReferenceField(
                 'ASSIGNED_BY',
                 UserTable::getEntity(),
@@ -61,11 +62,11 @@ class StoreTable extends DataManager
                 'ATTRIBUTES' => array('REQ'
                 )
             ),
-            //'ADDRESS' => array (
-            //    'TYPE' => 'string',
-            //    'ATTRIBUTES' => array('REQ'
-            //    )
-            //),
+            'ADDRESS' => array (
+                'TYPE' => 'string',
+                'ATTRIBUTES' => array('REQ'
+                 )
+             ),
             'ASSIGNED_BY_ID' => array (
                 'TYPE' => 'user'
             )
@@ -85,7 +86,17 @@ class StoreTable extends DataManager
 
     public static function getListEx($params = array()) {
         global $USER_FIELD_MANAGER;
-        $dbResult = self::GetList($params);
+        $deletekey = array('ACTIVITY');
+        $params2 = array_diff_key($params, $deletekey);
+        //$params2['order'] = array();
+        \Bitrix\Main\Diag\Debug::writeToFile($params2, "arraywww", "__miros.log");
+        if($params2['filter']['UF_CRM_1573647126']) {
+            unset($params2['filter']['UF_CRM_1573647126']);
+        }
+
+
+        $stores = array();
+        $dbResult = self::GetList($params2);
         $stores = $dbResult->fetchAll();
         $arUserFields = $USER_FIELD_MANAGER->GetUserFields(self::getUfId());
         foreach ($stores as $key => $store) {
@@ -93,12 +104,9 @@ class StoreTable extends DataManager
                 $stores[$key][$FIELD_ID] = $USER_FIELD_MANAGER->GetUserFieldValue(self::getUfId(), $FIELD_ID, $store['ID']);
 
             }
-        }
+        } 
         return $stores;
     }
-
-
-
 
     /*public static function onBeforeDelete(Entity\Event $event)
     {

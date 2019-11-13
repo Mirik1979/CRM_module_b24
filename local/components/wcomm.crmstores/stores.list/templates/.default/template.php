@@ -9,6 +9,8 @@ use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Web\Json;
 use Bitrix\Crm\Tracking;
 
+global $USER;
+
 /** @var CBitrixComponentTemplate $this */
 
 if (!Loader::includeModule('crm')) {
@@ -21,9 +23,14 @@ if (CModule::IncludeModule('bitrix24') && !\Bitrix\Crm\CallList\CallList::isAvai
     CBitrix24::initLicenseInfoPopupJS();
 }
 
+//echo "<pre>";
+//print_r($arResult);
+//echo "</pre>";
+
 //$context = Context::getCurrent();
 //$request = $context->getRequest();
 //print_r($request);
+$currentuserid = $USER->Getid();
 
 \Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "rqsttemp", "__miros.log");
 
@@ -252,15 +259,18 @@ foreach ($arResult['STORES'] as $store) {
                         )"
         );
     }
-    if ($store['ACTIVITY']) {
-        $store['ACTIVITY'] = CCrmViewHelper::RenderNearestActivity(
+    if ($store['ADDRESS']) {
+        $store['ADDRESS'] = CCrmViewHelper::RenderNearestActivity(
+    //if ($store['ACTIVITY']) {
+    //    $store['ACTIVITY'] = CCrmViewHelper::RenderNearestActivity(
             array(
                 //'ENTITY_TYPE_NAME' => CCrmOwnerType::ResolveName(CCrmOwnerType::Company),
                 'ENTITY_TYPE_NAME' => 'STORE',
                 'ENTITY_ID' => $store['ID'],
                 'ENTITY_RESPONSIBLE_ID' => $store['ASSIGNED_BY'],
                 'GRID_MANAGER_ID' => $gridManagerId,
-                'ACTIVITY_ID' => $store['ACTIVITY'],
+                'ACTIVITY_ID' => $store['ADDRESS'],
+                //'ACTIVITY_ID' => $store['ACTIVITY'],
                 'ACTIVITY_SUBJECT' => $store['SUBJECT'],
                 'ACTIVITY_TIME' => $store['DEADLINE'],
                 'ACTIVITY_EXPIRED' => $store['DEADLINE'],
@@ -271,7 +281,7 @@ foreach ($arResult['STORES'] as $store) {
         );
 
         $counterData = array(
-            'CURRENT_USER_ID' =>  $store['ASSIGNED_BY'],
+            'CURRENT_USER_ID' =>  $currentuserid,
             'ENTITY' => $store['ID'],
             'ACTIVITY' => array(
                 'RESPONSIBLE_ID' => $store['ASSIGNED_BY'],
@@ -281,11 +291,12 @@ foreach ($arResult['STORES'] as $store) {
         );
         //if(CCrmUserCounter::IsReckoned(CCrmUserCounter::CurrentDealActivies, $counterData))
        // {
-        $store['GRID_DATA']['columnClasses'] = array('ACTIVITY' => 'crm-list-deal-today');
+        //$store['GRID_DATA']['columnClasses'] = array('ACTIVITY' => 'crm-list-deal-today');
         //}
     } else {
         //print_r($store['ID']);
-        $store['ACTIVITY'] = CCrmViewHelper::RenderNearestActivity(
+        $store['ADDRESS'] = CCrmViewHelper::RenderNearestActivity(
+        //$store['ACTIVITY'] = CCrmViewHelper::RenderNearestActivity(
             array(
                 'ENTITY_TYPE_NAME' => CCrmOwnerType::ResolveName(CCrmOwnerType::Company),
                 'ENTITY_ID' => $store['ID'],

@@ -126,6 +126,12 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         }
         //endregion
         //\Bitrix\Main\Diag\Debug::writeToFile($_REQUEST, "req", "__miros.log");
+        //echo "<pre>";
+        //print_r($gridFilterValues);
+        //echo "</pre>";
+
+
+
         $stores = $this->getStores(array(
             'filter' => $gridFilterValues,
             'limit' => $pager->getLimit(),
@@ -135,6 +141,10 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
         $requestUri = new Uri($request->getRequestedPage());
         $requestUri->addParams(array('sessid' => bitrix_sessid()));
+
+
+
+
 
         $this->arResult = array(
             'GRID_ID' => self::GRID_ID,
@@ -189,9 +199,9 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
 
     private function refineFilter($params = array())
     {
-        //\Bitrix\Main\Diag\Debug::writeToFile('begin', "usrf", "__miros.log");
+        \Bitrix\Main\Diag\Debug::writeToFile('begin', "usrf", "__miros.log");
         $arUserFieldsdouble = $this->prepareEntityUserFieldInfos();
-        //\Bitrix\Main\Diag\Debug::writeToFile($arUserFieldsdouble, "usrf", "__miros.log");
+        \Bitrix\Main\Diag\Debug::writeToFile($arUserFieldsdouble, "usrf", "__miros.log");
         $fields = $params;
 
         foreach ($params as $key => $param) {
@@ -254,9 +264,11 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
                 'default' => true,
             ),
             array(
-                'id' => 'ACTIVITY',
+                //'id' => 'ACTIVITY',
+                'id' => 'ADDRESS',
                 'name' => Loc::getMessage('CRMSTORES_HEADER_ADDRESS'),
-                'sort' => 'ACTIVITY',
+                'sort' => 'ADDRESS',
+                //'sort' => 'ACTIVITY',
                 'default' => true,
             )
         );
@@ -335,7 +347,7 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         $arUserFieldsdouble = $this->prepareEntityUserFieldInfos();
 
         foreach ($arUserFields as $FIELD_ID => $arField) {
-
+            $enumvalues = array();
             if($arField['SHOW_FILTER']!='N') {
                 if ($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['USER_TYPE_ID'] == 'enumeration') {
                     foreach ($arUserFieldsdouble[$FIELD_ID]['data']['fieldInfo']['ENUM'] as $enumval) {
@@ -444,9 +456,12 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
     {
 
         global $USER_FIELD_MANAGER;
-        //\Bitrix\Main\Diag\Debug::writeToFile($params, "searchparams", "__miros.log");
+        \Bitrix\Main\Diag\Debug::writeToFile($params, "searchparams", "__miros.log");
+        // разбираться к ключом = activity
+        ///$deletekey = array('ACTIVITY');
+        //$params = array_diff_key($params, $deletekey);
         $stores = StoreTable::getListEx($params);
-
+        \Bitrix\Main\Diag\Debug::writeToFile($params, "searchparams333", "__miros.log");
         
         $userIds = array_column($stores, 'ASSIGNED_BY_ID');
         $userIds = array_unique($userIds);
@@ -467,7 +482,10 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         //\Bitrix\Main\Diag\Debug::writeToFile($stores, "array", "__miros.log");
 
         $userFieldsadd = $this->prepareEntityUserFieldInfos();
-        //\Bitrix\Main\Diag\Debug::writeToFile($userFieldsadd, "array", "__miros.log");
+
+        \Bitrix\Main\Diag\Debug::writeToFile($stores, "input", "__miros.log");
+
+        $newstores = $stores;
 
         foreach ($stores as &$store) {
             $dbResult = CCrmActivity::GetList(array("DEADLINE" => ASC), array("URN" => $store['ID'], "COMPLETED" => 'N'), false, false,
@@ -478,92 +496,118 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
             while($fields = $dbResult->Fetch())
             {
 
-                    $store['ACTIVITY'] = $fields['ID'];
+                    $store['ADDRESS'] = $fields['ID'];
+                    //$store['ACTIVITY'] = $fields['ID'];
                     $store['SUBJECT'] = $fields['SUBJECT'];
                     $store['DEADLINE'] = $fields['DEADLINE'];
 
 
             }
+
+
+
+
+            //unset($store);
             // выводим ближайшее дело
             if (intval($store['ASSIGNED_BY_ID']) > 0) {
                 $store['ASSIGNED_BY'] = $users[$store['ASSIGNED_BY_ID']];
             }
             foreach ($userFieldsadd as $field => $fieldval) {
-                //\Bitrix\Main\Diag\Debug::writeToFile($field, "array", "__miros.log");
-                if ($store[$field]==array()) {
-                    $store[$field] = "";
-                }
-                if ($store[$field]) {
-                    if($fieldval['data']['fieldInfo']['USER_TYPE_ID']=='enumeration' &&
-                        $fieldval['data']['fieldInfo']['MULTIPLE']=='Y') {
-                        $text ='';
-                        foreach($store[$field] as $storeval) {
-                            foreach($fieldval['data']['fieldInfo']['ENUM'] as $enumval) {
-                                if($enumval['ID']==$storeval) {
+                //if($field !='UF_CRM_1573647126') {
+                    \Bitrix\Main\Diag\Debug::writeToFile($field, "fileds", "__miros.log");
+                    if ($store[$field] == array()) {
+                        $store[$field] = "";
+                    }
+                    if ($store[$field]) {
+                        if ($fieldval['data']['fieldInfo']['USER_TYPE_ID'] == 'enumeration' &&
+                            $fieldval['data']['fieldInfo']['MULTIPLE'] == 'Y') {
+                            $text = '';
+                            foreach ($store[$field] as $storeval) {
+                                foreach ($fieldval['data']['fieldInfo']['ENUM'] as $enumval) {
+                                    if ($enumval['ID'] == $storeval) {
+                                        if ($text) {
+                                            $comma = ',';
+                                        } else {
+                                            $comma = '';
+                                        }
+                                        $text = $text . $comma . $enumval['VALUE'];
+                                    }
+                                }
+                            }
+                            $store[$field] = $text;
+                        } elseif ($fieldval['data']['fieldInfo']['USER_TYPE_ID'] == 'enumeration' &&
+                            $fieldval['data']['fieldInfo']['MULTIPLE'] == 'N') {
+                            foreach ($fieldval['data']['fieldInfo']['ENUM'] as $enumval) {
+                                if ($enumval['ID'] == $store[$field]) {
+                                    $store[$field] = $enumval['VALUE'];
+                                }
+                            }
+                        } elseif ($fieldval['data']['fieldInfo']['USER_TYPE_ID'] == 'crm' &&
+                            $fieldval['data']['fieldInfo']['MULTIPLE'] == 'Y') {
+                            if ($fieldval['data']['fieldInfo']['SETTINGS']['COMPANY'] == 'Y') {
+                                $text = '';
+                                foreach ($store[$field] as $storeval) {
+                                    $res = CCrmCompany::GetbyID($storeval);
+                                    $newtext = "<a href=\"/crm/company/show/" . $storeval . "/\" target=\"_blank\" bx-tooltip-user-id=\"" . $storeval . "\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.company.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_company\">" . $res['TITLE'] . "</a>";
                                     if ($text) {
                                         $comma = ',';
                                     } else {
                                         $comma = '';
                                     }
-                                    $text = $text.$comma.$enumval['VALUE'];
+                                    $text = $text . $comma . $newtext;
+
                                 }
-                            }
-                        }
-                        $store[$field]=$text;
-                    } elseif($fieldval['data']['fieldInfo']['USER_TYPE_ID']=='enumeration' &&
-                        $fieldval['data']['fieldInfo']['MULTIPLE']=='N') {
-                        foreach($fieldval['data']['fieldInfo']['ENUM'] as $enumval) {
-                            if($enumval['ID']==$store[$field]) {
-                                $store[$field] = $enumval['VALUE'];
-                            }
-                        }
-                    } elseif($fieldval['data']['fieldInfo']['USER_TYPE_ID']=='crm' &&
-                        $fieldval['data']['fieldInfo']['MULTIPLE']=='Y') {
-                        if ($fieldval['data']['fieldInfo']['SETTINGS']['COMPANY']=='Y') {
-                            $text ='';
-                            foreach($store[$field] as $storeval) {
-                                $res = CCrmCompany::GetbyID($storeval);
-                                $newtext = "<a href=\"/crm/company/show/".$storeval."/\" target=\"_blank\" bx-tooltip-user-id=\"".$storeval."\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.company.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_company\">".$res['TITLE']."</a>";
-                                if ($text) {
-                                    $comma = ',';
-                                } else {
-                                    $comma = '';
+                                $store[$field] = $text;
+                            } elseif ($fieldval['data']['fieldInfo']['SETTINGS']['CONTACT'] == 'Y') {
+                                //\Bitrix\Main\Diag\Debug::writeToFile($store[$field], "ffff", "__miros.log");
+                                $text = '';
+                                foreach ($store[$field] as $storeval) {
+                                    $res = CCrmContact::GetbyID($storeval);
+                                    $newtext = "<a href=\"/crm/contact/show/" . $storeval . "/\" target=\"_blank\" bx-tooltip-user-id=\"" . $storeval . "\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.contact.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_contact\">" . $res['FULL_NAME'] . "</a>";
+                                    if ($text) {
+                                        $comma = ',';
+                                    } else {
+                                        $comma = '';
+                                    }
+                                    $text = $text . $comma . $newtext;
                                 }
-                                $text = $text.$comma.$newtext;
+                                $store[$field] = $text;
+                            }
+                        } elseif ($fieldval['data']['fieldInfo']['USER_TYPE_ID'] == 'crm' &&
+                            $fieldval['data']['fieldInfo']['MULTIPLE'] == 'N') {
+                            if ($fieldval['data']['fieldInfo']['SETTINGS']['COMPANY'] == 'Y') {
+                                $res = CCrmCompany::GetbyID($store[$field]);
+                                $store[$field] = "<a href=\"/crm/company/show/" . $store[$field] . "/\" target=\"_blank\" bx-tooltip-user-id=\"" . $store[$field] . "\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.company.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_company\">" . $res['TITLE'] . "</a>";
+                            } elseif ($fieldval['data']['fieldInfo']['SETTINGS']['CONTACT'] == 'Y') {
+                                $res = CCrmContact::GetbyID($store[$field]);
+                                $store[$field] = "<a href=\"/crm/contact/show/" . $store[$field] . "/\" target=\"_blank\" bx-tooltip-user-id=\"" . $store[$field] . "\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.contact.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_contact\">" . $res['FULL_NAME'] . "</a>";
 
                             }
-                            $store[$field] = $text;
-                        } elseif($fieldval['data']['fieldInfo']['SETTINGS']['CONTACT']=='Y') {
-                            //\Bitrix\Main\Diag\Debug::writeToFile($store[$field], "ffff", "__miros.log");
-                            $text ='';
-                            foreach($store[$field] as $storeval) {
-                                $res = CCrmContact::GetbyID($storeval);
-                                $newtext =  "<a href=\"/crm/contact/show/".$storeval."/\" target=\"_blank\" bx-tooltip-user-id=\"".$storeval."\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.contact.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_contact\">".$res['FULL_NAME']."</a>";
-                                if ($text) {
-                                    $comma = ',';
-                                } else {
-                                    $comma = '';
-                                }
-                                $text = $text.$comma.$newtext;
-                            }
-                            $store[$field] = $text;
-                        }
-                    } elseif($fieldval['data']['fieldInfo']['USER_TYPE_ID']=='crm' &&
-                        $fieldval['data']['fieldInfo']['MULTIPLE']=='N') {
-                        if ($fieldval['data']['fieldInfo']['SETTINGS']['COMPANY']=='Y') {
-                            $res = CCrmCompany::GetbyID($store[$field]);
-                            $store[$field] = "<a href=\"/crm/company/show/".$store[$field]."/\" target=\"_blank\" bx-tooltip-user-id=\"".$store[$field]."\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.company.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_company\">".$res['TITLE']."</a>";
-                        } elseif($fieldval['data']['fieldInfo']['SETTINGS']['CONTACT']=='Y') {
-                            $res = CCrmContact::GetbyID($store[$field]);
-                            $store[$field] = "<a href=\"/crm/contact/show/".$store[$field]."/\" target=\"_blank\" bx-tooltip-user-id=\"".$store[$field]."\" bx-tooltip-loader=\"/bitrix/components/bitrix/crm.contact.show/card.ajax.php\" bx-tooltip-classname=\"crm_balloon_contact\">".$res['FULL_NAME']."</a>";
 
                         }
 
                     }
-
-                }
+                //}
             }
+        }
 
+        $newstores = $stores;
+        \Bitrix\Main\Diag\Debug::writeToFile($params, "input74747", "__miros.log");
+
+        $yes = 0;
+
+        if($params['filter']['UF_CRM_1573647126'][0]==124) {
+            $yes = 1;
+        } elseif ($params['filter']['UF_CRM_1573647126'][0]==125) {
+            $yes = 2;
+        }
+
+        foreach ($newstores as $key => $newstore) {
+            if ($newstore['ADDRESS'] &&  $yes == 2) {
+                unset($stores[$key]);
+            } elseif (!$newstore['ADDRESS'] &&  $yes == 1) {
+                unset($stores[$key]);
+            }
         }
 
         return $stores;
@@ -759,7 +803,12 @@ class CWcommCrmStoresStoresListComponent extends CBitrixComponent
         }
 
         $allRows = $request->get('action_all_rows_' . self::GRID_ID) == 'Y';
+        // убрать ключ = активити отсюда
         if ($allRows) {
+            //$deletekey = array('ACTIVITY');
+            //$currentFilter = array_diff_key($currentFilter, $deletekey);
+            //\Bitrix\Main\Diag\Debug::writeToFile($currentFilter, "", "__miros.log");
+
             $dbStores = StoreTable::getListEx(array(
                 'filter' => $currentFilter,
                 'select' => array('ID'),
