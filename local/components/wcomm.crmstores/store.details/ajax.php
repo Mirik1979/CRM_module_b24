@@ -246,9 +246,12 @@ if($action === 'SAVE')
 			$entity = new StoreTable(false);
 			if($isNew)
 			{
-                //\Bitrix\Main\Diag\Debug::writeToFile($fields, "FIELDSTOADD", "__miros.log");
-			    unset($fields['ID']);
-                $oID = $entity->Add($fields, true, array('REGISTER_SONET_EVENT' => true));
+                \Bitrix\Main\Diag\Debug::writeToFile($fields, "FIELDSTOADD", "__miros.log");
+			    //unset($fields['ID']);
+                $fields['ADDRESS'] = "";
+                //$fields['UF_CRM_1571643732'] = array();
+                \Bitrix\Main\Diag\Debug::writeToFile($fields, "FIELDSTOADD", "__miros.log");
+                $oID = $entity->Add($fields);
                 $ID = $oID->getId();
                 //\Bitrix\Main\Diag\Debug::writeToFile($ID, "ID", "__miros.log");
 				if($ID <= 0)
