@@ -90,7 +90,7 @@ $APPLICATION->IncludeComponent(
             array(
                 'TEXT' => Loc::getMessage('CRMSTORES_DEDUPE'),
                 'TITLE' => Loc::getMessage('CRMSTORES_DEDUPE'),
-                'LINK' => '/crm/company/dedupe/'
+                'LINK' => '/crm/stores/dedupe/'
             ),
             array(
                 'TEXT' => Loc::getMessage('CRMSTORES_CONFIGURE_WORKFLOWS'),

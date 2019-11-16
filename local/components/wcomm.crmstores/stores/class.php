@@ -12,6 +12,7 @@ class CWcommCrmStoresStoresComponent extends CBitrixComponent
         'details' => '#STORE_ID#/',
         'edit' => '#STORE_ID#/edit/',
         'import' => 'import/',
+        'dedupe' => 'dedupe/',
         'bizproc_workflow_admin' => 'bp_list/',
         'bizproc_workflow_edit' => 'bp_edit/#ID#/',
     );
@@ -49,6 +50,7 @@ class CWcommCrmStoresStoresComponent extends CBitrixComponent
         global $APPLICATION;
         $pathtostore = '/crm/stores/';
         $import = '/crm/stores/import/';
+        $dedupe = '/crm/stores/dedupe/';
 
 
         $this->arResult = array(
@@ -56,7 +58,8 @@ class CWcommCrmStoresStoresComponent extends CBitrixComponent
             'SEF_URL_TEMPLATES' => $sefTemplates,
             'VARIABLES' => $arVariables,
             'PATH_TO_STORE_LIST' => $pathtostore,
-            'PATH_TO_STORE_IMPORT' => $import
+            'PATH_TO_STORE_IMPORT' => $import,
+            'PATH_TO_STORE_DEDUPE' => $dedupe,
         );
 
         $this->includeComponentTemplate($page);
